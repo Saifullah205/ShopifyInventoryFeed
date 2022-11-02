@@ -57,7 +57,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.logErrorToFile(ex);
+                SharedFunctions.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -75,7 +75,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.logErrorToFile(ex);
+                SharedFunctions.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -102,7 +102,7 @@ namespace ShopifyInventorySync
             {
                 MessageBox.Show(ex.Message);
 
-                SharedFunctions.logErrorToFile(ex);
+                SharedFunctions.LogErrorToFile(ex);
             }
         }
 
@@ -125,7 +125,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.logErrorToFile(ex);
+                SharedFunctions.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }

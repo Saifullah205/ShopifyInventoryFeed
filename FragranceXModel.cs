@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace ShopifyInventorySync
 {
-    public class FragranceXModel
+    public class FragranceXProductsList
     {
-        public FragranceXModel()
+        public FragranceXProductsList()
         {
             products = new List<FragranceXProduct>();
         }

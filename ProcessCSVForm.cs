@@ -10,6 +10,9 @@ using System.IO;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
+using ShopifyInventorySync.BusinessLogic;
+using System.Collections;
+using ShopifyInventorySync.Repositories;
 
 namespace ShopifyInventorySync
 {
@@ -37,6 +40,9 @@ namespace ShopifyInventorySync
         List<RestrictedSku> restrictedSkusList = new();
         List<FragranceXProduct> fragranceXProducts = new();
         List<ShopifyFixedPrice> shopifyFixedPricesList = new();
+        FragranceNetProductsList fragranceNetProducts = new FragranceNetProductsList();
+
+        ApplicationState applicationState;
 
         public ProcessCSVForm()
         {
@@ -47,6 +53,8 @@ namespace ShopifyInventorySync
             txtProcessedProducts.ScrollBars = ScrollBars.Vertical;
 
             lblSelectedAPI.Text = "CSV API";
+
+            applicationState = ApplicationState.GetState;
         }
 
         private void LoadShopifyProducts()
@@ -293,7 +301,7 @@ namespace ShopifyInventorySync
             }            
         }
 
-        private async void ProcessFragranceXData(List<FragranceXModel> productsToProcessData)
+        private async void ProcessFragranceXData(List<FragranceXProductsList> productsToProcessData)
         {
             List<Task> tasks = new List<Task>();
 
@@ -308,7 +316,7 @@ namespace ShopifyInventorySync
 
                 progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
 
-                foreach (FragranceXModel productsList in productsToProcessData)
+                foreach (FragranceXProductsList productsList in productsToProcessData)
                 {
                     Task T = Task.Run(() => ProcessFragranceXProductRow(productsList));
 
@@ -886,7 +894,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void ProcessFragranceXProductRow(FragranceXModel productsToProcessData)
+        private void ProcessFragranceXProductRow(FragranceXProductsList productsToProcessData)
         {
             string shopifyID = string.Empty;
             string sku = string.Empty;
@@ -1235,7 +1243,7 @@ namespace ShopifyInventorySync
             return productImageAttachVarientsList;
         }
 
-        private List<ProductImageAttachVarient> UpdateFragranceXProductVarientImages(ShopifyProductModel shopifyProductModelData, FragranceXModel csvProductsToProcessModel)
+        private List<ProductImageAttachVarient> UpdateFragranceXProductVarientImages(ShopifyProductModel shopifyProductModelData, FragranceXProductsList csvProductsToProcessModel)
         {
             ShopifyProductModel shopifyProductData = new();
             List<ProductImageAttachVarient> productImageAttachVarientsList = new();
@@ -1622,7 +1630,7 @@ namespace ShopifyInventorySync
             }
             else if (selectedAPI == (int)SharedData.APIType.FragranceX)
             {
-                List<FragranceXModel> productsDataListPrepared = new List<FragranceXModel>();
+                List<FragranceXProductsList> productsDataListPrepared = new List<FragranceXProductsList>();
 
                 if (productsDataTable != null)
                 {
@@ -1641,6 +1649,10 @@ namespace ShopifyInventorySync
                 {
                     MessageBox.Show("No record found to process");
                 }
+            }
+            else if (selectedAPI == (int)SharedData.APIType.FragranceNet)
+            {
+                ProcessFragranceNetProducts();
             }
         }
 
@@ -1690,11 +1702,11 @@ namespace ShopifyInventorySync
             return productsDataListPrepared;
         }
 
-        private List<FragranceXModel> PrepareFragranceXProductsDataToPost(List<FragranceXProduct> productsList)
+        private List<FragranceXProductsList> PrepareFragranceXProductsDataToPost(List<FragranceXProduct> productsList)
         {
             List<FragranceXProduct> productsListPrePrepare = new List<FragranceXProduct>();
             List<FragranceXProduct> productsListPostPrepare = new List<FragranceXProduct>();
-            List<FragranceXModel> productsDataListPrepared = new List<FragranceXModel>();
+            List<FragranceXProductsList> productsDataListPrepared = new List<FragranceXProductsList>();
 
             FragranceXProduct selectedProduct = new();
             string productName = string.Empty;
@@ -1708,7 +1720,7 @@ namespace ShopifyInventorySync
 
                 while (productsListPrePrepare.Count > 0)
                 {
-                    FragranceXModel csvProductsToProcessModel = new();
+                    FragranceXProductsList csvProductsToProcessModel = new();
 
                     selectedProduct = productsListPrePrepare.First();
 
@@ -1868,7 +1880,7 @@ namespace ShopifyInventorySync
 
         private void LogErrorToFile(Exception ex)
         {
-            SharedFunctions.WriteToErrorLog(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace);
+            applicationState.LogErrorToFile(ex);
         }
 
         private decimal CalculateMarkupPrice(decimal actualPrice)
@@ -2140,6 +2152,51 @@ namespace ShopifyInventorySync
             }
 
             return result;
+        }
+		
+		private void fetchFragranceNetProductsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DataTable productsDataTable = new();
+            ProductsRepository productsRepository = new ProductsRepository();
+            FragranceNetAPI clientAPI = new FragranceNetAPI(productsRepository);
+
+            try
+            {
+                fragranceNetProducts = clientAPI.GetDataFromSource();
+
+                productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
+
+                loadedDataGridView.DataSource = productsDataTable;
+
+                btnProcess.Enabled = true;
+
+                selectedAPI = (int)SharedData.APIType.FragranceNet;
+
+                lblSelectedAPI.Text = "Fragrance Net API";
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void ProcessFragranceNetProducts()
+        {
+            ProductsRepository productsRepository = new ProductsRepository();
+            FragranceNetAPI clientAPI = new FragranceNetAPI(productsRepository);
+            List<ShopifyInventoryDatum> outOfStockProducts = new();
+
+            try
+            {
+                outOfStockProducts = clientAPI.FilterRemovedProducts(fragranceNetProducts);
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
     }
 }

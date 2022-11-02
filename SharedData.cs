@@ -13,7 +13,8 @@ namespace ShopifyInventorySync
         public enum APIType
         {
             FragranceX,
-            CSV
+            CSV,
+            FragranceNet
         } 
     }
 
@@ -53,7 +54,7 @@ namespace ShopifyInventorySync
             return dt;
         }
 
-        public static void logErrorToFile(Exception ex)
+        public static void LogErrorToFile(Exception ex)
         {
             WriteToErrorLog(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace);
         }
