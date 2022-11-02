@@ -321,4 +321,23 @@ namespace ShopifyInventorySync
         public string currency_code { get; set; }
     }
 
+
+    public class MetafieldModel
+    {
+        public MetafieldModel()
+        {
+            metafield = new();
+        }
+
+        public Metafield metafield { get; set; }
+    }
+
+    public class Metafield
+    {
+        public string @namespace { get; set; }
+        public string key { get; set; }
+        public string value { get; set; }
+        public string type { get; set; }
+    }
+
 }

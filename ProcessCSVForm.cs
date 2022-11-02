@@ -536,6 +536,7 @@ namespace ShopifyInventorySync
                 }
 
                 shopifyProductModelData.product.title = mainTitle.Split(",")[0];
+                shopifyProductModelData.product.body_html = mainTitle.Split(",")[0];
                 shopifyProductModelData.product.vendor = vendor;
                 shopifyProductModelData.product.status = "active";
                 shopifyProductModelData.product.published_at = DateTime.Now;
@@ -849,6 +850,8 @@ namespace ShopifyInventorySync
 
                         productImageAttachVarientsList = UpdateProductVarientImages(shopifyProductResponseData, productsToProcessData);
 
+                        AddMetaField(sku,shopifyProductResponseData.product.id.ToString());
+
                         foreach (Variant productVarient in shopifyProductResponseData.product.variants)
                         {
                             ShopifyInventoryDatum shopifyInventoryDatum = new ShopifyInventoryDatum();
@@ -935,7 +938,7 @@ namespace ShopifyInventorySync
                 }
 
                 shopifyProductModelData.product.title = mainTitle;
-                shopifyProductModelData.product.body_html = productDescription;
+                shopifyProductModelData.product.body_html = string.IsNullOrEmpty(productDescription) ? mainTitle : productDescription;
                 shopifyProductModelData.product.vendor = vendor;
                 shopifyProductModelData.product.status = "active";
                 shopifyProductModelData.product.published_at = DateTime.Now;
@@ -1150,6 +1153,8 @@ namespace ShopifyInventorySync
                         List<ProductImageAttachVarient> productImageAttachVarientsList = new();
 
                         productImageAttachVarientsList = UpdateFragranceXProductVarientImages(shopifyProductResponseData, productsToProcessData);
+
+                        AddMetaField(sku, shopifyProductResponseData.product.id.ToString());
 
                         foreach (Variant productVarient in shopifyProductResponseData.product.variants)
                         {
@@ -2102,6 +2107,39 @@ namespace ShopifyInventorySync
 
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private bool AddMetaField(string sku,string shopifyID)
+        {
+            string url = "https://scent-bin.myshopify.com/admin/api/2022-10/products/"+ shopifyID + "/metafields.json";
+            bool result = false;
+            MetafieldModel metafieldModel = new();
+
+            try
+            {
+                metafieldModel.metafield.@namespace = "mm-google-shopping";
+                metafieldModel.metafield.key = "custom_label_0";
+                metafieldModel.metafield.value = sku;
+                metafieldModel.metafield.type = "single_line_text_field";
+
+                RestClient client = new();
+                RestRequest request = new(url, Method.Post);
+                request.AddHeader("X-Shopify-Access-Token", GetApplicationSettings("ShopifyAccessKey"));
+                request.AddHeader("Content-Type", "application/json");
+                request.AddParameter("application/json", JsonConvert.SerializeObject(metafieldModel), ParameterType.RequestBody);
+                RestResponse response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.Created)
+                {
+                    result = true;
+                }    
+            }
+            catch (Exception ex)
+            {
+                LogErrorToFile(ex);
+            }
+
+            return result;
         }
     }
 }
