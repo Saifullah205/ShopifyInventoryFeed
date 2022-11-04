@@ -136,6 +136,18 @@ namespace ShopifyInventorySync.BusinessLogic
                     case "FRAGRANCEXURL":
                         GlobalConstants.fragrancexURL = tagValue;
                         break;
+                    case "FRAGRANCENETURL":
+                        GlobalConstants.fragranceNetURL = tagValue;
+                        break;
+                    case "FRAGRANCENETUSERNAME":
+                        GlobalConstants.fragranceNetUserName = tagValue;
+                        break;
+                    case "FRAGRANCENETPASSWORD":
+                        GlobalConstants.fragranceNetPassword = tagValue;
+                        break;
+                    case "FRAGRANCENETSKUPREFIX":
+                        GlobalConstants.fragranceNetSKUPrefix = tagValue;
+                        break;
                     default:
                         break;
                 }
@@ -176,6 +188,25 @@ namespace ShopifyInventorySync.BusinessLogic
             }
 
             return dt;
+        }
+
+        public FileInfo ShowBrowseFileDialog()
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+
+            try
+            {
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    return new FileInfo(openFileDialog.FileName);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return null;
         }
     }
 }

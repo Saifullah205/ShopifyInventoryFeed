@@ -20,5 +20,8 @@ namespace ShopifyInventorySync.BusinessLogic
         public static string apiAccessKey { get; set; }
         public static string grant_type { get; set; }
         public static string fragrancexURL { get; set; }
+        public static string fragranceNetURL { get; set; }
+        public static string fragranceNetUserName { get; set; }
+        public static string fragranceNetPassword { get; set; }
     }
 }

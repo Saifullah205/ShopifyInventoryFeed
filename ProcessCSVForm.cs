@@ -13,6 +13,7 @@ using System.Net;
 using ShopifyInventorySync.BusinessLogic;
 using System.Collections;
 using ShopifyInventorySync.Repositories;
+using System.Collections.Generic;
 
 namespace ShopifyInventorySync
 {
@@ -2162,17 +2163,22 @@ namespace ShopifyInventorySync
 
             try
             {
+                selectedAPI = (int)SharedData.APIType.FragranceNet;
+
+                lblSelectedAPI.Text = "Fragrance Net API";
+
                 fragranceNetProducts = clientAPI.GetDataFromSource();
+
+                if (fragranceNetProducts.products.Count <= 0)
+                {
+                    return;
+                }
 
                 productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
 
                 loadedDataGridView.DataSource = productsDataTable;
 
                 btnProcess.Enabled = true;
-
-                selectedAPI = (int)SharedData.APIType.FragranceNet;
-
-                lblSelectedAPI.Text = "Fragrance Net API";
             }
             catch (Exception ex)
             {
@@ -2182,19 +2188,57 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void ProcessFragranceNetProducts()
+        private async void ProcessFragranceNetProducts()
         {
             ProductsRepository productsRepository = new ProductsRepository();
             FragranceNetAPI clientAPI = new FragranceNetAPI(productsRepository);
             List<ShopifyInventoryDatum> outOfStockProducts = new();
+            List<FragranceNetProductsList> fragranceNetProductsLists = new();
+            List<Task> tasks = new List<Task>();
 
             try
             {
                 outOfStockProducts = clientAPI.FilterRemovedProducts(fragranceNetProducts);
+
+                fragranceNetProductsLists = clientAPI.FormatSourceProductsData(fragranceNetProducts);
+
+                EnableProcessControls(false);
+
+                progressBarTotalValue = fragranceNetProductsLists.Count + outOfStockProducts.Count;
+
+                progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                foreach (FragranceNetProductsList productsList in fragranceNetProductsLists)
+                {
+                    Task T = Task.Run(() => clientAPI.ProcessProductToShopify(productsList));
+
+                    tasks.Add(T);
+
+                    if (loopThreadWaitIndex % threadsPerSecond == 0)
+                    {
+                        await Task.WhenAll(tasks);
+                    }
+
+                    loopThreadWaitIndex += 1;
+
+                    IncrementProgressBar();
+                }
             }
             catch (Exception)
             {
+                throw;
+            }
+        }
 
+        private void EnableProcessControls(bool enable)
+        {
+            try
+            {
+                btnClear.Enabled = enable;
+                btnProcess.Enabled = enable;
+            }
+            catch (Exception)
+            {
                 throw;
             }
         }
