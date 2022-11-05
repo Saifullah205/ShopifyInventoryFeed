@@ -17,6 +17,7 @@ namespace ShopifyInventorySync.Repositories
         void Update(ShopifyInventoryDatum product);
         void UpdateMultiple(List<ShopifyInventoryDatum> products);
         void Delete(string Id);
+        void DeleteMultiple(List<ShopifyInventoryDatum> products);
         void Save();
     }
 }

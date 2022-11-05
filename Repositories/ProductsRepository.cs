@@ -37,6 +37,18 @@ namespace ShopifyInventorySync.Repositories
             }
         }
 
+        public void DeleteMultiple(List<ShopifyInventoryDatum> products)
+        {
+            try
+            {
+                shopifyDbContext.ShopifyInventoryData.RemoveRange(products);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public IEnumerable<ShopifyInventoryDatum> GetAll()
         {
             try

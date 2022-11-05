@@ -31,8 +31,9 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RestrictedBrandsForm));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.btnAdd = new System.Windows.Forms.Button();
             this.txtBrandName = new System.Windows.Forms.TextBox();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.ddlClientAPIs = new System.Windows.Forms.ComboBox();
             this.dgvRBGrid = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -56,11 +57,13 @@
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnCount = 3;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-            this.tableLayoutPanel2.Controls.Add(this.btnAdd, 1, 0);
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
             this.tableLayoutPanel2.Controls.Add(this.txtBrandName, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnAdd, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.ddlClientAPIs, 1, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
@@ -69,9 +72,16 @@
             this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 44);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
+            // txtBrandName
+            // 
+            this.txtBrandName.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.txtBrandName.Location = new System.Drawing.Point(3, 14);
+            this.txtBrandName.Name = "txtBrandName";
+            this.txtBrandName.Size = new System.Drawing.Size(388, 27);
+            this.txtBrandName.TabIndex = 1;
+            // 
             // btnAdd
             // 
-            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnAdd.Location = new System.Drawing.Point(597, 3);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(194, 38);
@@ -80,13 +90,16 @@
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 
-            // txtBrandName
+            // ddlClientAPIs
             // 
-            this.txtBrandName.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.txtBrandName.Location = new System.Drawing.Point(3, 14);
-            this.txtBrandName.Name = "txtBrandName";
-            this.txtBrandName.Size = new System.Drawing.Size(588, 27);
-            this.txtBrandName.TabIndex = 1;
+            this.ddlClientAPIs.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.ddlClientAPIs.FormattingEnabled = true;
+            this.ddlClientAPIs.Location = new System.Drawing.Point(397, 13);
+            this.ddlClientAPIs.Name = "ddlClientAPIs";
+            this.ddlClientAPIs.Size = new System.Drawing.Size(194, 28);
+            this.ddlClientAPIs.Sorted = true;
+            this.ddlClientAPIs.TabIndex = 2;
+            this.ddlClientAPIs.SelectedIndexChanged += new System.EventHandler(this.ddlClientAPIs_SelectedIndexChanged);
             // 
             // dgvRBGrid
             // 
@@ -128,5 +141,6 @@
         private Button btnAdd;
         private TextBox txtBrandName;
         private DataGridView dgvRBGrid;
+        private ComboBox ddlClientAPIs;
     }
 }

@@ -9,28 +9,52 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ShopifyInventorySync.Models;
+using ShopifyInventorySync.Repositories;
 
 namespace ShopifyInventorySync
 {
     public partial class RestrictedBrandsForm : Form
     {
+        List<ClientApi> clientApis = new();
         List<RestrictedBrand> restrictedBrandsList = new List<RestrictedBrand>();
+        CommonRepository commonRepository;
+        IRestrictedBrandsRepository restrictedBrandsRepository;
 
         public RestrictedBrandsForm()
         {
             InitializeComponent();
 
+            commonRepository = new CommonRepository();
+            restrictedBrandsRepository = new RestrictedBrandsRepository();
+
+            fillDropDownLists();
+
             RefreshMainGrid();
+        }
 
-            this.dgvRBGrid.Columns["Id"].Visible = false;
-            this.dgvRBGrid.Columns["AddDate"].Visible = false;
+        private void fillDropDownLists()
+        {
+            try
+            {
+                clientApis = commonRepository.GetClientApis();
 
-            this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                foreach (ClientApi item in clientApis)
+                {
+                    ddlClientAPIs.Items.Add(item.ApiDescription);
+                }
+
+                ddlClientAPIs.SelectedIndex = 0;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ShopifyDbContext shopifyDBContext = new();
+            RestrictedBrandsRepository restrictedBrandsContext = new RestrictedBrandsRepository();
             RestrictedBrand restrictedBrand = new();
             string brandName;
 
@@ -47,18 +71,26 @@ namespace ShopifyInventorySync
                 }
                 else
                 {
-                    restrictedBrand.BrandName = brandName;
-                    restrictedBrand.AddDate = DateTime.Now;
+                    if(ddlClientAPIs.SelectedItem != null)
+                    {
+                        restrictedBrand.BrandName = brandName;
+                        restrictedBrand.AddDate = DateTime.Now;
+                        restrictedBrand.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                    shopifyDBContext.RestrictedBrands.Add(restrictedBrand);
+                        restrictedBrandsContext.Insert(restrictedBrand);
 
-                    shopifyDBContext.SaveChanges();
+                        restrictedBrandsContext.Save();
 
-                    RefreshMainGrid();
+                        RefreshMainGrid();
 
-                    txtBrandName.Text = String.Empty;
+                        txtBrandName.Text = String.Empty;
 
-                    txtBrandName.Focus();
+                        txtBrandName.Focus();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Invalid client type selected");
+                    }
                 }
 
             }
@@ -72,13 +104,28 @@ namespace ShopifyInventorySync
 
         private void RefreshMainGrid()
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            String apiType;
 
             try
             {
-                restrictedBrandsList = shopifyDBContext.RestrictedBrands.ToList<RestrictedBrand>();
+                if (ddlClientAPIs.SelectedItem != null)
+                {
+                    apiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedBrand>(restrictedBrandsList);
+                    restrictedBrandsList = restrictedBrandsRepository.GetByClientAPI(apiType).ToList();
+
+                    this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedBrand>(restrictedBrandsList);
+
+                    this.dgvRBGrid.Columns["Id"].Visible = false;
+                    this.dgvRBGrid.Columns["AddDate"].Visible = false;
+                    this.dgvRBGrid.Columns["ApiType"].Visible = false;
+
+                    this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                }
+                else
+                {
+                    MessageBox.Show("Invalid client type selected");
+                }
             }
             catch (Exception ex)
             {
@@ -92,17 +139,25 @@ namespace ShopifyInventorySync
         {
             DataGridViewRow dataGridViewRow = dgvRBGrid.Rows[e.RowIndex];
             RestrictedBrand restrictedBrand = new RestrictedBrand();
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            RestrictedBrandsRepository restrictedBrandsContext = new RestrictedBrandsRepository();
 
             try
             {
-                restrictedBrand.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
-                restrictedBrand.BrandName = Convert.ToString(dataGridViewRow.Cells["BrandName"].Value);
-                restrictedBrand.AddDate = DateTime.Now;
+                if (ddlClientAPIs.SelectedItem != null)
+                {
+                    restrictedBrand.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
+                    restrictedBrand.BrandName = Convert.ToString(dataGridViewRow.Cells["BrandName"].Value);
+                    restrictedBrand.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
+                    restrictedBrand.AddDate = DateTime.Now;
 
-                shopifyDBContext.RestrictedBrands.Update(restrictedBrand);
+                    restrictedBrandsContext.Update(restrictedBrand);
 
-                shopifyDBContext.SaveChanges();
+                    restrictedBrandsContext.Save();
+                }
+                else
+                {
+                    MessageBox.Show("Invalid client type selected");
+                }
             }
             catch (Exception ex)
             {
@@ -115,24 +170,31 @@ namespace ShopifyInventorySync
         private void dgvRBGrid_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             DataGridViewRow dataGridViewRow = dgvRBGrid.Rows[e.Row!.Index];
-            RestrictedBrand restrictedBrand = new();
-            ShopifyDbContext shopifyDBContext = new();
+            RestrictedBrandsRepository restrictedBrandsContext = new RestrictedBrandsRepository();
 
             try
             {
-                restrictedBrand.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
-                restrictedBrand.BrandName = Convert.ToString(dataGridViewRow.Cells["BrandName"].Value);
-                restrictedBrand.AddDate = DateTime.Now;
+                restrictedBrandsContext.Delete(Convert.ToInt32(dataGridViewRow.Cells["Id"].Value));
 
-                shopifyDBContext.RestrictedBrands.Remove(restrictedBrand);
-
-                shopifyDBContext.SaveChanges();
+                restrictedBrandsContext.Save();
             }
             catch (Exception ex)
             {
                 SharedFunctions.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void ddlClientAPIs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                RefreshMainGrid();
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
     }

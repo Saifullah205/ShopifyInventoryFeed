@@ -10,5 +10,6 @@ namespace ShopifyInventorySync.Models
         public decimal? MaxPrice { get; set; }
         public decimal MarkupPercentage { get; set; }
         public DateTime? AddDate { get; set; }
+        public string? ApiType { get; set; }
     }
 }

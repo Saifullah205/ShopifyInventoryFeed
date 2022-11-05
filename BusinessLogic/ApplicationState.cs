@@ -16,6 +16,10 @@ namespace ShopifyInventorySync.BusinessLogic
         private static ApplicationState? instance = null;
         private IApplicationSettingsRepository applicationSettingsRepository;
 
+        public List<MarkUpPrice> shopifyMarkUpPrice = new ();
+        public List<ShopifyFixedPrice> shopifyFixedPricesList = new();
+        public string processingMessages;
+
         public static ApplicationState GetState
         {
             get
@@ -29,6 +33,7 @@ namespace ShopifyInventorySync.BusinessLogic
                                 instance = new ApplicationState();
 
                                 instance.RefreshApplicationSettings();
+                                instance.RefreshShopifyMarkUPPricesList();
                             }
                         }
                 }
@@ -57,6 +62,43 @@ namespace ShopifyInventorySync.BusinessLogic
             catch (Exception)
             {
                 throw;
+            }
+        }
+
+        public void RefreshShopifyMarkUPPricesList()
+        {
+            IMarkUpPriceRepository markUpPriceRepository = new MarkUpPriceRepository();
+
+            try
+            {
+                shopifyMarkUpPrice.Clear();
+
+                shopifyMarkUpPrice = markUpPriceRepository.GetAll().ToList<MarkUpPrice>();
+
+            }
+            catch (Exception ex)
+            {
+                LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void RefreshFixedPricesList()
+        {
+            IFixedPriceRespsitory fixedPriceRespsitory = new FixedPriceRespsitory();
+
+            try
+            {
+                shopifyFixedPricesList.Clear();
+
+                shopifyFixedPricesList = fixedPriceRespsitory.GetAll().ToList<ShopifyFixedPrice>();
+            }
+            catch (Exception ex)
+            {
+                LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -207,6 +249,33 @@ namespace ShopifyInventorySync.BusinessLogic
             }
 
             return null;
+        }
+
+        public decimal CalculateShopifyMarkupPrice(decimal actualPrice)
+        {
+            decimal markedupPrice = actualPrice;
+
+            foreach (MarkUpPrice markUpPriceItem in shopifyMarkUpPrice)
+            {
+                if (markUpPriceItem.MinPrice <= Math.Ceiling(actualPrice) && markUpPriceItem.MaxPrice >= Math.Ceiling(actualPrice))
+                {
+                    markedupPrice = Math.Round(actualPrice + ((markUpPriceItem.MarkupPercentage * actualPrice) / 100), 2);
+
+                    break;
+                }
+            }
+
+            return markedupPrice;
+        }
+
+        public void AddMessageToLogs(string message)
+        {
+            processingMessages += message + Environment.NewLine;
+        }
+
+        public void ClearLogMessages()
+        {
+            processingMessages = String.Empty;
         }
     }
 }

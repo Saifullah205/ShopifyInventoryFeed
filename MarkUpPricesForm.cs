@@ -9,29 +9,27 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ShopifyInventorySync.Models;
+using ShopifyInventorySync.Repositories;
 
 namespace ShopifyInventorySync
 {
     public partial class MarkUpPricesForm : Form
     {
+        List<ClientApi> clientApis = new();
         List<MarkUpPrice> markUpPricesList = new List<MarkUpPrice>();
+        CommonRepository commonRepository;
+        IMarkUpPriceRepository markUpPriceRepository;
 
         public MarkUpPricesForm()
         {
             InitializeComponent();
 
+            commonRepository = new CommonRepository();
+            markUpPriceRepository = new MarkUpPriceRepository();
+
             try
             {
                 RefreshMarkUpPricesGrid();
-
-                this.DGVMarkUpPrices.Columns["Id"].Visible = false;
-                this.DGVMarkUpPrices.Columns["AddDate"].Visible = false;
-
-                this.DGVMarkUpPrices.Columns["MinPrice"].ReadOnly = false;
-                this.DGVMarkUpPrices.Columns["MaxPrice"].ReadOnly = false;
-
-                this.DGVMarkUpPrices.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
-
             }
             catch (Exception ex)
             {
@@ -43,7 +41,7 @@ namespace ShopifyInventorySync
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            MarkUpPriceRepository markUpPriceRepositoryContext = new();
             MarkUpPrice markUpPrice = new MarkUpPrice();
             List<MarkUpPrice> markUpPricesList = new List<MarkUpPrice>();
             bool priceChecksPassed = false;
@@ -72,7 +70,7 @@ namespace ShopifyInventorySync
                 }
                 else
                 {
-                    markUpPricesList = shopifyDBContext.MarkUpPrices.ToList<MarkUpPrice>();
+                    markUpPricesList = markUpPriceRepositoryContext.GetAll().ToList<MarkUpPrice>();
 
                     foreach (MarkUpPrice markUpPriceI in markUpPricesList)
                     {
@@ -96,10 +94,11 @@ namespace ShopifyInventorySync
                         markUpPrice.MaxPrice = maxPrice;
                         markUpPrice.MarkupPercentage = markupPriceAmount;
                         markUpPrice.AddDate = DateTime.Now;
+                        markUpPrice.ApiType = "ALL";
 
-                        shopifyDBContext.MarkUpPrices.Add(markUpPrice);
+                        markUpPriceRepositoryContext.Insert(markUpPrice);
 
-                        shopifyDBContext.SaveChanges();
+                        markUpPriceRepositoryContext.Save();
 
                         RefreshMarkUpPricesGrid();
 
@@ -122,13 +121,20 @@ namespace ShopifyInventorySync
 
         private void RefreshMarkUpPricesGrid()
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
-
             try
             {
-                markUpPricesList = shopifyDBContext.MarkUpPrices.OrderBy(m => m.MinPrice).ToList<MarkUpPrice>();
+                markUpPricesList = markUpPriceRepository.GetAll().OrderBy(m => m.MinPrice).ToList<MarkUpPrice>();
 
                 this.DGVMarkUpPrices.DataSource = SharedFunctions.LinqToDataTable<MarkUpPrice>(markUpPricesList);
+
+                this.DGVMarkUpPrices.Columns["Id"].Visible = false;
+                this.DGVMarkUpPrices.Columns["AddDate"].Visible = false;
+                this.DGVMarkUpPrices.Columns["ApiType"].Visible = false;
+
+                this.DGVMarkUpPrices.Columns["MinPrice"].ReadOnly = true;
+                this.DGVMarkUpPrices.Columns["MaxPrice"].ReadOnly = true;
+
+                this.DGVMarkUpPrices.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
@@ -142,7 +148,7 @@ namespace ShopifyInventorySync
         {
             DataGridViewRow dataGridViewRow = DGVMarkUpPrices.Rows[e.RowIndex];
             MarkUpPrice markUpPrice = new ();
-            ShopifyDbContext shopifyDBContext = new();
+            MarkUpPriceRepository markUpPriceRepositoryContext = new();
 
             try
             {
@@ -151,10 +157,11 @@ namespace ShopifyInventorySync
                 markUpPrice.MaxPrice = Convert.ToDecimal(dataGridViewRow.Cells["MaxPrice"].Value);
                 markUpPrice.MarkupPercentage = Convert.ToDecimal(dataGridViewRow.Cells["MarkupPercentage"].Value);
                 markUpPrice.AddDate = DateTime.Now;
+                markUpPrice.ApiType = "ALL";
 
-                shopifyDBContext.MarkUpPrices.Update(markUpPrice);
+                markUpPriceRepositoryContext.Update(markUpPrice);
 
-                shopifyDBContext.SaveChanges();
+                markUpPriceRepositoryContext.Save();
             }
             catch (Exception ex)
             {
@@ -168,19 +175,18 @@ namespace ShopifyInventorySync
         {
             DataGridViewRow dataGridViewRow = DGVMarkUpPrices.Rows[e.Row!.Index];
             MarkUpPrice markUpPrice = new();
-            ShopifyDbContext shopifyDBContext = new();
+            MarkUpPriceRepository markUpPriceRepositoryContext = new();
 
             try
             {
-                markUpPrice.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
                 markUpPrice.MinPrice = Convert.ToDecimal(dataGridViewRow.Cells["MinPrice"].Value);
                 markUpPrice.MaxPrice = Convert.ToDecimal(dataGridViewRow.Cells["MaxPrice"].Value);
                 markUpPrice.MarkupPercentage = Convert.ToDecimal(dataGridViewRow.Cells["MarkupPercentage"].Value);
                 markUpPrice.AddDate = DateTime.Now;
 
-                shopifyDBContext.MarkUpPrices.Remove(markUpPrice);
+                markUpPriceRepositoryContext.Delete(Convert.ToInt32(dataGridViewRow.Cells["Id"].Value));
 
-                shopifyDBContext.SaveChanges();
+                markUpPriceRepositoryContext.Save();
             }
             catch (Exception ex)
             {
@@ -188,6 +194,11 @@ namespace ShopifyInventorySync
 
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void ddlClientAPIs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

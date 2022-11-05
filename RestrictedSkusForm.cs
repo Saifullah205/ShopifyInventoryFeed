@@ -9,33 +9,69 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using ShopifyInventorySync.Models;
+using ShopifyInventorySync.Repositories;
+using static ShopifyInventorySync.SharedData;
 
 namespace ShopifyInventorySync
 {
     public partial class RestrictedSkusForm : Form
     {
+        CommonRepository commonRepository;
+        IRestrictedSkusRepository restrictedSkusRepository;
+        List<ClientApi> clientApis = new();
         List<RestrictedSku> restrictedSkusList = new List<RestrictedSku>();
+
         public RestrictedSkusForm()
         {
             InitializeComponent();
 
+            commonRepository = new CommonRepository();
+            restrictedSkusRepository = new RestrictedSkusRepository();
+
+            fillDropDownLists();
             RefreshMainGrid();
+        }
 
-            this.dgvRBGrid.Columns["Id"].Visible = false;
-            this.dgvRBGrid.Columns["AddDate"].Visible = false;
+        private void fillDropDownLists()
+        {
+            try
+            {
+                clientApis = commonRepository.GetClientApis();
 
-            this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                foreach (ClientApi item in clientApis)
+                {
+                    ddlClientAPIs.Items.Add(item.ApiDescription);
+                }
+
+                ddlClientAPIs.SelectedIndex = 0;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         private void RefreshMainGrid()
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            String apiType;
 
             try
             {
-                restrictedSkusList = shopifyDBContext.RestrictedSkus.ToList<RestrictedSku>();
+                if (ddlClientAPIs.SelectedItem != null)
+                {
+                    apiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedSku>(restrictedSkusList);
+                    restrictedSkusList = restrictedSkusRepository.GetByClientAPI(apiType).ToList();
+
+                    this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedSku>(restrictedSkusList);
+
+                    this.dgvRBGrid.Columns["Id"].Visible = false;
+                    this.dgvRBGrid.Columns["AddDate"].Visible = false;
+                    this.dgvRBGrid.Columns["ApiType"].Visible = false;
+
+                    this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+                }
             }
             catch (Exception ex)
             {
@@ -47,7 +83,7 @@ namespace ShopifyInventorySync
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            RestrictedSkusRepository restrictedSkusRepository = new ();
             RestrictedSku restrictedSku = new RestrictedSku();
             string sku;
 
@@ -66,10 +102,11 @@ namespace ShopifyInventorySync
                 {
                     restrictedSku.Sku = sku;
                     restrictedSku.AddDate = DateTime.Now;
+                    restrictedSku.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                    shopifyDBContext.RestrictedSkus.Add(restrictedSku);
+                    restrictedSkusRepository.Insert(restrictedSku);
 
-                    shopifyDBContext.SaveChanges();
+                    restrictedSkusRepository.Save();
 
                     RefreshMainGrid();
 
@@ -90,18 +127,14 @@ namespace ShopifyInventorySync
         private void dgvRBGrid_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             DataGridViewRow dataGridViewRow = dgvRBGrid.Rows[e.Row!.Index];
-            RestrictedSku restrictedSku = new();
-            ShopifyDbContext shopifyDBContext = new();
+            RestrictedSku restrictedSku = new(); 
+            RestrictedSkusRepository restrictedSkusRepository = new();
 
             try
             {
-                restrictedSku.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
-                restrictedSku.Sku = Convert.ToString(dataGridViewRow.Cells["Sku"].Value);
-                restrictedSku.AddDate = DateTime.Now;
+                restrictedSkusRepository.Delete(Convert.ToInt32(dataGridViewRow.Cells["Id"].Value));
 
-                shopifyDBContext.RestrictedSkus.Remove(restrictedSku);
-
-                shopifyDBContext.SaveChanges();
+                restrictedSkusRepository.Save();
             }
             catch (Exception ex)
             {
@@ -115,17 +148,32 @@ namespace ShopifyInventorySync
         {
             DataGridViewRow dataGridViewRow = dgvRBGrid.Rows[e.RowIndex];
             RestrictedSku restrictedSku = new RestrictedSku();
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            RestrictedSkusRepository restrictedSkusRepository = new();
 
             try
             {
                 restrictedSku.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
                 restrictedSku.Sku = Convert.ToString(dataGridViewRow.Cells["Sku"].Value);
+                restrictedSku.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
                 restrictedSku.AddDate = DateTime.Now;
 
-                shopifyDBContext.RestrictedSkus.Update(restrictedSku);
+                restrictedSkusRepository.Update(restrictedSku);
 
-                shopifyDBContext.SaveChanges();
+                restrictedSkusRepository.Save();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+
+                SharedFunctions.LogErrorToFile(ex);
+            }
+        }
+
+        private void ddlClientAPIs_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                RefreshMainGrid();
             }
             catch (Exception ex)
             {

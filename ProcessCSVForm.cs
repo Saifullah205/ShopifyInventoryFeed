@@ -2158,8 +2158,7 @@ namespace ShopifyInventorySync
 		private void fetchFragranceNetProductsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DataTable productsDataTable = new();
-            ProductsRepository productsRepository = new ProductsRepository();
-            FragranceNetAPI clientAPI = new FragranceNetAPI(productsRepository);
+            FragranceNetAPI clientAPI = new FragranceNetAPI();
 
             try
             {
@@ -2190,10 +2189,10 @@ namespace ShopifyInventorySync
 
         private async void ProcessFragranceNetProducts()
         {
-            ProductsRepository productsRepository = new ProductsRepository();
-            FragranceNetAPI clientAPI = new FragranceNetAPI(productsRepository);
+            FragranceNetAPI clientAPI = new FragranceNetAPI();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
             List<FragranceNetProductsList> fragranceNetProductsLists = new();
+            List<ShopifyInventoryDatum> fragranceNetAPIProducts = new List<ShopifyInventoryDatum>();
             List<Task> tasks = new List<Task>();
 
             try

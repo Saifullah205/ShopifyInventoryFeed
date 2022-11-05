@@ -17,6 +17,7 @@ namespace ShopifyInventorySync.Models
         }
 
         public virtual DbSet<ApplicationSetting> ApplicationSettings { get; set; } = null!;
+        public virtual DbSet<ClientApi> ClientApis { get; set; } = null!;
         public virtual DbSet<MarkUpPrice> MarkUpPrices { get; set; } = null!;
         public virtual DbSet<RestrictedBrand> RestrictedBrands { get; set; } = null!;
         public virtual DbSet<RestrictedSku> RestrictedSkus { get; set; } = null!;
@@ -49,6 +50,21 @@ namespace ShopifyInventorySync.Models
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<ClientApi>(entity =>
+            {
+                entity.Property(e => e.ApiDescription)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.ApiType)
+                    .HasMaxLength(3)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.DateCreated)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+            });
+
             modelBuilder.Entity<MarkUpPrice>(entity =>
             {
                 entity.Property(e => e.AddDate)
@@ -67,6 +83,10 @@ namespace ShopifyInventorySync.Models
                 entity.Property(e => e.AddDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.ApiType)
+                    .HasMaxLength(3)
+                    .IsUnicode(false);
 
                 entity.Property(e => e.BrandName)
                     .HasMaxLength(250)
