@@ -240,5 +240,60 @@ namespace ShopifyInventorySync.BusinessLogic
 
             return result;
         }
+
+        public bool OverrideShopifyVariant(OverrideVariantUpdateModel overrideVarianteUpdateModel)
+        {
+            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-10/variants/" + overrideVarianteUpdateModel.variant.id.ToString() + ".json";
+            bool result = false;
+
+            try
+            {
+                RestClient client = new();
+                RestRequest request = new(url, method: Method.Put);
+                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("Content-Type", "application/json");
+                request.AddParameter("application/json", JsonConvert.SerializeObject(overrideVarianteUpdateModel), ParameterType.RequestBody);
+                RestResponse response = client.Execute(request);
+
+                if (response != null)
+                {
+                    if (response.StatusCode == HttpStatusCode.OK)
+                    {
+                        result = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+            }
+
+            return result;
+        }
+
+        public bool DeleteProductVariantImage(long productId, long imageID)
+        {
+            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images/" + imageID.ToString() + ".json";
+            bool result = false;
+
+            try
+            {
+                RestClient client = new RestClient();
+                RestRequest request = new RestRequest(url, Method.Delete);
+                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                RestResponse response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+            }
+
+            return result;
+        }
     }
 }

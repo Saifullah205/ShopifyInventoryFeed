@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ShopifyInventorySync
 {
-    public class ProductsCSVModel
+    public class ThePerfumeSpotProduct
     {
         [Index(0)]
         public string SKU { get; set; }
@@ -35,13 +35,13 @@ namespace ShopifyInventorySync
         public string ImageURL { get; set; }
     }
 
-    public class CSVProductsToProcessModel
+    public class ThePerfumeSpotProductsList
     {
-        public CSVProductsToProcessModel()
+        public ThePerfumeSpotProductsList()
         {
-            Products = new List<ProductsCSVModel>();
+            products = new List<ThePerfumeSpotProduct>();
         }
 
-        public List<ProductsCSVModel> Products { get; set; }
+        public List<ThePerfumeSpotProduct> products { get; set; }
     }
 }

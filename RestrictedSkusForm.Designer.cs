@@ -113,6 +113,7 @@
             this.ddlClientAPIs.Location = new System.Drawing.Point(397, 13);
             this.ddlClientAPIs.Name = "ddlClientAPIs";
             this.ddlClientAPIs.Size = new System.Drawing.Size(194, 28);
+            this.ddlClientAPIs.Sorted = true;
             this.ddlClientAPIs.TabIndex = 2;
             this.ddlClientAPIs.SelectedIndexChanged += new System.EventHandler(this.ddlClientAPIs_SelectedIndexChanged);
             // 

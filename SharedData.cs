@@ -13,7 +13,7 @@ namespace ShopifyInventorySync
         public enum APIType
         {
             FragranceX,
-            CSV,
+            TPS,
             FragranceNet
         } 
     }

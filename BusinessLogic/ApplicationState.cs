@@ -12,11 +12,11 @@ namespace ShopifyInventorySync.BusinessLogic
 {
     internal sealed class ApplicationState
     {
-        private static readonly object threadSafelock = new object ();  
+        private static readonly object threadSafelock = new object();
         private static ApplicationState? instance = null;
         private IApplicationSettingsRepository applicationSettingsRepository;
 
-        public List<MarkUpPrice> shopifyMarkUpPrice = new ();
+        public List<MarkUpPrice> shopifyMarkUpPrice = new();
         public List<ShopifyFixedPrice> shopifyFixedPricesList = new();
         public string processingMessages;
 
@@ -27,15 +27,16 @@ namespace ShopifyInventorySync.BusinessLogic
                 if (instance == null)
                 {
                     lock (threadSafelock)
+                    {
+                        if (instance == null)
                         {
-                            if (instance == null)
-                            {
-                                instance = new ApplicationState();
+                            instance = new ApplicationState();
 
-                                instance.RefreshApplicationSettings();
-                                instance.RefreshShopifyMarkUPPricesList();
-                            }
+                            instance.RefreshApplicationSettings();
+                            instance.RefreshShopifyMarkUPPricesList();
+                            instance.RefreshFixedPricesList();
                         }
+                    }
                 }
 
                 return instance;
@@ -44,7 +45,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
         public void RefreshApplicationSettings()
         {
-            List<ApplicationSetting> applicationSettings = new ();
+            List<ApplicationSetting> applicationSettings = new();
 
             try
             {

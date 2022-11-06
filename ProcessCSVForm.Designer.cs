@@ -48,10 +48,10 @@
             this.restrictedBrandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedSKUsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fixedPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.fetchFragranceNetProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -200,13 +200,13 @@
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.openToolStripMenuItem,
             this.fetchFragranceXProductsToolStripMenuItem,
+            this.fetchFragranceNetProductsToolStripMenuItem,
+            this.toolStripSeparator1,
             this.settingsToolStripMenuItem,
             this.markupSettingsToolStripMenuItem,
             this.restrictedBrandsToolStripMenuItem,
             this.restrictedSKUsToolStripMenuItem,
-            this.fixedPricesToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.fetchFragranceNetProductsToolStripMenuItem});
+            this.fixedPricesToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
             this.fileToolStripMenuItem.Text = "Shopify";
@@ -260,6 +260,18 @@
             this.fixedPricesToolStripMenuItem.Text = "Fixed Prices";
             this.fixedPricesToolStripMenuItem.Click += new System.EventHandler(this.fixedPricesToolStripMenuItem_Click);
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
+            // 
+            // fetchFragranceNetProductsToolStripMenuItem
+            // 
+            this.fetchFragranceNetProductsToolStripMenuItem.Name = "fetchFragranceNetProductsToolStripMenuItem";
+            this.fetchFragranceNetProductsToolStripMenuItem.Size = new System.Drawing.Size(281, 26);
+            this.fetchFragranceNetProductsToolStripMenuItem.Text = "Fetch FragranceNet Products";
+            this.fetchFragranceNetProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem_Click);
+            // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -274,18 +286,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 26);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
-            // 
-            // fetchFragranceNetProductsToolStripMenuItem
-            // 
-            this.fetchFragranceNetProductsToolStripMenuItem.Name = "fetchFragranceNetProductsToolStripMenuItem";
-            this.fetchFragranceNetProductsToolStripMenuItem.Size = new System.Drawing.Size(281, 26);
-            this.fetchFragranceNetProductsToolStripMenuItem.Text = "Fetch FragranceNet Products";
-            this.fetchFragranceNetProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem_Click);
             // 
             // ProcessCSVForm
             // 
