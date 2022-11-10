@@ -215,7 +215,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
 
+                    variantTitle = productData.Name.Split(',')[0].ToString();
                     sku = productData.UPC.ToString()!;
+                    fullSku = skuPrefix + sku.Trim();
                     weight = productData.Weight.ToString()!;
                     cost = productData.YourCost.ToString()!;
                     imageURL = productData.ImageURL.ToString()!;
@@ -252,8 +254,6 @@ namespace ShopifyInventorySync.BusinessLogic
                         updatedCost = Convert.ToString(applicationState.CalculateShopifyMarkupPrice(Convert.ToDecimal(cost)));
                     }
 
-                    fullSku = skuPrefix + sku.Trim();
-
                     if (!ValidateRestrictedSKU(sku))
                     {
                         continue;
@@ -271,8 +271,6 @@ namespace ShopifyInventorySync.BusinessLogic
                     {
                         genderDescription = "Unisex";
                     }
-
-                    variantTitle = productData.Name.Split(',')[0].ToString();
 
                     if (productData.Name.Split(',').Length > 1)
                     {

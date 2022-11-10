@@ -275,6 +275,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
 
+
+                    variantTitle = productData.ProductName + " by " + productData.BrandName;
+                    weightDescription = productData.Size + " " + productData.Type;
                     sku = productData.Upc.ToString()!;
                     weight = "0";
                     cost = productData.WholesalePriceUSD.ToString()!;
@@ -335,20 +338,17 @@ namespace ShopifyInventorySync.BusinessLogic
                         genderDescription = "Unisex";
                     }
 
+                    if (giftSet == "Y")
+                    {
+                        variantTitle = "Gift Set - " + variantTitle;
+                    }
+
                     currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).ToList<ShopifyInventoryDatum>().FirstOrDefault();
 
                     if (currentProduct == null)
                     {
                         Variant variant = new();
                         ShopifyInventoryDatum? sameNameProduct = new();
-
-                        variantTitle = productData.ProductName + " by " + productData.BrandName;
-                        weightDescription = productData.Size + " " + productData.Type;
-
-                        if (giftSet == "Y")
-                        {
-                            variantTitle = "Gift Set - " + variantTitle;
-                        }
 
                         variant.title = variantTitle;
                         variant.sku = fullSku;

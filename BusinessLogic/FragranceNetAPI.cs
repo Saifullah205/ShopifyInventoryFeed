@@ -86,7 +86,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     using (var reader = new StreamReader(new MemoryStream(csvBytes)))
                     using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        fragranceNetProducts.products = csv.GetRecords<FragranceNetProduct>().ToList<FragranceNetProduct>();
+                        fragranceNetProducts.products = csv.GetRecords<FragranceNetProduct>().Where(m => m.designer != "").ToList<FragranceNetProduct>();
                     }
                 }
             }
@@ -165,7 +165,6 @@ namespace ShopifyInventorySync.BusinessLogic
             string shopifyID = string.Empty;
             string sku = string.Empty;
             string mainTitle = string.Empty;
-            string variantTitle = string.Empty;
             string weight = string.Empty;
             string weightDescription = string.Empty;
             string imageURL = string.Empty;
@@ -195,7 +194,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 skuPrefix = GlobalConstants.fragranceNetSKUPrefix;
 
                 mainTitle = headerProduct.name;
-                vendor = headerProduct.brand;
+                vendor = headerProduct.designer;
                 productDescription = headerProduct.productDescription + " " + headerProduct.fragranceNotes + " " + headerProduct.recommendedUse;
 
                 restrictedSKus = productsToProcessData.products.Select(m => m.sku).ToList<string>();
@@ -226,8 +225,12 @@ namespace ShopifyInventorySync.BusinessLogic
                     bool isSKUReplaced = false;
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
+                    string variantTitle = string.Empty;
 
+                    variantTitle = productData.productDescription;
+                    weightDescription = productData.productDescription + " " + productData.productCategory + " " + productData.itemType;
                     sku = productData.sku.ToString()!;
+                    fullSku = skuPrefix + sku.Trim();
                     weight = "0";
                     cost = productData.fnetWholesalePrice.ToString()!;
                     imageURL = productData.imageLarge.ToString()!;
@@ -262,8 +265,6 @@ namespace ShopifyInventorySync.BusinessLogic
                         updatedCost = Convert.ToString(applicationState.CalculateShopifyMarkupPrice(Convert.ToDecimal(cost)));
                     }
 
-                    fullSku = skuPrefix + sku.Trim();
-
                     if (!ValidateRestrictedSKU(sku))
                     {
                         continue;
@@ -286,7 +287,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
                     if (currentProduct != null)
                     {
-                        if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
+                        if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.shopifySKUPrefix.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
                         {
                             ProductsRepository productsContext = new ();
                             OverrideVariantUpdateModel overrideVariantUpdateModel = new ();
@@ -334,14 +335,6 @@ namespace ShopifyInventorySync.BusinessLogic
                         {
                             Variant variant = new();
                             ShopifyInventoryDatum? sameNameProduct = new();
-
-                            variantTitle = productData.name;
-                            weightDescription = productData.productDescription + " " + productData.fragranceNotes + " " + productData.recommendedUse;
-
-                            if (giftSet == "Y")
-                            {
-                                variantTitle = "Gift Set - " + variantTitle;
-                            }
 
                             variant.title = variantTitle;
                             variant.sku = fullSku;
