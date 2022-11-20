@@ -85,7 +85,7 @@ namespace ShopifyInventorySync.BusinessLogic
             }
         }
 
-        private void RefreshFixedPricesList()
+        public void RefreshFixedPricesList()
         {
             IFixedPriceRespsitory fixedPriceRespsitory = new FixedPriceRespsitory();
 

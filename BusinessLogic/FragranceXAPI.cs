@@ -155,7 +155,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 products = fragranceXProductsList.products;
 
                 shopifyProductsToRemove = (from s in this.productsRepository.GetBySkuPrefix(GlobalConstants.fragranceXSKUPrefix)
-                                           where !products.Any(x => x.Upc == s.Sku && s.SkuPrefix == GlobalConstants.fragranceNetSKUPrefix)
+                                           where !products.Any(x => x.Upc == s.Sku)
                                            select s).ToList<ShopifyInventoryDatum>();
             }
             catch (Exception)
@@ -239,7 +239,7 @@ namespace ShopifyInventorySync.BusinessLogic
             {
                 headerProduct = productsToProcessData.products[0];
 
-                skuPrefix = GlobalConstants.fragranceNetSKUPrefix;
+                skuPrefix = GlobalConstants.fragranceXSKUPrefix;
 
                 mainTitle = headerProduct.ProductName;
                 vendor = headerProduct.BrandName;
@@ -698,7 +698,7 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor
+                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.BrandName == vendor
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
@@ -724,7 +724,7 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku
+                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.Sku == sku
                      select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));

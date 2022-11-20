@@ -93,8 +93,8 @@ namespace ShopifyInventorySync.BusinessLogic
             {
                 products = fragranceNetProducts.products;
 
-                shopifyProductsToRemove = (from s in this.productsRepository.GetBySkuPrefix(GlobalConstants.fragranceNetSKUPrefix)
-                                           where !products.Any(x => x.UPC == s.Sku && s.SkuPrefix == GlobalConstants.shopifySKUPrefix)
+                shopifyProductsToRemove = (from s in this.productsRepository.GetBySkuPrefix(GlobalConstants.shopifySKUPrefix)
+                                           where !products.Any(x => x.UPC == s.Sku)
                                            select s).ToList<ShopifyInventoryDatum>();
             }
             catch (Exception)
@@ -182,7 +182,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
                 skuPrefix = GlobalConstants.shopifySKUPrefix;
 
-                mainTitle = headerProduct.Name;
+                mainTitle = headerProduct.Name.Split(',')[0].ToString();
                 vendor = headerProduct.Brand;
                 productDescription = headerProduct.Name;
 
@@ -383,7 +383,7 @@ namespace ShopifyInventorySync.BusinessLogic
                                 GenderOption.values.Add(genderDescription);
                             }
 
-                            sameNameProduct = productsRepository.GetAll().Where(m => m.ProductName == variantTitle && m.ProductGender == genderDescription).FirstOrDefault();
+                            sameNameProduct = productsRepository.GetAll().Where(m => m.ProductName == mainTitle && m.ProductGender == genderDescription).FirstOrDefault();
 
                             if (sameNameProduct != null)
                             {
@@ -705,7 +705,7 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor
+                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.BrandName == vendor
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
@@ -731,7 +731,7 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku
+                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.Sku == sku
                      select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));

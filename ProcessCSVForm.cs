@@ -292,6 +292,8 @@ namespace ShopifyInventorySync
                 fixedPricesForm = new();
 
                 fixedPricesForm.ShowDialog();
+
+                applicationState.RefreshFixedPricesList();
             }
             catch (Exception ex)
             {

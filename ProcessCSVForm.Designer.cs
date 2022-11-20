@@ -43,13 +43,13 @@
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fetchFragranceXProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fetchFragranceNetProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markupSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedBrandsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedSKUsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fixedPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.fetchFragranceNetProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
@@ -225,6 +225,19 @@
             this.fetchFragranceXProductsToolStripMenuItem.Text = "Fetch FragranceX Products";
             this.fetchFragranceXProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceXProductsToolStripMenuItem_Click);
             // 
+            // fetchFragranceNetProductsToolStripMenuItem
+            // 
+            this.fetchFragranceNetProductsToolStripMenuItem.Name = "fetchFragranceNetProductsToolStripMenuItem";
+            this.fetchFragranceNetProductsToolStripMenuItem.Size = new System.Drawing.Size(281, 26);
+            this.fetchFragranceNetProductsToolStripMenuItem.Text = "Fetch FragranceNet Products";
+            this.fetchFragranceNetProductsToolStripMenuItem.Visible = false;
+            this.fetchFragranceNetProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
+            // 
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
@@ -259,18 +272,6 @@
             this.fixedPricesToolStripMenuItem.Size = new System.Drawing.Size(281, 26);
             this.fixedPricesToolStripMenuItem.Text = "Fixed Prices";
             this.fixedPricesToolStripMenuItem.Click += new System.EventHandler(this.fixedPricesToolStripMenuItem_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(278, 6);
-            // 
-            // fetchFragranceNetProductsToolStripMenuItem
-            // 
-            this.fetchFragranceNetProductsToolStripMenuItem.Name = "fetchFragranceNetProductsToolStripMenuItem";
-            this.fetchFragranceNetProductsToolStripMenuItem.Size = new System.Drawing.Size(281, 26);
-            this.fetchFragranceNetProductsToolStripMenuItem.Text = "Fetch FragranceNet Products";
-            this.fetchFragranceNetProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
