@@ -347,6 +347,7 @@ namespace ShopifyInventorySync.BusinessLogic
                             variant.inventory_quantity = Convert.ToInt32(minimumQty);
                             variant.option1 = weightDescription;
                             variant.option2 = genderDescription;
+                            variant.requires_shipping = GlobalConstants.requiresShipping;
 
                             image.src = imageURL;
 
@@ -385,6 +386,7 @@ namespace ShopifyInventorySync.BusinessLogic
                                     newVariantRequest.fulfillment_service = variant.fulfillment_service;
                                     newVariantRequest.option1 = variant.option1;
                                     newVariantRequest.option2 = variant.option2;
+                                    newVariantRequest.requires_shipping = GlobalConstants.requiresShipping;
 
                                     newVariantMerge.variant = newVariantRequest;
 
@@ -453,8 +455,6 @@ namespace ShopifyInventorySync.BusinessLogic
                         List<ProductImageAttachVarient> productImageAttachVarientsList = new ();
 
                         productImageAttachVarientsList = UpdateProductVarientImages(shopifyProductResponseData, productsToProcessData);
-
-                        shopifyAPI.AddMetaField(sku, shopifyProductResponseData.product.id.ToString());
 
                         foreach (Variant productVarient in shopifyProductResponseData.product.variants)
                         {

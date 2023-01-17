@@ -263,6 +263,7 @@ namespace ShopifyInventorySync
         public string option1 { get; set; }
         public string option2 { get; set; }
         public double weight { get; set; }
+        public bool requires_shipping { get; set; }
     }
 
     public class NewVariantRootModel

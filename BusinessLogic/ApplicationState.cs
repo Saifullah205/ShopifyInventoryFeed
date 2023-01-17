@@ -191,6 +191,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     case "FRAGRANCENETSKUPREFIX":
                         GlobalConstants.fragranceNetSKUPrefix = tagValue;
                         break;
+                    case "REQUIRESSHIPPING":
+                        GlobalConstants.requiresShipping = tagValue.ToUpper() == "Y" ? true : false;
+                        break;
                     default:
                         break;
                 }

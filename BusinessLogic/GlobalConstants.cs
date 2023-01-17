@@ -23,5 +23,6 @@ namespace ShopifyInventorySync.BusinessLogic
         public static string fragranceNetURL { get; set; }
         public static string fragranceNetUserName { get; set; }
         public static string fragranceNetPassword { get; set; }
+        public static bool requiresShipping { get; set; }
     }
 }
