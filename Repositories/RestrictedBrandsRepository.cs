@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class RestrictedBrandsRepository : IRestrictedBrandsRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public RestrictedBrandsRepository()
@@ -18,7 +18,7 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public RestrictedBrandsRepository(ShopifyDbContext context)
+        public RestrictedBrandsRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

@@ -32,7 +32,7 @@ namespace ShopifyInventorySync
 
         private void RefreshApplicationSettingsGrid()
         {
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            EFDbContext shopifyDBContext = new();
 
             try
             {
@@ -51,8 +51,8 @@ namespace ShopifyInventorySync
         private void DGVApplicationSettings_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             DataGridViewRow dataGridViewRow = DGVApplicationSettings.Rows[e.RowIndex];
-            ApplicationSetting applicationSetting = new ApplicationSetting();
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            ApplicationSetting applicationSetting = new ();
+            EFDbContext shopifyDBContext = new ();
 
             try
             {
@@ -128,7 +128,7 @@ namespace ShopifyInventorySync
         private void BtnResetData_Click(object sender, EventArgs e)
         {
             DialogResult dialogResult = MessageBox.Show("Are you sure to delete all products data?", "Confirm", MessageBoxButtons.YesNo);
-            ShopifyDbContext shopifyDBContext = new ShopifyDbContext();
+            EFDbContext shopifyDBContext = new ();
 
             if (dialogResult == DialogResult.Yes)
             {

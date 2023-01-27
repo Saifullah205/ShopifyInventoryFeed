@@ -1,12 +1,7 @@
 ﻿using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ShopifyInventorySync.BusinessLogic
 {
@@ -17,7 +12,8 @@ namespace ShopifyInventorySync.BusinessLogic
         private IApplicationSettingsRepository applicationSettingsRepository;
 
         public List<MarkUpPrice> shopifyMarkUpPrice = new();
-        public List<ShopifyFixedPrice> shopifyFixedPricesList = new();
+        public List<MarkUpPrice> walmartMarkUpPrice = new();
+        public List<FixedPrice> shopifyFixedPricesList = new();
         public string processingMessages;
 
         public static ApplicationState GetState
@@ -33,7 +29,7 @@ namespace ShopifyInventorySync.BusinessLogic
                             instance = new ApplicationState();
 
                             instance.RefreshApplicationSettings();
-                            instance.RefreshShopifyMarkUPPricesList();
+                            instance.RefreshMarkUPPricesList();
                             instance.RefreshFixedPricesList();
                         }
                     }
@@ -66,16 +62,17 @@ namespace ShopifyInventorySync.BusinessLogic
             }
         }
 
-        public void RefreshShopifyMarkUPPricesList()
+        public void RefreshMarkUPPricesList()
         {
             IMarkUpPriceRepository markUpPriceRepository = new MarkUpPriceRepository();
 
             try
             {
                 shopifyMarkUpPrice.Clear();
+                walmartMarkUpPrice.Clear();
 
-                shopifyMarkUpPrice = markUpPriceRepository.GetAll().ToList<MarkUpPrice>();
-
+                shopifyMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY).ToList<MarkUpPrice>();
+                walmartMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)GlobalConstants.STORENAME.WALMART).ToList<MarkUpPrice>();
             }
             catch (Exception ex)
             {
@@ -93,7 +90,7 @@ namespace ShopifyInventorySync.BusinessLogic
             {
                 shopifyFixedPricesList.Clear();
 
-                shopifyFixedPricesList = fixedPriceRespsitory.GetAll().ToList<ShopifyFixedPrice>();
+                shopifyFixedPricesList = fixedPriceRespsitory.GetAll().ToList<FixedPrice>();
             }
             catch (Exception ex)
             {
@@ -198,9 +195,9 @@ namespace ShopifyInventorySync.BusinessLogic
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
             }
         }
 
@@ -255,17 +252,30 @@ namespace ShopifyInventorySync.BusinessLogic
             return null;
         }
 
-        public decimal CalculateShopifyMarkupPrice(decimal actualPrice)
+        public decimal CalculateMarkupPrice(decimal actualPrice, GlobalConstants.STORENAME storeName)
         {
             decimal markedupPrice = actualPrice;
+            List<MarkUpPrice> MarkUpPriceList = new();
 
-            foreach (MarkUpPrice markUpPriceItem in shopifyMarkUpPrice)
+            if(storeName == GlobalConstants.STORENAME.SHOPIFY)
             {
-                if (markUpPriceItem.MinPrice <= Math.Ceiling(actualPrice) && markUpPriceItem.MaxPrice >= Math.Ceiling(actualPrice))
-                {
-                    markedupPrice = Math.Round(actualPrice + ((markUpPriceItem.MarkupPercentage * actualPrice) / 100), 2);
+                MarkUpPriceList = shopifyMarkUpPrice;
+            }
+            else if (storeName == GlobalConstants.STORENAME.WALMART)
+            {
+                MarkUpPriceList = walmartMarkUpPrice;
+            }
 
-                    break;
+            if(MarkUpPriceList.Count > 0)
+            {
+                foreach (MarkUpPrice markUpPriceItem in MarkUpPriceList)
+                {
+                    if (markUpPriceItem.MinPrice <= Math.Ceiling(actualPrice) && markUpPriceItem.MaxPrice >= Math.Ceiling(actualPrice))
+                    {
+                        markedupPrice = Math.Round(actualPrice + ((markUpPriceItem.MarkupPercentage * actualPrice) / 100), 2);
+
+                        break;
+                    }
                 }
             }
 

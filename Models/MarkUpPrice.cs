@@ -11,5 +11,8 @@ namespace ShopifyInventorySync.Models
         public decimal MarkupPercentage { get; set; }
         public DateTime? AddDate { get; set; }
         public string? ApiType { get; set; }
+        public int? EcomStoreId { get; set; }
+
+        public virtual EcomStore? EcomStore { get; set; }
     }
 }

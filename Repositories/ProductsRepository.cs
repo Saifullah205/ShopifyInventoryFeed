@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class ProductsRepository : IProductsRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public ProductsRepository()
@@ -18,7 +18,7 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public ProductsRepository(ShopifyDbContext context)
+        public ProductsRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

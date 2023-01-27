@@ -9,7 +9,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class CommonRepository : ICommonRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public CommonRepository()
@@ -29,7 +29,7 @@ namespace ShopifyInventorySync.Repositories
             }
         }
 
-        public CommonRepository(ShopifyDbContext context)
+        public CommonRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

@@ -9,11 +9,11 @@ namespace ShopifyInventorySync.Repositories
 {
     public interface IFixedPriceRespsitory
     {
-        IEnumerable<ShopifyFixedPrice> GetAll();
-        IEnumerable<ShopifyFixedPrice> GetByClientAPI(string ClientAPI);
-        ShopifyFixedPrice GetById(int Id);
-        void Insert(ShopifyFixedPrice shopifyFixedPrice);
-        void Update(ShopifyFixedPrice shopifyFixedPrice);
+        IEnumerable<FixedPrice> GetAll();
+        IEnumerable<FixedPrice> GetByClientAPI(string ClientAPI);
+        FixedPrice GetById(int Id);
+        void Insert(FixedPrice shopifyFixedPrice);
+        void Update(FixedPrice shopifyFixedPrice);
         void Delete(int Id);
         void Save();
     }

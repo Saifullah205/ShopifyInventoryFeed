@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 
@@ -19,16 +20,20 @@ namespace ShopifyInventorySync
         List<RestrictedBrand> restrictedBrandsList = new List<RestrictedBrand>();
         CommonRepository commonRepository;
         IRestrictedBrandsRepository restrictedBrandsRepository;
+        public GlobalConstants.STORENAME selectedEComStoreID;
+        ApplicationState applicationState;
 
-        public RestrictedBrandsForm()
+        public RestrictedBrandsForm(GlobalConstants.STORENAME sTORENAME)
         {
             InitializeComponent();
 
             commonRepository = new CommonRepository();
             restrictedBrandsRepository = new RestrictedBrandsRepository();
 
-            fillDropDownLists();
+            applicationState = ApplicationState.GetState;
+            selectedEComStoreID = sTORENAME;
 
+            fillDropDownLists();
             RefreshMainGrid();
         }
 
@@ -76,6 +81,7 @@ namespace ShopifyInventorySync
                         restrictedBrand.BrandName = brandName;
                         restrictedBrand.AddDate = DateTime.Now;
                         restrictedBrand.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
+                        restrictedBrand.EcomStoreId = (int)selectedEComStoreID;
 
                         restrictedBrandsContext.Insert(restrictedBrand);
 
@@ -96,7 +102,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -112,13 +118,15 @@ namespace ShopifyInventorySync
                 {
                     apiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                    restrictedBrandsList = restrictedBrandsRepository.GetByClientAPI(apiType).ToList();
+                    restrictedBrandsList = restrictedBrandsRepository.GetByClientAPI(apiType).Where(m => m.EcomStoreId == (int)selectedEComStoreID).ToList();
 
-                    this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedBrand>(restrictedBrandsList);
+                    this.dgvRBGrid.DataSource = applicationState.LinqToDataTable<RestrictedBrand>(restrictedBrandsList);
 
                     this.dgvRBGrid.Columns["Id"].Visible = false;
                     this.dgvRBGrid.Columns["AddDate"].Visible = false;
                     this.dgvRBGrid.Columns["ApiType"].Visible = false;
+                    this.dgvRBGrid.Columns["EcomStoreId"].Visible = false;
+                    this.dgvRBGrid.Columns["EcomStore"].Visible = false;
 
                     this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 }
@@ -129,7 +137,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -149,6 +157,7 @@ namespace ShopifyInventorySync
                     restrictedBrand.BrandName = Convert.ToString(dataGridViewRow.Cells["BrandName"].Value);
                     restrictedBrand.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
                     restrictedBrand.AddDate = DateTime.Now;
+                    restrictedBrand.EcomStoreId = (int)selectedEComStoreID;
 
                     restrictedBrandsContext.Update(restrictedBrand);
 
@@ -163,7 +172,7 @@ namespace ShopifyInventorySync
             {
                 MessageBox.Show(ex.Message);
 
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
             }
         }
 
@@ -180,7 +189,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }

@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class RestrictedSkusRepository : IRestrictedSkusRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public RestrictedSkusRepository()
@@ -18,7 +18,7 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public RestrictedSkusRepository(ShopifyDbContext context)
+        public RestrictedSkusRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

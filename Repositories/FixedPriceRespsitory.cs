@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class FixedPriceRespsitory : IFixedPriceRespsitory
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public FixedPriceRespsitory()
@@ -18,16 +18,16 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public FixedPriceRespsitory(ShopifyDbContext context)
+        public FixedPriceRespsitory(EFDbContext context)
         {
             shopifyDbContext = context;
         }
 
-        public IEnumerable<ShopifyFixedPrice> GetAll()
+        public IEnumerable<FixedPrice> GetAll()
         {
             try
             {
-                return shopifyDbContext.ShopifyFixedPrices.ToList();
+                return shopifyDbContext.FixedPrices.ToList();
             }
             catch (Exception)
             {
@@ -35,11 +35,11 @@ namespace ShopifyInventorySync.Repositories
             }
         }
 
-        public IEnumerable<ShopifyFixedPrice> GetByClientAPI(string ClientAPI)
+        public IEnumerable<FixedPrice> GetByClientAPI(string ClientAPI)
         {
             try
             {
-                return shopifyDbContext.ShopifyFixedPrices.Where(m => m.ApiType == ClientAPI).ToList();
+                return shopifyDbContext.FixedPrices.Where(m => m.ApiType == ClientAPI).ToList();
             }
             catch (Exception)
             {
@@ -47,29 +47,29 @@ namespace ShopifyInventorySync.Repositories
             }
         }
 
-        public ShopifyFixedPrice GetById(int Id)
+        public FixedPrice GetById(int Id)
         {
             try
             {
-                return shopifyDbContext.ShopifyFixedPrices.Find(Id)!;
+                return shopifyDbContext.FixedPrices.Find(Id)!;
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        public void Insert(ShopifyFixedPrice shopifyFixedPrice)
+        public void Insert(FixedPrice shopifyFixedPrice)
         {
             try
             {
-                shopifyDbContext.ShopifyFixedPrices.Add(shopifyFixedPrice);
+                shopifyDbContext.FixedPrices.Add(shopifyFixedPrice);
             }
             catch (Exception)
             {
                 throw;
             }
         }
-        public void Update(ShopifyFixedPrice shopifyFixedPrice)
+        public void Update(FixedPrice shopifyFixedPrice)
         {
             try
             {
@@ -84,9 +84,9 @@ namespace ShopifyInventorySync.Repositories
         {
             try
             {
-                ShopifyFixedPrice shopifyFixedPrice = shopifyDbContext.ShopifyFixedPrices.Find(Id)!;
+                FixedPrice shopifyFixedPrice = shopifyDbContext.FixedPrices.Find(Id)!;
 
-                shopifyDbContext.ShopifyFixedPrices.Remove(shopifyFixedPrice!);
+                shopifyDbContext.FixedPrices.Remove(shopifyFixedPrice!);
             }
             catch (Exception)
             {

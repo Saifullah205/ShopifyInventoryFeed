@@ -1,22 +1,12 @@
 ﻿using CsvHelper;
-using RestSharp;
-using RestSharp.Authenticators;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Drawing.Imaging;
 using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Security.Policy;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace ShopifyInventorySync.BusinessLogic
+namespace ShopifyInventorySync.BusinessLogic.Shopify
 {
-    internal class FragranceNetAPI
+    internal class ShopifyFragranceNet
     {
         ApplicationState applicationState;
 
@@ -25,10 +15,10 @@ namespace ShopifyInventorySync.BusinessLogic
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly ShopifyAPI shopifyAPI;
 
-        public FragranceNetAPI()
+        public ShopifyFragranceNet()
         {
             applicationState = ApplicationState.GetState;
-            shopifyAPI = new ();
+            shopifyAPI = new();
             productsRepository = new ProductsRepository();
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
@@ -36,7 +26,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
         private string FetchDataFromAPI()
         {
-            string responseData = String.Empty;
+            string responseData = string.Empty;
             FileInfo fileInfo;
 
             try
@@ -65,7 +55,7 @@ namespace ShopifyInventorySync.BusinessLogic
         {
             string fileTextData;
             string csvTextData;
-            FragranceNetProductsList fragranceNetProducts = new ();
+            FragranceNetProductsList fragranceNetProducts = new();
             byte[] csvBytes;
 
             try
@@ -86,7 +76,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     using (var reader = new StreamReader(new MemoryStream(csvBytes)))
                     using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
                     {
-                        fragranceNetProducts.products = csv.GetRecords<FragranceNetProduct>().Where(m => m.designer != "").ToList<FragranceNetProduct>();
+                        fragranceNetProducts.products = csv.GetRecords<FragranceNetProduct>().Where(m => m.designer != "").ToList();
                     }
                 }
             }
@@ -100,16 +90,16 @@ namespace ShopifyInventorySync.BusinessLogic
 
         public List<ShopifyInventoryDatum> FilterRemovedProducts(FragranceNetProductsList fragranceNetProducts)
         {
-            List<ShopifyInventoryDatum> shopifyProductsToRemove = new ();
-            List<FragranceNetProduct> products = new ();
+            List<ShopifyInventoryDatum> shopifyProductsToRemove = new();
+            List<FragranceNetProduct> products = new();
 
             try
             {
                 products = fragranceNetProducts.products;
 
-                shopifyProductsToRemove = (from s in this.productsRepository.GetBySkuPrefix(GlobalConstants.fragranceNetSKUPrefix)
+                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.fragranceNetSKUPrefix)
                                            where !products.Any(x => x.sku == s.Sku && s.SkuPrefix == GlobalConstants.fragranceNetSKUPrefix)
-                                           select s).ToList<ShopifyInventoryDatum>();
+                                           select s).ToList();
             }
             catch (Exception)
             {
@@ -121,9 +111,9 @@ namespace ShopifyInventorySync.BusinessLogic
 
         public List<FragranceNetProductsList> FormatSourceProductsData(FragranceNetProductsList fragranceNetProducts)
         {
-            List<FragranceNetProduct> productsListPrePrepare = new ();
-            List<FragranceNetProduct> productsListPostPrepare = new ();
-            List<FragranceNetProductsList> productsDataListPrepared = new ();
+            List<FragranceNetProduct> productsListPrePrepare = new();
+            List<FragranceNetProduct> productsListPostPrepare = new();
+            List<FragranceNetProductsList> productsDataListPrepared = new();
             FragranceNetProduct selectedProduct = new();
             string productName = string.Empty;
             string gender = string.Empty;
@@ -143,7 +133,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     productName = selectedProduct.name;
                     gender = selectedProduct.gender;
 
-                    productsListPostPrepare = productsListPrePrepare.Where(m => m.name == productName && m.gender == gender).ToList<FragranceNetProduct>();
+                    productsListPostPrepare = productsListPrePrepare.Where(m => m.name == productName && m.gender == gender).ToList();
 
                     csvProductsToProcessModel.products = productsListPostPrepare;
 
@@ -183,9 +173,9 @@ namespace ShopifyInventorySync.BusinessLogic
             List<string> restrictedSKus = new();
             FragranceNetProduct headerProduct = new();
             ProductsRepository productsRepositoryContext = new();
-            List<ShopifyInventoryDatum> shopifyInventoryDataList = new ();
-            ShopifyProductModel shopifyProductModelData = new ();
-            ShopifyProductModel shopifyProductResponseData = new ();
+            List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
+            ShopifyProductModel shopifyProductModelData = new();
+            ShopifyProductModel shopifyProductResponseData = new();
 
             try
             {
@@ -197,7 +187,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 vendor = headerProduct.designer;
                 productDescription = headerProduct.productDescription + " " + headerProduct.fragranceNotes + " " + headerProduct.recommendedUse;
 
-                restrictedSKus = productsToProcessData.products.Select(m => m.sku).ToList<string>();
+                restrictedSKus = productsToProcessData.products.Select(m => m.sku).ToList();
 
                 if (!ValidateRestrictedBrand(vendor, restrictedSKus))
                 {
@@ -219,7 +209,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 foreach (FragranceNetProduct productData in productsToProcessData.products)
                 {
                     ShopifyInventoryDatum? currentProduct = new();
-                    ShopifyFixedPrice? shopifyFixedPrice = new();
+                    FixedPrice? shopifyFixedPrice = new();
                     Image1 image = new();
                     bool isFixedPrice = false;
                     bool isSKUReplaced = false;
@@ -237,15 +227,15 @@ namespace ShopifyInventorySync.BusinessLogic
                     gender = productData.gender.ToString()!;
                     minimumQty = GlobalConstants.minimumQuantity;
 
-                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku).FirstOrDefault();
+                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku && m.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY).FirstOrDefault();
 
                     if (shopifyFixedPrice != null)
                     {
                         try
                         {
-                            if (Convert.ToDecimal(shopifyFixedPrice!.FixedPrice) > 0)
+                            if (Convert.ToDecimal(shopifyFixedPrice!.FixPrice) > 0)
                             {
-                                cost = shopifyFixedPrice.FixedPrice!;
+                                cost = shopifyFixedPrice.FixPrice!;
 
                                 isFixedPrice = true;
                             }
@@ -262,7 +252,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     }
                     else
                     {
-                        updatedCost = Convert.ToString(applicationState.CalculateShopifyMarkupPrice(Convert.ToDecimal(cost)));
+                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), GlobalConstants.STORENAME.SHOPIFY));
                     }
 
                     if (!ValidateRestrictedSKU(sku))
@@ -283,16 +273,16 @@ namespace ShopifyInventorySync.BusinessLogic
                         genderDescription = "Unisex";
                     }
 
-                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku).ToList<ShopifyInventoryDatum>().FirstOrDefault();
+                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku).ToList().FirstOrDefault();
 
                     if (currentProduct != null)
                     {
                         if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.shopifySKUPrefix.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
                         {
-                            ProductsRepository productsContext = new ();
-                            OverrideVariantUpdateModel overrideVariantUpdateModel = new ();
-                            OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new ();
-                            NewVariantImageResponseModel newImage = new ();
+                            ProductsRepository productsContext = new();
+                            OverrideVariantUpdateModel overrideVariantUpdateModel = new();
+                            OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
+                            NewVariantImageResponseModel newImage = new();
                             long[] variantIds = new long[] { Convert.ToInt64(currentProduct.VariantId!) };
 
                             try
@@ -452,13 +442,13 @@ namespace ShopifyInventorySync.BusinessLogic
 
                     if (shopifyProductResponseData.product.variants.Count > 0)
                     {
-                        List<ProductImageAttachVarient> productImageAttachVarientsList = new ();
+                        List<ProductImageAttachVarient> productImageAttachVarientsList = new();
 
                         productImageAttachVarientsList = UpdateProductVarientImages(shopifyProductResponseData, productsToProcessData);
 
                         foreach (Variant productVarient in shopifyProductResponseData.product.variants)
                         {
-                            ShopifyInventoryDatum shopifyInventoryDatum = new ();
+                            ShopifyInventoryDatum shopifyInventoryDatum = new();
 
                             shopifyInventoryDatum.ProductName = mainTitle;
                             shopifyInventoryDatum.ProductGender = genderDescription;
@@ -501,8 +491,8 @@ namespace ShopifyInventorySync.BusinessLogic
 
         private List<ProductImageAttachVarient> UpdateProductVarientImages(ShopifyProductModel shopifyProductModelData, FragranceNetProductsList csvProductsToProcessModel)
         {
-            ShopifyProductModel shopifyProductData = new ();
-            List<ProductImageAttachVarient> productImageAttachVarientsList = new ();
+            ShopifyProductModel shopifyProductData = new();
+            List<ProductImageAttachVarient> productImageAttachVarientsList = new();
 
             try
             {
@@ -510,8 +500,8 @@ namespace ShopifyInventorySync.BusinessLogic
 
                 foreach (Variant productVariant in shopifyProductData.product.variants)
                 {
-                    ProductImageAttachVarient productImageAttachVarient = new ();
-                    Image1 image1 = new ();
+                    ProductImageAttachVarient productImageAttachVarient = new();
+                    Image1 image1 = new();
                     string imageURL = csvProductsToProcessModel.products.Where(m => m.sku == productVariant.sku.Substring(GlobalConstants.fragranceNetSKUPrefix.Length, productVariant.sku.Length - GlobalConstants.fragranceNetSKUPrefix.Length)).First().imageLarge;
                     string[] imageURLParts = imageURL.Split('/');
                     string imageName = imageURLParts[imageURLParts.Length - 1];
@@ -542,15 +532,15 @@ namespace ShopifyInventorySync.BusinessLogic
             string shopifyID = string.Empty;
             string vendor = string.Empty;
             string inventoryItemId = string.Empty;
-            List<string> restrictedSKus = new ();
+            List<string> restrictedSKus = new();
 
             try
             {
-                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku).First<ShopifyInventoryDatum>();
+                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku).First();
 
                 vendor = ShopifyInventoryData.BrandName!;
 
-                if (!ValidateRestrictedBrand(vendor,new List<string> { sku }))
+                if (!ValidateRestrictedBrand(vendor, new List<string> { sku }))
                 {
                     return;
                 }
@@ -598,7 +588,7 @@ namespace ShopifyInventorySync.BusinessLogic
         private bool MarkProductOutOfStock(string sku, bool isOutOfStock)
         {
             ShopifyInventoryDatum ShopifyInventoryData = new();
-            ProductsRepository productsRepository = new ();
+            ProductsRepository productsRepository = new();
             bool result = false;
 
             try
@@ -623,7 +613,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
         private void UpdateProductNewPrice(string sku, string variantID, decimal updatedPrice)
         {
-            SingleVariantPriceUpdate singleVariantPriceUpdate = new ();
+            SingleVariantPriceUpdate singleVariantPriceUpdate = new();
 
             try
             {
@@ -645,8 +635,8 @@ namespace ShopifyInventorySync.BusinessLogic
 
         private void UpdateSKUAsRestricted(List<string> sku)
         {
-            ProductsRepository productsRepository = new ();
-            List<ShopifyInventoryDatum> shopifyInventoryDataList = new ();
+            ProductsRepository productsRepository = new();
+            List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
 
             try
             {
@@ -682,8 +672,8 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                    where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor
-                    select s).ToList<RestrictedBrand>().Count > 0)
+                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor && s.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY
+                     select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
 
@@ -703,13 +693,13 @@ namespace ShopifyInventorySync.BusinessLogic
         private bool ValidateRestrictedSKU(string sku)
         {
             bool result = true;
-            List<string> restrictedSKus = new ();
+            List<string> restrictedSKus = new();
 
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                    where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku
-                    select s).ToList<RestrictedSku>().Count > 0)
+                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku && s.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY
+                     select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));
 

@@ -11,9 +11,9 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShopifyInventorySync.BusinessLogic
+namespace ShopifyInventorySync.BusinessLogic.Shopify
 {
-    internal class FragranceXAPI
+    internal class ShopifyFragranceX
     {
         ApplicationState applicationState;
 
@@ -22,7 +22,7 @@ namespace ShopifyInventorySync.BusinessLogic
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly ShopifyAPI shopifyAPI;
 
-        public FragranceXAPI()
+        public ShopifyFragranceX()
         {
             applicationState = ApplicationState.GetState;
             shopifyAPI = new();
@@ -34,7 +34,7 @@ namespace ShopifyInventorySync.BusinessLogic
         private List<FragranceXProduct> FetchDataFromAPI()
         {
             string fragranceXJsonData = string.Empty;
-            List<FragranceXProduct> loadedFragranceXProducts = new ();
+            List<FragranceXProduct> loadedFragranceXProducts = new();
             string token = string.Empty;
 
             try
@@ -81,7 +81,7 @@ namespace ShopifyInventorySync.BusinessLogic
             return fragranceXProductsList;
         }
 
-        private String GetFragranceXAPIToken()
+        private string GetFragranceXAPIToken()
         {
             string token = string.Empty;
             string url = GlobalConstants.fragrancexURL + "/token";
@@ -116,7 +116,7 @@ namespace ShopifyInventorySync.BusinessLogic
             return token;
         }
 
-        private String GetFragranceXAPIData(string token)
+        private string GetFragranceXAPIData(string token)
         {
             string productsData = string.Empty;
             string url = GlobalConstants.fragrancexURL + "/product/list/";
@@ -154,9 +154,9 @@ namespace ShopifyInventorySync.BusinessLogic
             {
                 products = fragranceXProductsList.products;
 
-                shopifyProductsToRemove = (from s in this.productsRepository.GetBySkuPrefix(GlobalConstants.fragranceXSKUPrefix)
+                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.fragranceXSKUPrefix)
                                            where !products.Any(x => x.Upc == s.Sku)
-                                           select s).ToList<ShopifyInventoryDatum>();
+                                           select s).ToList();
             }
             catch (Exception)
             {
@@ -190,7 +190,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     productName = selectedProduct.ProductName;
                     gender = selectedProduct.Gender;
 
-                    productsListPostPrepare = productsListPrePrepare.Where(m => m.ProductName == productName && m.Gender == gender).ToList<FragranceXProduct>();
+                    productsListPostPrepare = productsListPrePrepare.Where(m => m.ProductName == productName && m.Gender == gender).ToList();
 
                     csvProductsToProcessModel.products = productsListPostPrepare;
 
@@ -247,7 +247,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
                 mainTitle = mainTitle + " by " + vendor;
 
-                restrictedSKus = productsToProcessData.products.Select(m => m.Upc).ToList<string>();
+                restrictedSKus = productsToProcessData.products.Select(m => m.Upc).ToList();
 
                 if (!ValidateRestrictedBrand(vendor, restrictedSKus))
                 {
@@ -269,7 +269,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 foreach (FragranceXProduct productData in productsToProcessData.products)
                 {
                     ShopifyInventoryDatum? currentProduct = new();
-                    ShopifyFixedPrice? shopifyFixedPrice = new();
+                    FixedPrice? shopifyFixedPrice = new();
                     Image1 image = new();
                     bool isFixedPrice = false;
                     string cost = string.Empty;
@@ -291,9 +291,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     {
                         try
                         {
-                            if (Convert.ToDecimal(shopifyFixedPrice!.FixedPrice) > 0)
+                            if (Convert.ToDecimal(shopifyFixedPrice!.FixPrice) > 0)
                             {
-                                cost = shopifyFixedPrice.FixedPrice!;
+                                cost = shopifyFixedPrice.FixPrice!;
 
                                 isFixedPrice = true;
                             }
@@ -310,7 +310,7 @@ namespace ShopifyInventorySync.BusinessLogic
                     }
                     else
                     {
-                        updatedCost = Convert.ToString(applicationState.CalculateShopifyMarkupPrice(Convert.ToDecimal(cost)));
+                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), GlobalConstants.STORENAME.SHOPIFY));
                     }
 
                     fullSku = skuPrefix + sku.Trim();
@@ -343,7 +343,7 @@ namespace ShopifyInventorySync.BusinessLogic
                         variantTitle = "Gift Set - " + variantTitle;
                     }
 
-                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).ToList<ShopifyInventoryDatum>().FirstOrDefault();
+                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).ToList().FirstOrDefault();
 
                     if (currentProduct == null)
                     {
@@ -562,7 +562,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
             try
             {
-                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).First<ShopifyInventoryDatum>();
+                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).First();
 
                 vendor = ShopifyInventoryData.BrandName!;
 

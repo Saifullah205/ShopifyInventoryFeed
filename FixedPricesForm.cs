@@ -1,4 +1,5 @@
-﻿using ShopifyInventorySync.Models;
+﻿using ShopifyInventorySync.BusinessLogic;
+using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System;
 using System.Collections.Generic;
@@ -15,24 +16,29 @@ namespace ShopifyInventorySync
     public partial class FixedPricesForm : Form
     {
         List<ClientApi> clientApis = new();
-        List<ShopifyFixedPrice> shopifyFixedPricesList = new List<ShopifyFixedPrice>();
+        List<FixedPrice> shopifyFixedPricesList = new List<FixedPrice>();
         CommonRepository commonRepository;
         IMarkUpPriceRepository markUpPriceRepository;
+        GlobalConstants.STORENAME selectedEComStoreID;
+        ApplicationState applicationState;
 
-        public FixedPricesForm()
+        public FixedPricesForm(GlobalConstants.STORENAME sTORENAME)
         {
             InitializeComponent();
 
             commonRepository = new CommonRepository();
             markUpPriceRepository = new MarkUpPriceRepository();
 
+            applicationState = ApplicationState.GetState;
+            selectedEComStoreID = sTORENAME;
+
             RefreshMainGrid();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            ShopifyDbContext shopifyDBContext = new();
-            ShopifyFixedPrice shopifyFixedPrice = new();
+            EFDbContext efDBContext = new();
+            FixedPrice shopifyFixedPrice = new();
 
             try
             {
@@ -44,13 +50,15 @@ namespace ShopifyInventorySync
                 }
                 else
                 {
-                    shopifyFixedPrice.FixedPrice = txtfixedPrice.Text;
+                    shopifyFixedPrice.FixPrice = txtfixedPrice.Text;
                     shopifyFixedPrice.Sku = txtsku.Text;
-                    shopifyFixedPrice.AddDate = DateTime.Now;
+                    shopifyFixedPrice.DateCreated = DateTime.Now;
                     shopifyFixedPrice.ApiType = "ALL";
+                    shopifyFixedPrice.EcomStoreId = (int)selectedEComStoreID;
 
-                    shopifyDBContext.ShopifyFixedPrices.Add(shopifyFixedPrice);
-                    shopifyDBContext.SaveChanges();
+                    efDBContext.FixedPrices.Add(shopifyFixedPrice);
+                    efDBContext.SaveChanges();
+
                     RefreshMainGrid();
 
                     txtfixedPrice.Text = String.Empty;
@@ -61,7 +69,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -73,19 +81,21 @@ namespace ShopifyInventorySync
 
             try
             {
-                shopifyFixedPricesList = fixedPriceRespsitory.GetAll().ToList<ShopifyFixedPrice>();
+                shopifyFixedPricesList = fixedPriceRespsitory.GetAll().Where(m => m.EcomStoreId == (int)selectedEComStoreID).ToList<FixedPrice>();
 
-                this.dgvFixedPrice.DataSource = SharedFunctions.LinqToDataTable<ShopifyFixedPrice>(shopifyFixedPricesList);
+                this.dgvFixedPrice.DataSource = applicationState.LinqToDataTable<FixedPrice>(shopifyFixedPricesList);
 
                 this.dgvFixedPrice.Columns["Id"].Visible = false;
-                this.dgvFixedPrice.Columns["AddDate"].Visible = false;
+                this.dgvFixedPrice.Columns["DateCreated"].Visible = false;
                 this.dgvFixedPrice.Columns["ApiType"].Visible = false;
+                this.dgvFixedPrice.Columns["EcomStoreId"].Visible = false;
+                this.dgvFixedPrice.Columns["EcomStore"].Visible = false;
 
                 this.dgvFixedPrice.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -94,16 +104,17 @@ namespace ShopifyInventorySync
         private void dgvFixedPrice_CellEndEdit(object sender, DataGridViewCellEventArgs e)
         {
             DataGridViewRow dataGridViewRow = dgvFixedPrice.Rows[e.RowIndex];
-            ShopifyFixedPrice shopifyFixedPrice = new();
+            FixedPrice shopifyFixedPrice = new();
             FixedPriceRespsitory fixedPriceRespsitory = new();
 
             try
             {
                 shopifyFixedPrice.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
                 shopifyFixedPrice.Sku = Convert.ToString(dataGridViewRow.Cells["Sku"].Value);
-                shopifyFixedPrice.FixedPrice = Convert.ToString(dataGridViewRow.Cells["FixedPrice"].Value);
-                shopifyFixedPrice.AddDate = DateTime.Now;
+                shopifyFixedPrice.FixPrice = Convert.ToString(dataGridViewRow.Cells["FixPrice"].Value);
+                shopifyFixedPrice.DateCreated = DateTime.Now;
                 shopifyFixedPrice.ApiType = "ALL";
+                shopifyFixedPrice.EcomStoreId = (int)selectedEComStoreID;
 
                 fixedPriceRespsitory.Update(shopifyFixedPrice);
 
@@ -113,14 +124,14 @@ namespace ShopifyInventorySync
             {
                 MessageBox.Show(ex.Message);
 
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
             }
         }
 
         private void dgvFixedPrice_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             DataGridViewRow dataGridViewRow = dgvFixedPrice.Rows[e.Row!.Index];
-            ShopifyFixedPrice shopifyFixedPrice = new();
+            FixedPrice shopifyFixedPrice = new();
             FixedPriceRespsitory fixedPriceRespsitory = new();
 
             try
@@ -131,7 +142,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }

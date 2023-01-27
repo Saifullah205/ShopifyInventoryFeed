@@ -37,8 +37,12 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.label9 = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.applicationInfoGrp = new System.Windows.Forms.GroupBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
+            this.applicationInfoGrp.SuspendLayout();
             this.SuspendLayout();
             // 
             // label1
@@ -105,9 +109,9 @@
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label5);
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
+            this.groupBox1.Location = new System.Drawing.Point(3, 170);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(407, 328);
+            this.groupBox1.Size = new System.Drawing.Size(407, 161);
             this.groupBox1.TabIndex = 8;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Developer Information";
@@ -125,15 +129,46 @@
             // 
             this.tableLayoutPanel1.ColumnCount = 1;
             this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.groupBox1, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.applicationInfoGrp, 0, 0);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 1;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.RowCount = 2;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel1.Size = new System.Drawing.Size(413, 334);
             this.tableLayoutPanel1.TabIndex = 10;
+            // 
+            // applicationInfoGrp
+            // 
+            this.applicationInfoGrp.Controls.Add(this.label4);
+            this.applicationInfoGrp.Controls.Add(this.label3);
+            this.applicationInfoGrp.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.applicationInfoGrp.Location = new System.Drawing.Point(3, 3);
+            this.applicationInfoGrp.Name = "applicationInfoGrp";
+            this.applicationInfoGrp.Size = new System.Drawing.Size(407, 161);
+            this.applicationInfoGrp.TabIndex = 9;
+            this.applicationInfoGrp.TabStop = false;
+            this.applicationInfoGrp.Text = "Application Info";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(19, 23);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(57, 20);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Version";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(103, 23);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(39, 20);
+            this.label4.TabIndex = 1;
+            this.label4.Text = "2.0.0";
             // 
             // AboutForm
             // 
@@ -151,6 +186,8 @@
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.applicationInfoGrp.ResumeLayout(false);
+            this.applicationInfoGrp.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -166,5 +203,8 @@
         private GroupBox groupBox1;
         private Label label9;
         private TableLayoutPanel tableLayoutPanel1;
+        private GroupBox applicationInfoGrp;
+        private Label label4;
+        private Label label3;
     }
 }

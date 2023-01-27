@@ -11,6 +11,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using ShopifyInventorySync.BusinessLogic;
+using ShopifyInventorySync.BusinessLogic.Shopify;
 using System.Collections;
 using ShopifyInventorySync.Repositories;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace ShopifyInventorySync
     public partial class ProcessCSVForm : Form
     {
         DataTable productsDataTable = new ();
-        int selectedAPI = (int)SharedData.APIType.TPS;
+        int selectedAPI = (int)GlobalConstants.APITYPE.TPS;
         decimal progressBarTotalValue = 0;
         decimal progressBarIncrementValue = 0;
         decimal progressBarValue = 0;
@@ -41,6 +42,52 @@ namespace ShopifyInventorySync
 
             applicationState = ApplicationState.GetState;
         }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+            {
+                ProcessThePerfumeSpotProducts();
+            }
+            else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCEX)
+            {
+                ProcessFragranceXProducts();
+            }
+            else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCENET)
+            {
+                ProcessFragranceNetProducts();
+            }
+        }
+
+        #region WALMART
+
+        #region MenuItems
+
+        private void markupSettingsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenMarkupSettingsWindow(GlobalConstants.STORENAME.WALMART);
+        }
+
+        private void restrictedBrandsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenRestrictedBrandsWindow(GlobalConstants.STORENAME.WALMART);
+        }
+
+        private void restrictedSKUsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenRestrictedSKUsWindow(GlobalConstants.STORENAME.WALMART);
+        }
+
+        private void fixedPricesToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            OpenFixedPricesWindow(GlobalConstants.STORENAME.WALMART);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region GENERIC_METHODS
 
         private void ClearGridData()
         {
@@ -71,48 +118,109 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void IncrementProgressBar()
+        private void EnableApplicationMainControls(bool enable)
         {
-            if(progressBarValue < 90)
+            try
             {
-                progressBarValue += progressBarIncrementValue; 
+                btnClear.Enabled = enable;
+                btnProcess.Enabled = enable;
+                fileToolStripMenuItem.Enabled = enable;
             }
-            else
+            catch (Exception)
             {
-                progressBarValue = 100;
-            }
-
-            lblProgressCount.Text = ((int)progressBarValue).ToString() + "% Completed";
-
-            ProcessProgress.Value = (int)progressBarValue;
-        }
-
-        private void button2_Click(object sender, EventArgs e)
-        {
-            if (selectedAPI == (int)SharedData.APIType.TPS)
-            {
-                ProcessThePerfumeSpotProducts();
-            }
-            else if (selectedAPI == (int)SharedData.APIType.FragranceX)
-            {
-                ProcessFragranceXProducts();
-            }
-            else if (selectedAPI == (int)SharedData.APIType.FragranceNet)
-            {
-                ProcessFragranceNetProducts();
+                throw;
             }
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        private void OpenMarkupSettingsWindow(GlobalConstants.STORENAME sTORENAME)
         {
-            DataTable productsDataTable = new ();
-            ThePerfumeSpotAPI clientAPI = new ();
+            MarkUpPricesForm markUpPricesForm;
 
             try
             {
-                selectedAPI = (int)SharedData.APIType.TPS;
+                markUpPricesForm = new(sTORENAME);
+
+                markUpPricesForm.ShowDialog();
+
+                applicationState.RefreshMarkUPPricesList();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void OpenRestrictedBrandsWindow(GlobalConstants.STORENAME sTORENAME)
+        {
+            RestrictedBrandsForm restrictedBrandsForm;
+
+            try
+            {
+                restrictedBrandsForm = new(sTORENAME);
+
+                restrictedBrandsForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void OpenRestrictedSKUsWindow(GlobalConstants.STORENAME sTORENAME)
+        {
+            RestrictedSkusForm restrictedSkusForm;
+
+            try
+            {
+                restrictedSkusForm = new(sTORENAME);
+
+                restrictedSkusForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void OpenFixedPricesWindow(GlobalConstants.STORENAME sTORENAME)
+        {
+            FixedPricesForm fixedPricesForm;
+
+            try
+            {
+                fixedPricesForm = new(sTORENAME);
+
+                fixedPricesForm.ShowDialog();
+
+                applicationState.RefreshFixedPricesList();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void BrowseThePerfumeSpotProducts()
+        {
+            DataTable productsDataTable = new();
+            ShopifyThePerfumeSpot clientAPI = new();
+
+            try
+            {
+                selectedAPI = (int)GlobalConstants.APITYPE.TPS;
 
                 lblSelectedAPI.Text = "The Perfume Spot API";
+
+                loadedDataGridView.DataSource = null;
+                loadedDataGridView.Rows.Clear();
 
                 thePerfumeSpotProductsList = clientAPI.GetDataFromSource();
 
@@ -129,15 +237,96 @@ namespace ShopifyInventorySync
 
                 btnProcess.Enabled = true;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
+                throw;
             }
         }
 
-        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void FetchTheFragranceNetProducts()
+        {
+            DataTable productsDataTable = new();
+            ShopifyFragranceNet clientAPI = new ShopifyFragranceNet();
+
+            try
+            {
+                selectedAPI = (int)GlobalConstants.APITYPE.FRAGRANCENET;
+
+                lblSelectedAPI.Text = "Fragrance Net API";
+
+                loadedDataGridView.DataSource = null;
+                loadedDataGridView.Rows.Clear();
+
+                fragranceNetProducts = clientAPI.GetDataFromSource();
+
+                if (fragranceNetProducts.products.Count <= 0)
+                {
+                    MessageBox.Show("No data found");
+
+                    return;
+                }
+
+                productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
+
+                loadedDataGridView.DataSource = productsDataTable;
+
+                btnProcess.Enabled = true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void FetchFragranceXProducts()
+        {
+            DataTable productsDataTable = new();
+            ShopifyFragranceX clientAPI = new();
+
+            try
+            {
+                selectedAPI = (int)GlobalConstants.APITYPE.FRAGRANCEX;
+
+                lblSelectedAPI.Text = "Fragrance X API";
+
+                fragranceXProducts = clientAPI.GetDataFromSource();
+
+                if (fragranceXProducts.products.Count <= 0)
+                {
+                    MessageBox.Show("No data found");
+
+                    return;
+                }
+
+                productsDataTable = applicationState.LinqToDataTable<FragranceXProduct>(fragranceXProducts.products as IEnumerable<FragranceXProduct>);
+
+                loadedDataGridView.DataSource = productsDataTable;
+
+                btnProcess.Enabled = true;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void IncrementProgressBar()
+        {
+            if (progressBarValue < 90)
+            {
+                progressBarValue += progressBarIncrementValue;
+            }
+            else
+            {
+                progressBarValue = 100;
+            }
+
+            lblProgressCount.Text = ((int)progressBarValue).ToString() + "% Completed";
+
+            ProcessProgress.Value = (int)progressBarValue;
+        }
+
+        private void settingsToolStripMenuItem2_Click(object sender, EventArgs e)
         {
             Form applicationSettingsForm;
 
@@ -148,26 +337,6 @@ namespace ShopifyInventorySync
                 applicationSettingsForm.ShowDialog();
 
                 applicationState.RefreshApplicationSettings();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void markupSettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            Form markUpPricesForm;
-
-            try
-            {
-                markUpPricesForm = new MarkUpPricesForm();
-
-                markUpPricesForm.ShowDialog();
-
-                applicationState.RefreshShopifyMarkUPPricesList();
             }
             catch (Exception ex)
             {
@@ -213,15 +382,17 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void restrictedBrandsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            RestrictedBrandsForm restrictedBrandsForm;
+        #endregion
 
+        #region SHOPIFY
+
+        #region MenuItems
+
+        private void fetchFragranceXProductsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
             try
             {
-                restrictedBrandsForm = new();
-
-                restrictedBrandsForm.ShowDialog();
+                FetchFragranceXProducts();
             }
             catch (Exception ex)
             {
@@ -229,117 +400,63 @@ namespace ShopifyInventorySync
 
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void fetchFragranceNetProductsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                FetchTheFragranceNetProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                BrowseThePerfumeSpotProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void markupSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenMarkupSettingsWindow(GlobalConstants.STORENAME.SHOPIFY);
+        }
+
+        private void restrictedBrandsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenRestrictedBrandsWindow(GlobalConstants.STORENAME.SHOPIFY);
         }
 
         private void restrictedSKUsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            RestrictedSkusForm restrictedSkusForm;
-
-            try
-            {
-                restrictedSkusForm = new();
-
-                restrictedSkusForm.ShowDialog();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void fetchFragranceXProductsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DataTable productsDataTable = new();
-            FragranceXAPI clientAPI = new ();
-
-            try
-            {
-                selectedAPI = (int)SharedData.APIType.FragranceX;
-
-                lblSelectedAPI.Text = "Fragrance X API";
-
-                fragranceXProducts = clientAPI.GetDataFromSource();
-
-                if (fragranceXProducts.products.Count <= 0)
-                {
-                    MessageBox.Show("No data found");
-
-                    return;
-                }
-
-                productsDataTable = applicationState.LinqToDataTable<FragranceXProduct>(fragranceXProducts.products as IEnumerable<FragranceXProduct>);
-
-                loadedDataGridView.DataSource = productsDataTable;
-
-                btnProcess.Enabled = true;
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
+            OpenRestrictedSKUsWindow(GlobalConstants.STORENAME.SHOPIFY);
         }
 
         private void fixedPricesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FixedPricesForm fixedPricesForm;
-
-            try
-            {
-                fixedPricesForm = new();
-
-                fixedPricesForm.ShowDialog();
-
-                applicationState.RefreshFixedPricesList();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
+            OpenFixedPricesWindow(GlobalConstants.STORENAME.SHOPIFY);
         }
 
-		private void fetchFragranceNetProductsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            DataTable productsDataTable = new();
-            FragranceNetAPI clientAPI = new FragranceNetAPI();
+        #endregion
 
-            try
-            {
-                selectedAPI = (int)SharedData.APIType.FragranceNet;
-
-                lblSelectedAPI.Text = "Fragrance Net API";
-
-                fragranceNetProducts = clientAPI.GetDataFromSource();
-
-                if (fragranceNetProducts.products.Count <= 0)
-                {
-                    MessageBox.Show("No data found");
-
-                    return;
-                }
-
-                productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
-
-                loadedDataGridView.DataSource = productsDataTable;
-
-                btnProcess.Enabled = true;
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
+        #region ProcessProducts
 
         private async void ProcessThePerfumeSpotProducts()
         {
-            ThePerfumeSpotAPI clientAPI = new();
+            ShopifyThePerfumeSpot clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
             List<ThePerfumeSpotProductsList> fragranceNetProductsLists = new();
             List<ShopifyInventoryDatum> fragranceNetAPIProducts = new();
@@ -391,7 +508,7 @@ namespace ShopifyInventorySync
 
         private async void ProcessFragranceXProducts()
         {
-            FragranceXAPI clientAPI = new();
+            ShopifyFragranceX clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
             List<FragranceXProductsList> fragranceNetProductsLists = new();
             List<ShopifyInventoryDatum> fragranceNetAPIProducts = new();
@@ -443,11 +560,11 @@ namespace ShopifyInventorySync
 
         private async void ProcessFragranceNetProducts()
         {
-            FragranceNetAPI clientAPI = new ();
+            ShopifyFragranceNet clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
             List<FragranceNetProductsList> fragranceNetProductsLists = new();
-            List<ShopifyInventoryDatum> fragranceNetAPIProducts = new ();
-            List<Task> tasks = new ();
+            List<ShopifyInventoryDatum> fragranceNetAPIProducts = new();
+            List<Task> tasks = new();
 
             try
             {
@@ -493,18 +610,8 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void EnableApplicationMainControls(bool enable)
-        {
-            try
-            {
-                btnClear.Enabled = enable;
-                btnProcess.Enabled = enable;
-                fileToolStripMenuItem.Enabled = enable;
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        #endregion
+
+        #endregion
     }
 }

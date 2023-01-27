@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 
@@ -19,24 +20,20 @@ namespace ShopifyInventorySync
         List<MarkUpPrice> markUpPricesList = new List<MarkUpPrice>();
         CommonRepository commonRepository;
         IMarkUpPriceRepository markUpPriceRepository;
+        GlobalConstants.STORENAME selectedEComStoreID;
+        ApplicationState applicationState;
 
-        public MarkUpPricesForm()
+        public MarkUpPricesForm(GlobalConstants.STORENAME sTORENAME)
         {
             InitializeComponent();
 
             commonRepository = new CommonRepository();
             markUpPriceRepository = new MarkUpPriceRepository();
 
-            try
-            {
-                RefreshMarkUpPricesGrid();
-            }
-            catch (Exception ex)
-            {
-                SharedFunctions.LogErrorToFile(ex);
+            applicationState = ApplicationState.GetState;
+            selectedEComStoreID = sTORENAME;
 
-                MessageBox.Show(ex.Message);
-            }
+            RefreshMarkUpPricesGrid();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
@@ -70,23 +67,31 @@ namespace ShopifyInventorySync
                 }
                 else
                 {
-                    markUpPricesList = markUpPriceRepositoryContext.GetAll().ToList<MarkUpPrice>();
+                    markUpPricesList = markUpPriceRepositoryContext.GetAll().Where(m => m.EcomStoreId == (int)selectedEComStoreID).ToList<MarkUpPrice>();
 
-                    foreach (MarkUpPrice markUpPriceI in markUpPricesList)
+                    if(markUpPricesList.Count > 0)
                     {
-                        if((minPrice < markUpPriceI.MinPrice && maxPrice < markUpPriceI.MinPrice) || (minPrice > markUpPriceI.MaxPrice && maxPrice > markUpPriceI.MaxPrice))
+                        foreach (MarkUpPrice markUpPriceI in markUpPricesList)
                         {
-                            priceChecksPassed = true;
-                        }
-                        else
-                        {
-                            priceChecksPassed = false;
+                            if ((minPrice < markUpPriceI.MinPrice && maxPrice < markUpPriceI.MinPrice) || (minPrice > markUpPriceI.MaxPrice && maxPrice > markUpPriceI.MaxPrice))
+                            {
+                                priceChecksPassed = true;
+                            }
+                            else
+                            {
+                                priceChecksPassed = false;
 
-                            MessageBox.Show("Price range cannot be overlapped.");
+                                MessageBox.Show("Price range cannot be overlapped.");
 
-                            return;
+                                return;
+                            }
                         }
                     }
+                    else
+                    {
+                        priceChecksPassed = true;
+                    }
+                    
 
                     if (priceChecksPassed)
                     {
@@ -95,6 +100,7 @@ namespace ShopifyInventorySync
                         markUpPrice.MarkupPercentage = markupPriceAmount;
                         markUpPrice.AddDate = DateTime.Now;
                         markUpPrice.ApiType = "ALL";
+                        markUpPrice.EcomStoreId = (int)selectedEComStoreID;
 
                         markUpPriceRepositoryContext.Insert(markUpPrice);
 
@@ -113,7 +119,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -123,13 +129,15 @@ namespace ShopifyInventorySync
         {
             try
             {
-                markUpPricesList = markUpPriceRepository.GetAll().OrderBy(m => m.MinPrice).ToList<MarkUpPrice>();
+                markUpPricesList = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)selectedEComStoreID).OrderBy(m => m.MinPrice).ToList<MarkUpPrice>();
 
-                this.DGVMarkUpPrices.DataSource = SharedFunctions.LinqToDataTable<MarkUpPrice>(markUpPricesList);
+                this.DGVMarkUpPrices.DataSource = applicationState.LinqToDataTable<MarkUpPrice>(markUpPricesList);
 
                 this.DGVMarkUpPrices.Columns["Id"].Visible = false;
                 this.DGVMarkUpPrices.Columns["AddDate"].Visible = false;
                 this.DGVMarkUpPrices.Columns["ApiType"].Visible = false;
+                this.DGVMarkUpPrices.Columns["EcomStoreId"].Visible = false;
+                this.DGVMarkUpPrices.Columns["EcomStore"].Visible = false;
 
                 this.DGVMarkUpPrices.Columns["MinPrice"].ReadOnly = true;
                 this.DGVMarkUpPrices.Columns["MaxPrice"].ReadOnly = true;
@@ -138,7 +146,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -158,6 +166,7 @@ namespace ShopifyInventorySync
                 markUpPrice.MarkupPercentage = Convert.ToDecimal(dataGridViewRow.Cells["MarkupPercentage"].Value);
                 markUpPrice.AddDate = DateTime.Now;
                 markUpPrice.ApiType = "ALL";
+                markUpPrice.EcomStoreId = (int)selectedEComStoreID;
 
                 markUpPriceRepositoryContext.Update(markUpPrice);
 
@@ -165,7 +174,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -174,23 +183,17 @@ namespace ShopifyInventorySync
         private void DGVMarkUpPrices_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
         {
             DataGridViewRow dataGridViewRow = DGVMarkUpPrices.Rows[e.Row!.Index];
-            MarkUpPrice markUpPrice = new();
             MarkUpPriceRepository markUpPriceRepositoryContext = new();
 
             try
             {
-                markUpPrice.MinPrice = Convert.ToDecimal(dataGridViewRow.Cells["MinPrice"].Value);
-                markUpPrice.MaxPrice = Convert.ToDecimal(dataGridViewRow.Cells["MaxPrice"].Value);
-                markUpPrice.MarkupPercentage = Convert.ToDecimal(dataGridViewRow.Cells["MarkupPercentage"].Value);
-                markUpPrice.AddDate = DateTime.Now;
-
                 markUpPriceRepositoryContext.Delete(Convert.ToInt32(dataGridViewRow.Cells["Id"].Value));
 
                 markUpPriceRepositoryContext.Save();
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }

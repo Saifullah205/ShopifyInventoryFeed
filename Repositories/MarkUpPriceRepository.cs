@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class MarkUpPriceRepository : IMarkUpPriceRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public MarkUpPriceRepository()
@@ -18,7 +18,7 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public MarkUpPriceRepository(ShopifyDbContext context)
+        public MarkUpPriceRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

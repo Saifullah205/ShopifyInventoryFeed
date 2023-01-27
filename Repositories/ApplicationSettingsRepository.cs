@@ -10,7 +10,7 @@ namespace ShopifyInventorySync.Repositories
 {
     public class ApplicationSettingsRepository : IApplicationSettingsRepository
     {
-        private readonly ShopifyDbContext shopifyDbContext;
+        private readonly EFDbContext shopifyDbContext;
         private bool disposed = false;
 
         public ApplicationSettingsRepository()
@@ -18,7 +18,7 @@ namespace ShopifyInventorySync.Repositories
             shopifyDbContext = new()!;
         }
 
-        public ApplicationSettingsRepository(ShopifyDbContext context)
+        public ApplicationSettingsRepository(EFDbContext context)
         {
             shopifyDbContext = context;
         }

@@ -1,16 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+﻿using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using static ShopifyInventorySync.SharedData;
+using System.Data;
 
 namespace ShopifyInventorySync
 {
@@ -20,13 +11,18 @@ namespace ShopifyInventorySync
         IRestrictedSkusRepository restrictedSkusRepository;
         List<ClientApi> clientApis = new();
         List<RestrictedSku> restrictedSkusList = new List<RestrictedSku>();
+        public GlobalConstants.STORENAME selectedEComStoreID;
+        ApplicationState applicationState;
 
-        public RestrictedSkusForm()
+        public RestrictedSkusForm(GlobalConstants.STORENAME sTORENAME)
         {
             InitializeComponent();
 
             commonRepository = new CommonRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
+
+            applicationState = ApplicationState.GetState;
+            selectedEComStoreID = sTORENAME;
 
             fillDropDownLists();
             RefreshMainGrid();
@@ -62,20 +58,22 @@ namespace ShopifyInventorySync
                 {
                     apiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
 
-                    restrictedSkusList = restrictedSkusRepository.GetByClientAPI(apiType).ToList();
+                    restrictedSkusList = restrictedSkusRepository.GetByClientAPI(apiType).Where(m => m.EcomStoreId == (int)selectedEComStoreID).ToList();
 
-                    this.dgvRBGrid.DataSource = SharedFunctions.LinqToDataTable<RestrictedSku>(restrictedSkusList);
+                    this.dgvRBGrid.DataSource = applicationState.LinqToDataTable<RestrictedSku>(restrictedSkusList);
 
                     this.dgvRBGrid.Columns["Id"].Visible = false;
                     this.dgvRBGrid.Columns["AddDate"].Visible = false;
                     this.dgvRBGrid.Columns["ApiType"].Visible = false;
+                    this.dgvRBGrid.Columns["EcomStoreId"].Visible = false;
+                    this.dgvRBGrid.Columns["EcomStore"].Visible = false;
 
                     this.dgvRBGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 }
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -103,6 +101,7 @@ namespace ShopifyInventorySync
                     restrictedSku.Sku = sku;
                     restrictedSku.AddDate = DateTime.Now;
                     restrictedSku.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
+                    restrictedSku.EcomStoreId = (int)selectedEComStoreID;
 
                     restrictedSkusRepository.Insert(restrictedSku);
 
@@ -118,7 +117,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -138,7 +137,7 @@ namespace ShopifyInventorySync
             }
             catch (Exception ex)
             {
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -156,6 +155,7 @@ namespace ShopifyInventorySync
                 restrictedSku.Sku = Convert.ToString(dataGridViewRow.Cells["Sku"].Value);
                 restrictedSku.ApiType = clientApis.Where(m => m.ApiDescription == ddlClientAPIs.SelectedItem.ToString()).FirstOrDefault()!.ApiType!;
                 restrictedSku.AddDate = DateTime.Now;
+                restrictedSku.EcomStoreId = (int)selectedEComStoreID;
 
                 restrictedSkusRepository.Update(restrictedSku);
 
@@ -165,7 +165,7 @@ namespace ShopifyInventorySync
             {
                 MessageBox.Show(ex.Message);
 
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
             }
         }
 
@@ -179,7 +179,7 @@ namespace ShopifyInventorySync
             {
                 MessageBox.Show(ex.Message);
 
-                SharedFunctions.LogErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
             }
         }
     }

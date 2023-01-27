@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ShopifyInventorySync.BusinessLogic
+﻿namespace ShopifyInventorySync.BusinessLogic
 {
     public static class GlobalConstants
     {
@@ -24,5 +18,18 @@ namespace ShopifyInventorySync.BusinessLogic
         public static string fragranceNetUserName { get; set; }
         public static string fragranceNetPassword { get; set; }
         public static bool requiresShipping { get; set; }
+
+        public enum STORENAME
+        {
+            SHOPIFY = 1,
+            WALMART = 2
+        }
+
+        public enum APITYPE
+        {
+            FRAGRANCEX,
+            TPS,
+            FRAGRANCENET
+        }
     }
 }
