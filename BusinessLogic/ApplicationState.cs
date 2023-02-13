@@ -102,28 +102,34 @@ namespace ShopifyInventorySync.BusinessLogic
 
         public void LogErrorToFile(Exception ex)
         {
-            WriteToErrorLog(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace);
+            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace, GlobalConstants.LOGTYPE.ERROR);
         }
 
-        public void WriteToErrorLog(String text)
+        public void LogInfoToFile(string message)
+        {
+            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + message, GlobalConstants.LOGTYPE.INFO);
+        }
+
+        public void WriteToLogToFile(String text, GlobalConstants.LOGTYPE lOGTYPE)
         {
             try
             {
-                string fileName = "ExceptionLog-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
+                string fileType = lOGTYPE == GlobalConstants.LOGTYPE.ERROR ? "Error" : "Info";
+                string fileName = fileType + "Log-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
 
                 lock (threadSafelock)
                 {
-                    if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "ErrorLog")))
+                    if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, fileType + "Log")))
                     {
-                        Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "ErrorLog"));
+                        Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, fileType + "Log"));
 
-                        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName)))
+                        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, fileType + "Log", fileName)))
                         {
-                            File.Create(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName));
+                            File.Create(Path.Combine(Environment.CurrentDirectory, fileType + "Log", fileName));
                         }
                     }
 
-                    File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName), text + Environment.NewLine);
+                    File.AppendAllText(Path.Combine(Environment.CurrentDirectory, fileType + "Log", fileName), text + Environment.NewLine);
                 }
             }
             catch (Exception)
@@ -144,7 +150,7 @@ namespace ShopifyInventorySync.BusinessLogic
                 switch (tag.ToUpper())
                 {
                     case "SHOPIFYSKUPREFIX":
-                        GlobalConstants.shopifySKUPrefix = tagValue;
+                        GlobalConstants.tpsSKUPrefix = tagValue;
                         break;
                     case "MINIMUMQUANTITY":
                         GlobalConstants.minimumQuantity = tagValue;
@@ -190,6 +196,21 @@ namespace ShopifyInventorySync.BusinessLogic
                         break;
                     case "REQUIRESSHIPPING":
                         GlobalConstants.requiresShipping = tagValue.ToUpper() == "Y" ? true : false;
+                        break;
+                    case "WM_CONSUMER.CHANNEL.TYPE":
+                        GlobalConstants.wmConsumerChannelType = tagValue;
+                        break;
+                    case "WM_QOS.CORRELATION_ID":
+                        GlobalConstants.wmQosCorrelationId = tagValue;
+                        break;
+                    case "WM_SVC.NAME":
+                        GlobalConstants.wmSvcName = tagValue;
+                        break;
+                    case "WALMARTAUTHORIZATION":
+                        GlobalConstants.walmartAuthorization = tagValue;
+                        break;
+                    case "WALMARTURL":
+                        GlobalConstants.walmartURL = tagValue;
                         break;
                     default:
                         break;

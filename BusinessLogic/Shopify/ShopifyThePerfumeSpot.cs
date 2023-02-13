@@ -89,7 +89,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 products = fragranceNetProducts.products;
 
-                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.shopifySKUPrefix)
+                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.tpsSKUPrefix)
                                            where !products.Any(x => x.UPC == s.Sku)
                                            select s).ToList();
             }
@@ -176,7 +176,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 headerProduct = productsToProcessData.products[0];
 
-                skuPrefix = GlobalConstants.shopifySKUPrefix;
+                skuPrefix = GlobalConstants.tpsSKUPrefix;
 
                 mainTitle = headerProduct.Name.Split(',')[0].ToString();
                 vendor = headerProduct.Brand;
@@ -530,7 +530,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 {
                     ProductImageAttachVarient productImageAttachVarient = new();
                     Image1 image1 = new();
-                    string imageURL = csvProductsToProcessModel.products.Where(m => m.UPC == productVariant.sku.Substring(GlobalConstants.shopifySKUPrefix.Length, productVariant.sku.Length - GlobalConstants.shopifySKUPrefix.Length)).First().ImageURL;
+                    string imageURL = csvProductsToProcessModel.products.Where(m => m.UPC == productVariant.sku.Substring(GlobalConstants.tpsSKUPrefix.Length, productVariant.sku.Length - GlobalConstants.tpsSKUPrefix.Length)).First().ImageURL;
                     string[] imageURLParts = imageURL.Split('/');
                     string imageName = imageURLParts[imageURLParts.Length - 1];
                     long[] variantIds = new long[] { productVariant.id };

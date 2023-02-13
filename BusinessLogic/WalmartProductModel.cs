@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 namespace ShopifyInventorySync.BusinessLogic
 {
 
+    public class WalmartTokenModel
+    {
+        public string access_token { get; set; }
+        public string token_type { get; set; }
+        public int expires_in { get; set; }
+    }
+
+
     public class WalmartProductModel
     {
         public WalmartProductModel()
@@ -52,14 +60,14 @@ namespace ShopifyInventorySync.BusinessLogic
         public Productidentifiers productIdentifiers { get; set; }
         public string productName { get; set; }
         public string brand { get; set; }
-        public int price { get; set; }
+        public decimal price { get; set; }
         public int ShippingWeight { get; set; }
         public string electronicsIndicator { get; set; }
         public string batteryTechnologyType { get; set; }
         public string chemicalAerosolPesticide { get; set; }
         public string shipsInOriginalPackaging { get; set; }
-        public DateTime startDate { get; set; }
-        public DateTime endDate { get; set; }
+        public string startDate { get; set; }
+        public string endDate { get; set; }
         public string MustShipAlone { get; set; }
     }
 
@@ -97,6 +105,49 @@ namespace ShopifyInventorySync.BusinessLogic
         public List<string> keyFeatures { get; set; }
         public string manufacturer { get; set; }
         public string manufacturerPartNumber { get; set; }
+    }
+
+    public class WalmartRetireItemResponseModel
+    {
+        public string sku { get; set; }
+        public string message { get; set; }
+        public object additionalAttributes { get; set; }
+        public object errors { get; set; }
+    }
+
+
+    public class WalmartInventoryRequestModel
+    {
+        public WalmartInventoryRequestModel()
+        {
+            InventoryHeader = new();
+            Inventory = new List<Inventory>();
+        }
+
+        public Inventoryheader InventoryHeader { get; set; }
+        public List<Inventory> Inventory { get; set; }
+    }
+
+    public class Inventoryheader
+    {
+        public string version { get; set; }
+    }
+
+    public class Inventory
+    {
+        public Inventory()
+        {
+            quantity = new();
+        }
+
+        public string sku { get; set; }
+        public Quantity quantity { get; set; }
+    }
+
+    public class Quantity
+    {
+        public string unit { get; set; }
+        public int amount { get; set; }
     }
 
 }

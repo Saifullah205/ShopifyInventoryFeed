@@ -277,7 +277,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                     if (currentProduct != null)
                     {
-                        if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.shopifySKUPrefix.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
+                        if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.tpsSKUPrefix.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
                         {
                             ProductsRepository productsContext = new();
                             OverrideVariantUpdateModel overrideVariantUpdateModel = new();

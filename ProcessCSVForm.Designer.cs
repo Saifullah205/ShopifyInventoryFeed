@@ -295,6 +295,7 @@
             this.loadThePerfumeSpotProductsToolStripMenuItem.Name = "loadThePerfumeSpotProductsToolStripMenuItem";
             this.loadThePerfumeSpotProductsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
             this.loadThePerfumeSpotProductsToolStripMenuItem.Text = "Load The Perfume Spot Products";
+            this.loadThePerfumeSpotProductsToolStripMenuItem.Click += new System.EventHandler(this.loadThePerfumeSpotProductsToolStripMenuItem_Click);
             // 
             // fetchFragranceXProductsToolStripMenuItem1
             // 

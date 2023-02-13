@@ -24,6 +24,8 @@ namespace ShopifyInventorySync.Models
         public virtual DbSet<RestrictedBrand> RestrictedBrands { get; set; } = null!;
         public virtual DbSet<RestrictedSku> RestrictedSkus { get; set; } = null!;
         public virtual DbSet<ShopifyInventoryDatum> ShopifyInventoryData { get; set; } = null!;
+        public virtual DbSet<WalmartFeedResponse> WalmartFeedResponses { get; set; } = null!;
+        public virtual DbSet<WalmartInventoryDatum> WalmartInventoryData { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -223,6 +225,45 @@ namespace ShopifyInventorySync.Models
 
                 entity.Property(e => e.VariantId)
                     .HasMaxLength(250)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<WalmartFeedResponse>(entity =>
+            {
+                entity.ToTable("WalmartFeedResponse");
+
+                entity.Property(e => e.AddDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.FeedId)
+                    .HasMaxLength(2000)
+                    .IsUnicode(false)
+                    .HasColumnName("FeedID");
+
+                entity.Property(e => e.Status)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<WalmartInventoryDatum>(entity =>
+            {
+                entity.Property(e => e.AddDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.BrandName)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.IsOutOfStock).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Sku)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.SkuPrefix)
+                    .HasMaxLength(3)
                     .IsUnicode(false);
             });
 

@@ -15,6 +15,7 @@ using ShopifyInventorySync.BusinessLogic.Shopify;
 using System.Collections;
 using ShopifyInventorySync.Repositories;
 using System.Collections.Generic;
+using ShopifyInventorySync.BusinessLogic.Walmart;
 
 namespace ShopifyInventorySync
 {
@@ -22,6 +23,7 @@ namespace ShopifyInventorySync
     {
         DataTable productsDataTable = new ();
         int selectedAPI = (int)GlobalConstants.APITYPE.TPS;
+        int selectedStore = (int)GlobalConstants.STORENAME.SHOPIFY;
         decimal progressBarTotalValue = 0;
         decimal progressBarIncrementValue = 0;
         decimal progressBarValue = 0;
@@ -45,17 +47,33 @@ namespace ShopifyInventorySync
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+            if (selectedStore == (int)GlobalConstants.STORENAME.SHOPIFY)
             {
-                ProcessThePerfumeSpotProducts();
+                if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+                {
+                    ProcessShopifyThePerfumeSpotProducts();
+                }
+                else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCEX)
+                {
+                    ProcessShopifyFragranceXProducts();
+                }
+                else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCENET)
+                {
+                    ProcessShopifyFragranceNetProducts();
+                }
             }
-            else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCEX)
+            else if (selectedStore == (int)GlobalConstants.STORENAME.WALMART)
             {
-                ProcessFragranceXProducts();
-            }
-            else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCENET)
-            {
-                ProcessFragranceNetProducts();
+
+                WalmartFeedTypeForm walmartFeedType = new ();
+                walmartFeedType.selectedFeedType = string.Empty;
+
+                walmartFeedType.ShowDialog();
+                                
+                if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+                {
+                    ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
+                }
             }
         }
 
@@ -81,6 +99,91 @@ namespace ShopifyInventorySync
         private void fixedPricesToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             OpenFixedPricesWindow(GlobalConstants.STORENAME.WALMART);
+        }
+
+        private void loadThePerfumeSpotProductsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SetSelectedStore(GlobalConstants.STORENAME.WALMART);
+
+                BrowseThePerfumeSpotProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+        #endregion
+
+        #region ProcessProducts
+
+        private async void ProcessWalmartThePerfumeSpotProducts(GlobalConstants.WALMARTFEEDTYPEPOST actionType)
+        {
+            WalmartThePerfumeSpot clientAPI = new();
+            List<WalmartInventoryDatum> outOfStockProducts = new();
+            List<ThePerfumeSpotProduct> productsToDelete = new();
+            List<ThePerfumeSpotProduct> productsToProcess = new();
+            List<ThePerfumeSpotProductsList> perfumeSpotProductsList = new();
+            List<string> walmartProductsToPostData;
+            string outOfStockProductsToPostData = string.Empty;
+
+            try
+            {
+                EnableApplicationMainControls(false);
+
+                outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
+                productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
+                productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete);
+
+                walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
+                outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
+
+                if(actionType == GlobalConstants.WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                {
+                    foreach (string feedData in walmartProductsToPostData)
+                    {
+                        await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
+                    }
+                }
+
+                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
+                {
+                    await Task.Run(() => clientAPI.ProcessProductToWalmart(outOfStockProductsToPostData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                }
+
+                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
+                {
+                    foreach (WalmartInventoryDatum product in outOfStockProducts)
+                    {
+                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(product.SkuPrefix + product.Sku!));
+
+                        IncrementProgressBar();
+                    }
+                }                    
+
+                //progressBarTotalValue = perfumeSpotProductsList.Count + outOfStockProducts.Count;
+
+                //progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                txtProcessedProducts.Text = applicationState.processingMessages;
+
+                applicationState.ClearLogMessages();
+
+                MessageBox.Show("Process Completed Successfully");
+
+                ClearGridData();
+
+                EnableApplicationMainControls(true);
+            }
+            catch (Exception)
+            {
+                EnableApplicationMainControls(true);
+
+                throw;
+            }
         }
 
         #endregion
@@ -382,6 +485,11 @@ namespace ShopifyInventorySync
             }
         }
 
+        private void SetSelectedStore(GlobalConstants.STORENAME sTORENAME)
+        {
+            selectedStore = (int)sTORENAME;
+        }
+
         #endregion
 
         #region SHOPIFY
@@ -392,6 +500,8 @@ namespace ShopifyInventorySync
         {
             try
             {
+                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+
                 FetchFragranceXProducts();
             }
             catch (Exception ex)
@@ -406,6 +516,8 @@ namespace ShopifyInventorySync
         {
             try
             {
+                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+
                 FetchTheFragranceNetProducts();
             }
             catch (Exception ex)
@@ -420,6 +532,8 @@ namespace ShopifyInventorySync
         {
             try
             {
+                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+
                 BrowseThePerfumeSpotProducts();
             }
             catch (Exception ex)
@@ -454,7 +568,7 @@ namespace ShopifyInventorySync
 
         #region ProcessProducts
 
-        private async void ProcessThePerfumeSpotProducts()
+        private async void ProcessShopifyThePerfumeSpotProducts()
         {
             ShopifyThePerfumeSpot clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
@@ -506,7 +620,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private async void ProcessFragranceXProducts()
+        private async void ProcessShopifyFragranceXProducts()
         {
             ShopifyFragranceX clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
@@ -558,7 +672,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private async void ProcessFragranceNetProducts()
+        private async void ProcessShopifyFragranceNetProducts()
         {
             ShopifyFragranceNet clientAPI = new();
             List<ShopifyInventoryDatum> outOfStockProducts = new();
@@ -612,6 +726,6 @@ namespace ShopifyInventorySync
 
         #endregion
 
-        #endregion
+        #endregion        
     }
 }

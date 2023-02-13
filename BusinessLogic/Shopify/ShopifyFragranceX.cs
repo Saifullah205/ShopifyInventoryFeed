@@ -43,9 +43,9 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    fragranceXJsonData = GetFragranceXAPIData(token);
+                    //fragranceXJsonData = GetFragranceXAPIData(token);
 
-                    //fragranceXJsonData = File.ReadAllText(Environment.CurrentDirectory + "//FragranceX_Single.txt");
+                    fragranceXJsonData = File.ReadAllText(Environment.CurrentDirectory + "//FragranceX_Single.txt");
 
                     loadedFragranceXProducts = JsonConvert.DeserializeObject<List<FragranceXProduct>>(fragranceXJsonData!)!;
                 }
@@ -698,7 +698,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.BrandName == vendor
+                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.BrandName == vendor
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
