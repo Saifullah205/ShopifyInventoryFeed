@@ -379,6 +379,11 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         if (sameNameProduct != null)
                         {
+                            if(sameNameProduct.Sku == sku)
+                            {
+                                return;
+                            }
+
                             NewVariantRootModel newVariantRootModel = new();
                             NewVariantMerge newVariantMerge = new();
                             OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
