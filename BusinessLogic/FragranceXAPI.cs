@@ -379,6 +379,11 @@ namespace ShopifyInventorySync.BusinessLogic
 
                         if (sameNameProduct != null)
                         {
+                            if(sameNameProduct.Sku == sku)
+                            {
+                                return;
+                            }
+
                             NewVariantRootModel newVariantRootModel = new();
                             NewVariantMerge newVariantMerge = new();
                             OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
@@ -698,7 +703,7 @@ namespace ShopifyInventorySync.BusinessLogic
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.BrandName == vendor
+                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.BrandName == vendor
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
