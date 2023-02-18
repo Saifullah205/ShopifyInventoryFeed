@@ -349,6 +349,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     {
                         Variant variant = new();
                         ShopifyInventoryDatum? sameNameProduct = new();
+                        ShopifyInventoryDatum? sameSKUProduct = new();
 
                         variant.title = variantTitle;
                         variant.sku = fullSku;
@@ -379,7 +380,9 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         if (sameNameProduct != null)
                         {
-                            if(sameNameProduct.Sku == sku)
+                            sameSKUProduct = productsRepository.GetAll().Where(m => m.ShopifyId == sameNameProduct.ShopifyId && m.Sku == sku).FirstOrDefault();
+
+                            if (sameSKUProduct != null)
                             {
                                 return;
                             }
