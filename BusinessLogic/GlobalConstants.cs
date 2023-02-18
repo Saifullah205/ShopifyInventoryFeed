@@ -52,8 +52,9 @@
         public enum WALMARTFEEDTYPEPOST
         {
             RETIRE = 1,
-            INVENTORYFEED = 2,
-            OUTOFSTOCK = 3
+            SETUPITEM = 2,
+            INVENTORYFEED = 3,
+            OUTOFSTOCK = 4
         }
     }
 }

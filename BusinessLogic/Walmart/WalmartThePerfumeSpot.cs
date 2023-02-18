@@ -156,6 +156,29 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsToProcess;
         }
 
+        public List<WalmartInventoryDatum> PrepareInStockProductsQtyToProcess(List<ThePerfumeSpotProduct> productsList)
+        {
+            List<WalmartInventoryDatum> productsToProcess = new();
+
+            try
+            {
+                foreach (ThePerfumeSpotProduct item in productsList)
+                {
+                    WalmartInventoryDatum thePerfumeSpotProduct = new();
+
+                    thePerfumeSpotProduct.Sku = item.UPC;
+
+                    productsToProcess.Add(thePerfumeSpotProduct);
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return productsToProcess;
+        }
+
         public List<string> FormatSourceProductsData(List<ThePerfumeSpotProduct> productsList)
         {
             List<ThePerfumeSpotProduct> productsListPrePrepare = new();
@@ -182,6 +205,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                 foreach (ThePerfumeSpotProduct[] productsSingleList in thePerfumeSpotProductsMultiLists)
                 {
+                    walmartProductModel.MPItem.Clear();
+
                     foreach (ThePerfumeSpotProduct productData in productsSingleList)
                     {
                         Mpitem mpitem = new();
@@ -210,7 +235,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
                         mpitem.Orderable.price = CalculateMarkedUpPrice(sku, productData.Retail);
-                        mpitem.Orderable.ShippingWeight = (int)Convert.ToDecimal(productData.Weight);
+                        mpitem.Orderable.ShippingWeight = (int)Convert.ToDecimal(string.IsNullOrEmpty(productData.Weight) ? "0" : productData.Weight);
                         mpitem.Orderable.electronicsIndicator = "No";
                         mpitem.Orderable.batteryTechnologyType = "Does Not Contain a Battery";
                         mpitem.Orderable.chemicalAerosolPesticide = "No";
@@ -245,23 +270,34 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsData;
         }
 
-        public string FormatSourceProductsInventoryData(List<WalmartInventoryDatum> productsList, bool markOutOfStock)
+        public List<string> FormatSourceProductsInventoryData(List<WalmartInventoryDatum> productsList, bool markOutOfStock)
         {
             WalmartInventoryRequestModel walmartInventoryRequestModel = new();
+            IEnumerable<WalmartInventoryDatum[]> thePerfumeSpotProductsMultiLists;
+            List<string> productsData = new List<string>();
 
             try
             {
+                thePerfumeSpotProductsMultiLists = productsList.Chunk(500);
+
                 walmartInventoryRequestModel.InventoryHeader.version = "1.4";
 
-                foreach (WalmartInventoryDatum productData in productsList)
+                foreach (WalmartInventoryDatum[] productsSingleList in thePerfumeSpotProductsMultiLists)
                 {
-                    Inventory inventory = new();
+                    walmartInventoryRequestModel.Inventory.Clear();
 
-                    inventory.sku = productData.SkuPrefix + productData.Sku;
-                    inventory.quantity.unit = "EACH";
-                    inventory.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(GlobalConstants.minimumQuantity);
+                    foreach (WalmartInventoryDatum productData in productsSingleList)
+                    {
+                        Inventory inventory = new();
 
-                    walmartInventoryRequestModel.Inventory.Add(inventory);
+                        inventory.sku = GlobalConstants.tpsSKUPrefix + productData.Sku;
+                        inventory.quantity.unit = "EACH";
+                        inventory.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(GlobalConstants.minimumQuantity);
+
+                        walmartInventoryRequestModel.Inventory.Add(inventory);
+                    }
+
+                    productsData.Add(JsonConvert.SerializeObject(walmartInventoryRequestModel));
                 }
             }
             catch (Exception)
@@ -269,7 +305,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 throw;
             }
 
-            return JsonConvert.SerializeObject(walmartInventoryRequestModel);
+            return productsData;
         }
 
         public void ProcessProductToShopify(ThePerfumeSpotProductsList productsToProcessData)

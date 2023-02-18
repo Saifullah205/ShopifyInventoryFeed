@@ -66,7 +66,6 @@ namespace ShopifyInventorySync
             {
 
                 WalmartFeedTypeForm walmartFeedType = new ();
-                walmartFeedType.selectedFeedType = string.Empty;
 
                 walmartFeedType.ShowDialog();
                                 
@@ -124,11 +123,13 @@ namespace ShopifyInventorySync
         {
             WalmartThePerfumeSpot clientAPI = new();
             List<WalmartInventoryDatum> outOfStockProducts = new();
+            List<WalmartInventoryDatum> inStockProducts = new();
             List<ThePerfumeSpotProduct> productsToDelete = new();
             List<ThePerfumeSpotProduct> productsToProcess = new();
             List<ThePerfumeSpotProductsList> perfumeSpotProductsList = new();
             List<string> walmartProductsToPostData;
-            string outOfStockProductsToPostData = string.Empty;
+            List<string> inStockProductsToPostData;
+            List<string> outOfStockProductsToPostData;
 
             try
             {
@@ -137,30 +138,54 @@ namespace ShopifyInventorySync
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
                 productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
                 productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete);
+                inStockProducts = clientAPI.PrepareInStockProductsQtyToProcess(productsToProcess);
 
-                walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
-                outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
-
-                if(actionType == GlobalConstants.WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.SETUPITEM)
                 {
-                    foreach (string feedData in walmartProductsToPostData)
+                    walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
+
+                    if(walmartProductsToPostData.Count > 0)
                     {
-                        await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
-                    }
+                        foreach (string feedData in walmartProductsToPostData)
+                        {
+                            //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
+                        }
+                    }                    
+                }
+
+                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                {
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(inStockProducts, false);
+
+                    if(inStockProductsToPostData.Count > 0)
+                    {
+                        foreach (string feedData in inStockProductsToPostData)
+                        {
+                            //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                        }
+                    }                    
                 }
 
                 if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
                 {
-                    await Task.Run(() => clientAPI.ProcessProductToWalmart(outOfStockProductsToPostData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                    outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
+
+                    if(outOfStockProductsToPostData.Count > 0)
+                    {
+                        foreach (string feedData in outOfStockProductsToPostData)
+                        {
+                            //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                        }
+                    }                    
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
+                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.RETIRE)
                 {
-                    foreach (WalmartInventoryDatum product in outOfStockProducts)
+                    foreach (ThePerfumeSpotProduct product in productsToDelete)
                     {
-                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(product.SkuPrefix + product.Sku!));
+                        //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(GlobalConstants.tpsSKUPrefix + product.UPC!));
 
-                        IncrementProgressBar();
+                        //IncrementProgressBar();
                     }
                 }                    
 

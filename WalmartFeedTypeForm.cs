@@ -31,12 +31,15 @@ namespace ShopifyInventorySync
             try
             {
                 walmartFeedTypes.Add(1, "Remove products");
-                walmartFeedTypes.Add(2, "Inventory Feed");
-                walmartFeedTypes.Add(3, "Out of Stock");
+                walmartFeedTypes.Add(2, "Setup Products");
+                walmartFeedTypes.Add(3, "Push Inventory Feed");
+                walmartFeedTypes.Add(4, "Mark Out of Stock");
 
                 cmbWalmartFeedType.DataSource = new BindingSource(walmartFeedTypes, null);
                 cmbWalmartFeedType.DisplayMember = "Value";
                 cmbWalmartFeedType.ValueMember = "Key";
+
+                cmbWalmartFeedType.DropDownStyle = ComboBoxStyle.DropDownList;
             }
             catch (Exception)
             {
