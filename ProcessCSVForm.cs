@@ -136,7 +136,7 @@ namespace ShopifyInventorySync
 
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
                 productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
-                productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete);
+                productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete, outOfStockProducts);
                 inStockProducts = clientAPI.PrepareInStockProductsQtyToProcess(productsToProcess);
 
                 if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.SETUPITEM)
@@ -172,7 +172,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }                    
                 }

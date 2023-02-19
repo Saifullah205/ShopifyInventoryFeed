@@ -109,9 +109,11 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
         public List<ThePerfumeSpotProduct> FilterProductsToRemove(ThePerfumeSpotProductsList productsList)
         {
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<ThePerfumeSpotProduct> productsToRemove = new();
             List<RestrictedBrand> restrictedBrands = new List<RestrictedBrand>();
             List<RestrictedSku> restrictedSku = new List<RestrictedSku>();
+            List<WalmartInventoryDatum> productsRemoveSaveData = new();
 
             try
             {
@@ -126,6 +128,21 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 productsToRemove = (from s in productsList.products
                                     where restrictedSku.Any(x => x.Sku == s.UPC) || restrictedBrands.Any(x => x.BrandName == s.Brand)
                                     select s).ToList<ThePerfumeSpotProduct>();
+
+                foreach (ThePerfumeSpotProduct product in productsToRemove)
+                {
+                    WalmartInventoryDatum walmartInventoryDatum = new();
+
+                    walmartInventoryDatum.SkuPrefix = GlobalConstants.tpsSKUPrefix;
+                    walmartInventoryDatum.Sku = product.UPC;
+                    walmartInventoryDatum.BrandName = product.Brand;
+
+                    productsRemoveSaveData.Add(walmartInventoryDatum);
+                }
+
+                walmartInventoryRepository.DeleteMultiple(productsRemoveSaveData);
+
+                walmartInventoryRepository.Save();
             }
             catch (Exception)
             {
@@ -135,15 +152,37 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsToRemove;
         }
 
-        public List<ThePerfumeSpotProduct> FilterProductsToProcess(ThePerfumeSpotProductsList productsList, List<ThePerfumeSpotProduct> removedProducts)
+        public List<ThePerfumeSpotProduct> FilterProductsToProcess(ThePerfumeSpotProductsList productsList, List<ThePerfumeSpotProduct> removedProducts, List<WalmartInventoryDatum> outOfStockProducts)
         {
-            List<ThePerfumeSpotProduct> productsToProcess = new();
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
+            List<ThePerfumeSpotProduct> productsToProcess = new(); ;
+            List<ThePerfumeSpotProduct> productsToSave = new();
+            List<WalmartInventoryDatum> productsAddedSaveData = new();
 
             try
             {
                 productsToProcess = (from s in productsList.products
-                                    where !removedProducts.Any(x => x.UPC == s.UPC)
+                                    where (!removedProducts.Any(x => x.UPC == s.UPC) || !outOfStockProducts.Any(x => x.Sku == s.UPC))
                                     select s).ToList<ThePerfumeSpotProduct>();
+
+                productsToSave = (from s in productsToProcess
+                                where !productsRepository.GetAll().Any(m => m.Sku == s.UPC)
+                                select s).ToList<ThePerfumeSpotProduct>();
+
+                foreach (ThePerfumeSpotProduct product in productsToSave)
+                {
+                    WalmartInventoryDatum walmartInventoryDatum = new();
+
+                    walmartInventoryDatum.SkuPrefix = GlobalConstants.tpsSKUPrefix;
+                    walmartInventoryDatum.Sku = product.UPC;
+                    walmartInventoryDatum.BrandName = product.Brand;
+
+                    productsAddedSaveData.Add(walmartInventoryDatum);
+                }
+
+                walmartInventoryRepository.InsertMultiple(productsAddedSaveData);
+
+                walmartInventoryRepository.Save();
             }
             catch (Exception)
             {
@@ -209,7 +248,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         Mpitem mpitem = new();
                         string sku = string.Empty;
                         string fullSku = string.Empty;
-                        List<string> restrictedSKus = new();
                         string vendor = string.Empty;
                         string mainTitle = string.Empty;
 
@@ -217,13 +255,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         fullSku = GlobalConstants.tpsSKUPrefix + productData.UPC;
                         vendor = productData.Brand;
                         mainTitle = productData.Name.Split(',')[0].ToString();
-
-                        restrictedSKus = new List<string> { productData.UPC };
-
-                        if (!ValidateRestrictedBrand(vendor, restrictedSKus))
-                        {
-                            continue;
-                        }
 
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
@@ -277,7 +308,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             {
                 thePerfumeSpotProductsMultiLists = productsList.Chunk(500);
 
-                walmartInventoryRequestModel.InventoryHeader.version = "1.4";
+                walmartInventoryRequestModel.InventoryHeader.version = "1.5";
 
                 foreach (WalmartInventoryDatum[] productsSingleList in thePerfumeSpotProductsMultiLists)
                 {
@@ -307,11 +338,9 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
         public void ProcessProductToWalmart(string walmartProductsTextData, GlobalConstants.WALMARTFEEDTYPE wALMARTFEEDTYPE)
         {
-            string response = string.Empty;
-
             try
             {
-                response = walmartAPI.PostProductsToWalmart(walmartProductsTextData, wALMARTFEEDTYPE);
+                string response = walmartAPI.PostProductsToWalmart(walmartProductsTextData, wALMARTFEEDTYPE);
 
                 SaveWalmartFeed(response);
             }
@@ -355,179 +384,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             {
                 applicationState.LogErrorToFile(ex);
             }
-        }
-
-        public void UpdateProductStockQuantity(string sku, int quantity)
-        {
-            ShopifyProductInventoryModel shopifyProductInventoryData = new();
-            ShopifyInventoryDatum ShopifyInventoryData = new();
-            string shopifyID = string.Empty;
-            string vendor = string.Empty;
-            string inventoryItemId = string.Empty;
-            List<string> restrictedSKus = new();
-
-            try
-            {
-                //ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku).First();
-
-                vendor = ShopifyInventoryData.BrandName!;
-
-                if (!ValidateRestrictedBrand(vendor, new List<string> { sku }))
-                {
-                    return;
-                }
-
-                if (!ValidateRestrictedSKU(sku))
-                {
-                    return;
-                }
-
-                shopifyID = ShopifyInventoryData.ShopifyId!;
-                inventoryItemId = ShopifyInventoryData.InventoryItemId!;
-
-                if (GlobalConstants.markOutOfStock.ToUpper() == "Y")
-                {
-                    shopifyProductInventoryData.inventory_item_id = Convert.ToInt64(inventoryItemId);
-                    shopifyProductInventoryData.location_id = Convert.ToInt64(GlobalConstants.locationId);
-                    shopifyProductInventoryData.available = quantity;
-
-                    shopifyAPI.SetProductInventoryLevel(shopifyProductInventoryData);
-
-                    if (quantity <= 0)
-                    {
-                        applicationState.AddMessageToLogs(Convert.ToString(sku + " : Marked out of stock"));
-
-                        MarkProductOutOfStock(sku, true);
-                    }
-                    else
-                    {
-                        applicationState.AddMessageToLogs(Convert.ToString(sku + " : Quantity Updated - " + quantity.ToString()));
-
-                        MarkProductOutOfStock(sku, false);
-                    }
-                }
-                else
-                {
-                    applicationState.AddMessageToLogs(Convert.ToString(sku + " : Modification is not allowed"));
-                }
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-        }
-
-        private bool MarkProductOutOfStock(string sku, bool isOutOfStock)
-        {
-            ShopifyInventoryDatum ShopifyInventoryData = new();
-            ProductsRepository productsRepository = new();
-            bool result = false;
-
-            try
-            {
-                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku).First();
-
-                ShopifyInventoryData.IsOutOfStock = isOutOfStock;
-
-                productsRepository.Update(ShopifyInventoryData);
-
-                productsRepository.Save();
-
-                result = true;
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-
-            return result;
-        }
-
-        private void UpdateSKUAsRestricted(List<string> sku)
-        {
-            ProductsRepository productsRepository = new();
-            List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
-
-            try
-            {
-                shopifyInventoryDataList = productsRepository.GetAll().Where(m => sku.Contains(m.Sku!)).ToList();
-
-                foreach (ShopifyInventoryDatum product in shopifyInventoryDataList)
-                {
-                    try
-                    {
-                        if (shopifyAPI.DeleteShopifyProduct(product))
-                        {
-                            productsRepository.DeleteMultiple(productsRepository.GetAll().Where(m => m.ShopifyId == product.ShopifyId).ToList());
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        applicationState.LogErrorToFile(ex);
-                    }
-                }
-
-                productsRepository.Save();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-        }
-
-        private bool ValidateRestrictedBrand(string vendor, List<string> restrictedSKus)
-        {
-            bool result = true;
-
-            try
-            {
-                if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.BrandName == vendor && s.EcomStoreId == (int)GlobalConstants.STORENAME.WALMART
-                     select s).ToList<RestrictedBrand>().Count > 0)
-                {
-                    applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
-
-                    UpdateSKUAsRestricted(restrictedSKus);
-
-                    result = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-
-            return result;
-        }
-
-        private bool ValidateRestrictedSKU(string sku)
-        {
-            bool result = true;
-            List<string> restrictedSKus = new();
-
-            try
-            {
-                if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBB") && s.Sku == sku && s.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY
-                     select s).ToList<RestrictedSku>().Count > 0)
-                {
-                    applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));
-
-                    restrictedSKus.Clear();
-
-                    restrictedSKus.Add(sku);
-
-                    UpdateSKUAsRestricted(restrictedSKus);
-
-                    result = false;
-                }
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-
-            return result;
         }
 
         private decimal CalculateMarkedUpPrice(string sku, string cost)

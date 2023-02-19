@@ -259,8 +259,6 @@ namespace ShopifyInventorySync.Models
                     .HasMaxLength(250)
                     .IsUnicode(false);
 
-                entity.Property(e => e.IsOutOfStock).HasDefaultValueSql("((0))");
-
                 entity.Property(e => e.Sku)
                     .HasMaxLength(500)
                     .IsUnicode(false);

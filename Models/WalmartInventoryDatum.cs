@@ -10,6 +10,5 @@ namespace ShopifyInventorySync.Models
         public DateTime? AddDate { get; set; }
         public string? BrandName { get; set; }
         public string? SkuPrefix { get; set; }
-        public bool? IsOutOfStock { get; set; }
     }
 }
