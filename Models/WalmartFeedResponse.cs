@@ -7,7 +7,9 @@ namespace ShopifyInventorySync.Models
     {
         public int Id { get; set; }
         public string? FeedId { get; set; }
-        public string? Status { get; set; }
+        public int? EcomStoreId { get; set; }
         public DateTime? AddDate { get; set; }
+
+        public virtual EcomStore? EcomStore { get; set; }
     }
 }

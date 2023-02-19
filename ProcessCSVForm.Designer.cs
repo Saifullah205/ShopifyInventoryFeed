@@ -61,6 +61,7 @@
             this.settingsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -282,6 +283,7 @@
             this.loadThePerfumeSpotProductsToolStripMenuItem,
             this.fetchFragranceXProductsToolStripMenuItem1,
             this.toolStripSeparator2,
+            this.getFeedStatusToolStripMenuItem,
             this.markupSettingsToolStripMenuItem1,
             this.restrictedBrandsToolStripMenuItem1,
             this.restrictedSKUsToolStripMenuItem1,
@@ -366,6 +368,13 @@
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
+            // getFeedStatusToolStripMenuItem
+            // 
+            this.getFeedStatusToolStripMenuItem.Name = "getFeedStatusToolStripMenuItem";
+            this.getFeedStatusToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.getFeedStatusToolStripMenuItem.Text = "Get Feed Status";
+            this.getFeedStatusToolStripMenuItem.Click += new System.EventHandler(this.getFeedStatusToolStripMenuItem_Click);
+            // 
             // ProcessCSVForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -425,5 +434,6 @@
         private ToolStripMenuItem restrictedBrandsToolStripMenuItem1;
         private ToolStripMenuItem restrictedSKUsToolStripMenuItem1;
         private ToolStripMenuItem fixedPricesToolStripMenuItem1;
+        private ToolStripMenuItem getFeedStatusToolStripMenuItem;
     }
 }

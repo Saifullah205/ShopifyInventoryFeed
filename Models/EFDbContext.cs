@@ -236,14 +236,17 @@ namespace ShopifyInventorySync.Models
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.EcomStoreId).HasColumnName("EComStoreId");
+
                 entity.Property(e => e.FeedId)
                     .HasMaxLength(2000)
                     .IsUnicode(false)
                     .HasColumnName("FeedID");
 
-                entity.Property(e => e.Status)
-                    .HasMaxLength(250)
-                    .IsUnicode(false);
+                entity.HasOne(d => d.EcomStore)
+                    .WithMany(p => p.WalmartFeedResponses)
+                    .HasForeignKey(d => d.EcomStoreId)
+                    .HasConstraintName("FK__WalmartFe__EComS__7A3223E8");
             });
 
             modelBuilder.Entity<WalmartInventoryDatum>(entity =>

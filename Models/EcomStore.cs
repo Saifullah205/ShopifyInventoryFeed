@@ -11,6 +11,7 @@ namespace ShopifyInventorySync.Models
             MarkUpPrices = new HashSet<MarkUpPrice>();
             RestrictedBrands = new HashSet<RestrictedBrand>();
             RestrictedSkus = new HashSet<RestrictedSku>();
+            WalmartFeedResponses = new HashSet<WalmartFeedResponse>();
         }
 
         public int Id { get; set; }
@@ -21,5 +22,6 @@ namespace ShopifyInventorySync.Models
         public virtual ICollection<MarkUpPrice> MarkUpPrices { get; set; }
         public virtual ICollection<RestrictedBrand> RestrictedBrands { get; set; }
         public virtual ICollection<RestrictedSku> RestrictedSkus { get; set; }
+        public virtual ICollection<WalmartFeedResponse> WalmartFeedResponses { get; set; }
     }
 }

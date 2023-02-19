@@ -3,9 +3,11 @@ using Newtonsoft.Json;
 using RestSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace ShopifyInventorySync.BusinessLogic.Walmart
 {
@@ -40,9 +42,9 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                 walmartToken = JsonConvert.DeserializeObject<WalmartTokenModel>(response.Content!)!;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                applicationState.LogErrorToFile(ex);
             }
 
             return walmartToken.access_token;
@@ -84,22 +86,18 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 response = client.Execute(request);
 
                 resultResponse = response.Content!;
-
-                applicationState.LogInfoToFile(url);
-                applicationState.LogInfoToFile(payLoadData);
-                applicationState.LogInfoToFile(resultResponse);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                applicationState.LogErrorToFile(ex);
             }
 
             return resultResponse;
         }
 
-        public string GetWalmartFeedResponse(string feedId)
+        public string GetWalmartFeedResponse(string feedId, bool includeDetails)
         {
-            string url = GlobalConstants.walmartURL + "/feeds/" + feedId;
+            string url = GlobalConstants.walmartURL + "/feeds/" + feedId + (includeDetails ? "?includeDetails=true" : string.Empty);
             string resultResponse = string.Empty;
 
             try
@@ -109,7 +107,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 RestResponse response;
 
                 request.AddHeader("WM_SEC.ACCESS_TOKEN", GetWalmartToken());
-                request.AddHeader("WM_CONSUMER.CHANNEL.TYPE", GlobalConstants.wmConsumerChannelType);
+                //request.AddHeader("WM_CONSUMER.CHANNEL.TYPE", GlobalConstants.wmConsumerChannelType);
                 request.AddHeader("WM_QOS.CORRELATION_ID", GlobalConstants.wmQosCorrelationId);
                 request.AddHeader("WM_SVC.NAME", GlobalConstants.wmSvcName);
                 request.AddHeader("Authorization", GlobalConstants.walmartAuthorization);
@@ -118,13 +116,10 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 response = client.Execute(request);
 
                 resultResponse = response.Content!;
-
-                applicationState.LogInfoToFile(url);
-                applicationState.LogInfoToFile(resultResponse);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                applicationState.LogErrorToFile(ex);
             }
 
             return resultResponse;
@@ -155,9 +150,29 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 applicationState.LogInfoToFile(url);
                 applicationState.LogInfoToFile(resultResponse);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                applicationState.LogErrorToFile(ex);
+            }
+
+            return resultResponse;
+        }
+
+        public string FormatWalmartFeedResponse(string feedResponse)
+        {
+            string url = "https://jsonformatter.curiousconcept.com/?data=" + HttpUtility.UrlEncode(feedResponse) + "&process=true";
+            string resultResponse = string.Empty;
+            Process myProcess = new Process();
+
+            try
+            {
+                myProcess.StartInfo.UseShellExecute = true;
+                myProcess.StartInfo.FileName = url;
+                myProcess.Start();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
             }
 
             return resultResponse;

@@ -126,7 +126,6 @@ namespace ShopifyInventorySync
             List<WalmartInventoryDatum> inStockProducts = new();
             List<ThePerfumeSpotProduct> productsToDelete = new();
             List<ThePerfumeSpotProduct> productsToProcess = new();
-            List<ThePerfumeSpotProductsList> perfumeSpotProductsList = new();
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
             List<string> outOfStockProductsToPostData;
@@ -146,9 +145,15 @@ namespace ShopifyInventorySync
 
                     if(walmartProductsToPostData.Count > 0)
                     {
+                        progressBarTotalValue = walmartProductsToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
                         foreach (string feedData in walmartProductsToPostData)
                         {
-                            //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
+                            IncrementProgressBar();
+
+                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }                    
                 }
@@ -159,8 +164,14 @@ namespace ShopifyInventorySync
 
                     if(inStockProductsToPostData.Count > 0)
                     {
+                        progressBarTotalValue = inStockProductsToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
                         foreach (string feedData in inStockProductsToPostData)
                         {
+                            IncrementProgressBar();
+
                             //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }                    
@@ -172,8 +183,14 @@ namespace ShopifyInventorySync
 
                     if(outOfStockProductsToPostData.Count > 0)
                     {
+                        progressBarTotalValue = outOfStockProductsToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
                         foreach (string feedData in outOfStockProductsToPostData)
                         {
+                            IncrementProgressBar();
+
                             //await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }                    
@@ -181,17 +198,17 @@ namespace ShopifyInventorySync
 
                 if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.RETIRE)
                 {
+                    progressBarTotalValue = productsToDelete.Count;
+
+                    progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
                     foreach (ThePerfumeSpotProduct product in productsToDelete)
                     {
-                        //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(GlobalConstants.tpsSKUPrefix + product.UPC!));
+                        IncrementProgressBar();
 
-                        //IncrementProgressBar();
+                        //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(GlobalConstants.tpsSKUPrefix + product.UPC!));
                     }
                 }                    
-
-                //progressBarTotalValue = perfumeSpotProductsList.Count + outOfStockProducts.Count;
-
-                //progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
 
@@ -751,6 +768,20 @@ namespace ShopifyInventorySync
 
         #endregion
 
-        #endregion        
+        #endregion
+
+        private void getFeedStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                WalmartFeedStatus walmartFeedStatus = new();
+
+                walmartFeedStatus.ShowDialog();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
     }
 }

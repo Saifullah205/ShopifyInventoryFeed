@@ -22,6 +22,9 @@
     <Compile Update="RestrictedSkusForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="WalmartFeedStatus.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="WalmartFeedTypeForm.cs">
       <SubType>Form</SubType>
     </Compile>

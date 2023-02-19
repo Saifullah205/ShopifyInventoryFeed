@@ -150,4 +150,9 @@ namespace ShopifyInventorySync.BusinessLogic
         public int amount { get; set; }
     }
 
+    public class WalmartFeedObject
+    {
+        public string feedId { get; set; }
+    }
+
 }

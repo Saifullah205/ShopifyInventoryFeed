@@ -46,11 +46,12 @@ namespace ShopifyInventorySync.Repositories
                 throw;
             }
         }
-        public void Insert(WalmartFeedResponse shopifyFixedPrice)
+
+        public void Insert(WalmartFeedResponse walmartFeedResponse)
         {
             try
             {
-                walmartDbContext.WalmartFeedResponses.Add(shopifyFixedPrice);
+                walmartDbContext.WalmartFeedResponses.Add(walmartFeedResponse);
             }
             catch (Exception)
             {
@@ -70,11 +71,11 @@ namespace ShopifyInventorySync.Repositories
             }
         }
 
-        public void Update(WalmartFeedResponse shopifyFixedPrice)
+        public void Update(WalmartFeedResponse walmartFeedResponse)
         {
             try
             {
-                walmartDbContext.Entry(shopifyFixedPrice).State = EntityState.Modified;
+                walmartDbContext.Entry(walmartFeedResponse).State = EntityState.Modified;
             }
             catch (Exception)
             {
@@ -98,9 +99,9 @@ namespace ShopifyInventorySync.Repositories
         {
             try
             {
-                WalmartFeedResponse shopifyFixedPrice = walmartDbContext.WalmartFeedResponses.Find(Id)!;
+                WalmartFeedResponse walmartFeedResponse = walmartDbContext.WalmartFeedResponses.Find(Id)!;
 
-                walmartDbContext.WalmartFeedResponses.Remove(shopifyFixedPrice!);
+                walmartDbContext.WalmartFeedResponses.Remove(walmartFeedResponse!);
             }
             catch (Exception)
             {
