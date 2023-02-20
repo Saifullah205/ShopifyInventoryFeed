@@ -53,6 +53,7 @@
             this.loadThePerfumeSpotProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fetchFragranceXProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markupSettingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedBrandsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedSKUsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -61,7 +62,6 @@
             this.settingsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -304,11 +304,19 @@
             this.fetchFragranceXProductsToolStripMenuItem1.Name = "fetchFragranceXProductsToolStripMenuItem1";
             this.fetchFragranceXProductsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
             this.fetchFragranceXProductsToolStripMenuItem1.Text = "Fetch FragranceX Products";
+            this.fetchFragranceXProductsToolStripMenuItem1.Click += new System.EventHandler(this.fetchFragranceXProductsToolStripMenuItem1_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(304, 6);
+            // 
+            // getFeedStatusToolStripMenuItem
+            // 
+            this.getFeedStatusToolStripMenuItem.Name = "getFeedStatusToolStripMenuItem";
+            this.getFeedStatusToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.getFeedStatusToolStripMenuItem.Text = "Get Feed Status";
+            this.getFeedStatusToolStripMenuItem.Click += new System.EventHandler(this.getFeedStatusToolStripMenuItem_Click);
             // 
             // markupSettingsToolStripMenuItem1
             // 
@@ -367,13 +375,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 26);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
-            // 
-            // getFeedStatusToolStripMenuItem
-            // 
-            this.getFeedStatusToolStripMenuItem.Name = "getFeedStatusToolStripMenuItem";
-            this.getFeedStatusToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
-            this.getFeedStatusToolStripMenuItem.Text = "Get Feed Status";
-            this.getFeedStatusToolStripMenuItem.Click += new System.EventHandler(this.getFeedStatusToolStripMenuItem_Click);
             // 
             // ProcessCSVForm
             // 

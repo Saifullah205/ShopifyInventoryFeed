@@ -1,6 +1,7 @@
 ﻿using CsvHelper;
 using Newtonsoft.Json;
 using RestSharp;
+using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System;
@@ -21,6 +22,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
         private readonly IRestrictedBrandsRepository restrictedBrandsRepository;
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly ShopifyAPI shopifyAPI;
+        private readonly FragranceXAPI fragranceXAPI;
 
         public ShopifyFragranceX()
         {
@@ -29,40 +31,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             productsRepository = new ProductsRepository();
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
-        }
-
-        private List<FragranceXProduct> FetchDataFromAPI()
-        {
-            string fragranceXJsonData = string.Empty;
-            List<FragranceXProduct> loadedFragranceXProducts = new();
-            string token = string.Empty;
-
-            try
-            {
-                token = GetFragranceXAPIToken();
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    //fragranceXJsonData = GetFragranceXAPIData(token);
-
-                    fragranceXJsonData = File.ReadAllText(Environment.CurrentDirectory + "//FragranceX_Single.txt");
-
-                    loadedFragranceXProducts = JsonConvert.DeserializeObject<List<FragranceXProduct>>(fragranceXJsonData!)!;
-                }
-                else
-                {
-                    MessageBox.Show("FragranceX API not accessible");
-                }
-
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-
-            return loadedFragranceXProducts;
+            fragranceXAPI = new();
         }
 
         public FragranceXProductsList GetDataFromSource()
@@ -71,7 +40,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
             try
             {
-                fragranceXProductsList.products = FetchDataFromAPI().Where(m => m.Upc != "").ToList();
+                fragranceXProductsList.products = fragranceXAPI.FetchDataFromAPI().Where(m => m.Upc != "").ToList();
             }
             catch (Exception)
             {
@@ -79,70 +48,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             }
 
             return fragranceXProductsList;
-        }
-
-        private string GetFragranceXAPIToken()
-        {
-            string token = string.Empty;
-            string url = GlobalConstants.fragrancexURL + "/token";
-            FragranceXToken fragranceXToken = new();
-
-            try
-            {
-                RestClient client = new RestClient();
-                var request = new RestRequest(url, Method.Post);
-
-                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.AddParameter("grant_type", GlobalConstants.grant_type);
-                request.AddParameter("apiAccessId", GlobalConstants.apiAccessId);
-                request.AddParameter("apiAccessKey", GlobalConstants.apiAccessKey);
-
-                RestResponse response = client.Execute(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    fragranceXToken = JsonConvert.DeserializeObject<FragranceXToken>(response.Content!)!;
-
-                    token = fragranceXToken.access_token;
-                }
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show("Unable to connect FragranceX API");
-            }
-
-            return token;
-        }
-
-        private string GetFragranceXAPIData(string token)
-        {
-            string productsData = string.Empty;
-            string url = GlobalConstants.fragrancexURL + "/product/list/";
-            FragranceXToken fragranceXToken = new();
-
-            try
-            {
-                RestClient client = new RestClient();
-                var request = new RestRequest(url, Method.Get);
-
-                request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("Authorization", "Bearer " + token);
-
-                RestResponse response = client.Execute(request);
-
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    productsData = response.Content!;
-                }
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-
-            return productsData;
         }
 
         public List<ShopifyInventoryDatum> FilterRemovedProducts(FragranceXProductsList fragranceXProductsList)
@@ -271,10 +176,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     ShopifyInventoryDatum? currentProduct = new();
                     FixedPrice? shopifyFixedPrice = new();
                     Image1 image = new();
-                    bool isFixedPrice = false;
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
-
 
                     variantTitle = productData.ProductName + " by " + productData.BrandName;
                     weightDescription = productData.Size + " " + productData.Type;
@@ -284,34 +187,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     imageURL = productData.LargeImageUrl.ToString()!;
                     gender = productData.Gender.ToString()!;
                     minimumQty = productData.QuantityAvailable.ToString();
-
-                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku).FirstOrDefault();
-
-                    if (shopifyFixedPrice != null)
-                    {
-                        try
-                        {
-                            if (Convert.ToDecimal(shopifyFixedPrice!.FixPrice) > 0)
-                            {
-                                cost = shopifyFixedPrice.FixPrice!;
-
-                                isFixedPrice = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            isFixedPrice = false;
-                        }
-                    }
-
-                    if (isFixedPrice)
-                    {
-                        updatedCost = cost;
-                    }
-                    else
-                    {
-                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), GlobalConstants.STORENAME.SHOPIFY));
-                    }
+                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), GlobalConstants.STORENAME.SHOPIFY).ToString();
 
                     fullSku = skuPrefix + sku.Trim();
 

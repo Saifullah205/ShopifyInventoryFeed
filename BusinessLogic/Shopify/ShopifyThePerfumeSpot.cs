@@ -1,4 +1,5 @@
 ﻿using CsvHelper;
+using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System.Globalization;
@@ -14,41 +15,16 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
         private readonly IRestrictedBrandsRepository restrictedBrandsRepository;
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly ShopifyAPI shopifyAPI;
+        private readonly ThePerfumeSpotAPI thePerfumeSpotAPI;
 
         public ShopifyThePerfumeSpot()
         {
             applicationState = ApplicationState.GetState;
             shopifyAPI = new();
+            thePerfumeSpotAPI = new();
             productsRepository = new ProductsRepository();
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
-        }
-
-        private string FetchDataFromAPI()
-        {
-            string responseData = string.Empty;
-            FileInfo fileInfo;
-
-            try
-            {
-                fileInfo = applicationState.ShowBrowseFileDialog();
-
-                if (fileInfo != null)
-                {
-                    responseData = File.ReadAllText(fileInfo.FullName);
-                }
-
-                if (string.IsNullOrEmpty(responseData))
-                {
-                    return string.Empty;
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return responseData;
         }
 
         public ThePerfumeSpotProductsList GetDataFromSource()
@@ -59,7 +35,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
             try
             {
-                fileTextData = FetchDataFromAPI();
+                fileTextData = thePerfumeSpotAPI.FetchDataFromAPI();
 
                 if (!string.IsNullOrEmpty(fileTextData))
                 {
@@ -206,7 +182,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     ShopifyInventoryDatum? currentProduct = new();
                     FixedPrice? shopifyFixedPrice = new();
                     Image1 image = new();
-                    bool isFixedPrice = false;
                     bool isSKUReplaced = false;
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
@@ -222,33 +197,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     giftSet = productData.GiftSet.ToString()!;
                     minimumQty = GlobalConstants.minimumQuantity;
 
-                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku && m.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY).FirstOrDefault();
-
-                    if (shopifyFixedPrice != null)
-                    {
-                        try
-                        {
-                            if (Convert.ToDecimal(shopifyFixedPrice!.FixPrice) > 0)
-                            {
-                                cost = shopifyFixedPrice.FixPrice!;
-
-                                isFixedPrice = true;
-                            }
-                        }
-                        catch (Exception)
-                        {
-                            isFixedPrice = false;
-                        }
-                    }
-
-                    if (isFixedPrice)
-                    {
-                        updatedCost = cost;
-                    }
-                    else
-                    {
-                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), GlobalConstants.STORENAME.SHOPIFY));
-                    }
+                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.Retail, GlobalConstants.STORENAME.SHOPIFY).ToString();
 
                     if (!ValidateRestrictedSKU(sku))
                     {

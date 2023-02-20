@@ -273,31 +273,82 @@ namespace ShopifyInventorySync.BusinessLogic
             return null;
         }
 
+        public decimal GetMarkedUpPrice(string sku, string cost, GlobalConstants.STORENAME storeName)
+        {
+            FixedPrice? ProductFixedPrice = new();
+            bool isFixedPrice = false;
+            decimal updatedCost = 0;
+
+            try
+            {
+                ProductFixedPrice = shopifyFixedPricesList.Where(m => m.Sku == sku && m.EcomStoreId == (int)storeName).FirstOrDefault();
+
+                if (ProductFixedPrice != null)
+                {
+                    try
+                    {
+                        if (Convert.ToDecimal(ProductFixedPrice!.FixPrice) > 0)
+                        {
+                            cost = ProductFixedPrice.FixPrice!;
+
+                            isFixedPrice = true;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        isFixedPrice = false;
+                    }
+                }
+
+                if (isFixedPrice)
+                {
+                    updatedCost = Convert.ToDecimal(cost);
+                }
+                else
+                {
+                    updatedCost = CalculateMarkupPrice(Convert.ToDecimal(cost), storeName);
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrorToFile(ex);
+            }
+
+            return updatedCost;
+        }
+
         public decimal CalculateMarkupPrice(decimal actualPrice, GlobalConstants.STORENAME storeName)
         {
             decimal markedupPrice = actualPrice;
             List<MarkUpPrice> MarkUpPriceList = new();
 
-            if(storeName == GlobalConstants.STORENAME.SHOPIFY)
+            try
             {
-                MarkUpPriceList = shopifyMarkUpPrice;
-            }
-            else if (storeName == GlobalConstants.STORENAME.WALMART)
-            {
-                MarkUpPriceList = walmartMarkUpPrice;
-            }
-
-            if(MarkUpPriceList.Count > 0)
-            {
-                foreach (MarkUpPrice markUpPriceItem in MarkUpPriceList)
+                if (storeName == GlobalConstants.STORENAME.SHOPIFY)
                 {
-                    if (markUpPriceItem.MinPrice <= Math.Ceiling(actualPrice) && markUpPriceItem.MaxPrice >= Math.Ceiling(actualPrice))
-                    {
-                        markedupPrice = Math.Round(actualPrice + ((markUpPriceItem.MarkupPercentage * actualPrice) / 100), 2);
+                    MarkUpPriceList = shopifyMarkUpPrice;
+                }
+                else if (storeName == GlobalConstants.STORENAME.WALMART)
+                {
+                    MarkUpPriceList = walmartMarkUpPrice;
+                }
 
-                        break;
+                if (MarkUpPriceList.Count > 0)
+                {
+                    foreach (MarkUpPrice markUpPriceItem in MarkUpPriceList)
+                    {
+                        if (markUpPriceItem.MinPrice <= Math.Ceiling(actualPrice) && markUpPriceItem.MaxPrice >= Math.Ceiling(actualPrice))
+                        {
+                            markedupPrice = Math.Round(actualPrice + ((markUpPriceItem.MarkupPercentage * actualPrice) / 100), 2);
+
+                            break;
+                        }
                     }
                 }
+            }
+            catch (Exception)
+            {
+                throw;
             }
 
             return markedupPrice;
