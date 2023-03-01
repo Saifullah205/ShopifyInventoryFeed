@@ -219,7 +219,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                         variantTitle = "Gift Set - " + variantTitle;
                     }
 
-                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).ToList().FirstOrDefault();
+                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku).ToList<ShopifyInventoryDatum>().FirstOrDefault();
 
                     if (currentProduct == null)
                     {
@@ -329,7 +329,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                     }
-                    else
+                    else if (currentProduct.SkuPrefix == GlobalConstants.fragranceXSKUPrefix)
                     {
                         UpdateProductStockQuantity(sku, productData.QuantityAvailable);
                         UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
