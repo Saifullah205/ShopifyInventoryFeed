@@ -1,16 +1,7 @@
-﻿using CsvHelper;
-using Newtonsoft.Json;
-using RestSharp;
-using ShopifyInventorySync.BusinessLogic.Vendors;
+﻿using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic.Shopify
 {
@@ -59,7 +50,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 products = fragranceXProductsList.products;
 
-                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.fragranceXSKUPrefix)
+                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)
                                            where !products.Any(x => x.Upc == s.Sku)
                                            select s).ToList();
             }
@@ -144,7 +135,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 headerProduct = productsToProcessData.products[0];
 
-                skuPrefix = GlobalConstants.fragranceXSKUPrefix;
+                skuPrefix = FRAGRANCEXSKUPREFIX;
 
                 mainTitle = headerProduct.ProductName;
                 vendor = headerProduct.BrandName;
@@ -187,7 +178,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     imageURL = productData.LargeImageUrl.ToString()!;
                     gender = productData.Gender.ToString()!;
                     minimumQty = productData.QuantityAvailable.ToString();
-                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), GlobalConstants.STORENAME.SHOPIFY).ToString();
+                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), STORENAME.SHOPIFY).ToString();
 
                     fullSku = skuPrefix + sku.Trim();
 
@@ -238,7 +229,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                         variant.inventory_quantity = productData.QuantityAvailable;
                         variant.option1 = weightDescription;
                         variant.option2 = genderDescription;
-                        variant.requires_shipping = GlobalConstants.requiresShipping;
+                        variant.requires_shipping = REQUIRESSHIPPING;
 
                         image.src = imageURL;
 
@@ -284,7 +275,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                 newVariantRequest.fulfillment_service = variant.fulfillment_service;
                                 newVariantRequest.option1 = variant.option1;
                                 newVariantRequest.option2 = variant.option2;
-                                newVariantRequest.requires_shipping = GlobalConstants.requiresShipping;
+                                newVariantRequest.requires_shipping = REQUIRESSHIPPING;
 
                                 newVariantMerge.variant = newVariantRequest;
 
@@ -329,7 +320,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                     }
-                    else if (currentProduct.SkuPrefix == GlobalConstants.fragranceXSKUPrefix)
+                    else if (currentProduct.SkuPrefix == FRAGRANCEXSKUPREFIX)
                     {
                         UpdateProductStockQuantity(sku, productData.QuantityAvailable);
                         UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
@@ -407,7 +398,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     {
                         ProductImageAttachVarient productImageAttachVarient = new();
                         Image1 image1 = new Image1();
-                        string imageURL = csvProductsToProcessModel.products.Where(m => m.Upc == productVariant.sku.Substring(GlobalConstants.fragranceXSKUPrefix.Length, productVariant.sku.Length - GlobalConstants.fragranceXSKUPrefix.Length)).FirstOrDefault()!.LargeImageUrl;
+                        string imageURL = csvProductsToProcessModel.products.Where(m => m.Upc == productVariant.sku.Substring(FRAGRANCEXSKUPREFIX.Length, productVariant.sku.Length - FRAGRANCEXSKUPREFIX.Length)).FirstOrDefault()!.LargeImageUrl;
                         string[] imageURLParts = imageURL.Split('/');
                         string imageName = imageURLParts[imageURLParts.Length - 1];
                         long[] variantIds = new long[] { productVariant.id };
@@ -446,7 +437,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
             try
             {
-                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).First();
+                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == FRAGRANCEXSKUPREFIX).First();
 
                 vendor = ShopifyInventoryData.BrandName!;
 
@@ -463,10 +454,10 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 shopifyID = ShopifyInventoryData.ShopifyId!;
                 inventoryItemId = ShopifyInventoryData.InventoryItemId!;
 
-                if (GlobalConstants.markOutOfStock.ToUpper() == "Y")
+                if (MARKOUTOFSTOCK.ToUpper() == "Y")
                 {
                     shopifyProductInventoryData.inventory_item_id = Convert.ToInt64(inventoryItemId);
-                    shopifyProductInventoryData.location_id = Convert.ToInt64(GlobalConstants.locationId);
+                    shopifyProductInventoryData.location_id = Convert.ToInt64(LOCATIONID);
                     shopifyProductInventoryData.available = quantity;
 
                     shopifyAPI.SetProductInventoryLevel(shopifyProductInventoryData);
@@ -503,7 +494,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
             try
             {
-                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == GlobalConstants.fragranceXSKUPrefix).First();
+                ShopifyInventoryData = productsRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == FRAGRANCEXSKUPREFIX).First();
 
                 ShopifyInventoryData.IsOutOfStock = isOutOfStock;
 

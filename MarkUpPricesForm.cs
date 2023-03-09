@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
@@ -20,10 +21,10 @@ namespace ShopifyInventorySync
         List<MarkUpPrice> markUpPricesList = new List<MarkUpPrice>();
         CommonRepository commonRepository;
         IMarkUpPriceRepository markUpPriceRepository;
-        GlobalConstants.STORENAME selectedEComStoreID;
+        STORENAME selectedEComStoreID;
         ApplicationState applicationState;
 
-        public MarkUpPricesForm(GlobalConstants.STORENAME sTORENAME)
+        public MarkUpPricesForm(STORENAME sTORENAME)
         {
             InitializeComponent();
 

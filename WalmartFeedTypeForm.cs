@@ -1,20 +1,10 @@
-﻿using ShopifyInventorySync.BusinessLogic;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+﻿using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
     public partial class WalmartFeedTypeForm : Form
     {
-        public GlobalConstants.WALMARTFEEDTYPEPOST selectedFeedType;
+        public WALMARTFEEDTYPEPOST selectedFeedType;
 
         public WalmartFeedTypeForm()
         {
@@ -32,8 +22,9 @@ namespace ShopifyInventorySync
             {
                 walmartFeedTypes.Add(1, "Remove products");
                 walmartFeedTypes.Add(2, "Setup Products");
-                walmartFeedTypes.Add(3, "Push Inventory Feed");
-                walmartFeedTypes.Add(4, "Mark Out of Stock");
+                walmartFeedTypes.Add(3, "Map Shipping Template");
+                walmartFeedTypes.Add(4, "Push Inventory Feed");
+                walmartFeedTypes.Add(5, "Mark Out of Stock");
 
                 cmbWalmartFeedType.DataSource = new BindingSource(walmartFeedTypes, null);
                 cmbWalmartFeedType.DisplayMember = "Value";
@@ -51,7 +42,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                selectedFeedType = (GlobalConstants.WALMARTFEEDTYPEPOST)((KeyValuePair<int, string>)(cmbWalmartFeedType.SelectedItem)).Key;
+                selectedFeedType = (WALMARTFEEDTYPEPOST)((KeyValuePair<int, string>)(cmbWalmartFeedType.SelectedItem)).Key;
 
                 this.Close();
             }

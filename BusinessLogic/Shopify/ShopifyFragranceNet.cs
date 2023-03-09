@@ -3,6 +3,7 @@ using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System.Globalization;
 using System.Text;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic.Shopify
 {
@@ -97,8 +98,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 products = fragranceNetProducts.products;
 
-                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.fragranceNetSKUPrefix)
-                                           where !products.Any(x => x.sku == s.Sku && s.SkuPrefix == GlobalConstants.fragranceNetSKUPrefix)
+                shopifyProductsToRemove = (from s in productsRepository.GetBySkuPrefix(FRAGRANCENETSKUPREFIX)
+                                           where !products.Any(x => x.sku == s.Sku && s.SkuPrefix == FRAGRANCENETSKUPREFIX)
                                            select s).ToList();
             }
             catch (Exception)
@@ -181,7 +182,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             {
                 headerProduct = productsToProcessData.products[0];
 
-                skuPrefix = GlobalConstants.fragranceNetSKUPrefix;
+                skuPrefix = FRAGRANCENETSKUPREFIX;
 
                 mainTitle = headerProduct.name;
                 vendor = headerProduct.designer;
@@ -225,9 +226,9 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     cost = productData.fnetWholesalePrice.ToString()!;
                     imageURL = productData.imageLarge.ToString()!;
                     gender = productData.gender.ToString()!;
-                    minimumQty = GlobalConstants.minimumQuantity;
+                    minimumQty = MINIMUMQUANTITY;
 
-                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku && m.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY).FirstOrDefault();
+                    shopifyFixedPrice = applicationState.shopifyFixedPricesList.Where(m => m.Sku == sku && m.EcomStoreId == (int)STORENAME.SHOPIFY).FirstOrDefault();
 
                     if (shopifyFixedPrice != null)
                     {
@@ -252,7 +253,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     }
                     else
                     {
-                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), GlobalConstants.STORENAME.SHOPIFY));
+                        updatedCost = Convert.ToString(applicationState.CalculateMarkupPrice(Convert.ToDecimal(cost), STORENAME.SHOPIFY));
                     }
 
                     if (!ValidateRestrictedSKU(sku))
@@ -277,7 +278,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                     if (currentProduct != null)
                     {
-                        if (currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.tpsSKUPrefix.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == GlobalConstants.fragranceXSKUPrefix.ToUpper())
+                        if (currentProduct.SkuPrefix?.ToUpper() == TPSSKUPREFIX.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == FRAGRANCEXSKUPREFIX.ToUpper())
                         {
                             ProductsRepository productsContext = new();
                             OverrideVariantUpdateModel overrideVariantUpdateModel = new();
@@ -303,7 +304,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                 shopifyAPI.DeleteProductVariantImage(Convert.ToInt64(currentProduct.ShopifyId), Convert.ToInt64(currentProduct.ImageId));
                                 newImage = shopifyAPI.CreateProductVariantImage(overrideVariantImageUpdateModel, overrideVariantImageUpdateModel.image.product_id);
 
-                                currentProduct.SkuPrefix = GlobalConstants.fragranceNetSKUPrefix;
+                                currentProduct.SkuPrefix = FRAGRANCENETSKUPREFIX;
                                 currentProduct.ImageId = newImage.image.id.ToString();
 
                                 isSKUReplaced = true;
@@ -337,7 +338,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             variant.inventory_quantity = Convert.ToInt32(minimumQty);
                             variant.option1 = weightDescription;
                             variant.option2 = genderDescription;
-                            variant.requires_shipping = GlobalConstants.requiresShipping;
+                            variant.requires_shipping = REQUIRESSHIPPING;
 
                             image.src = imageURL;
 
@@ -376,7 +377,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                     newVariantRequest.fulfillment_service = variant.fulfillment_service;
                                     newVariantRequest.option1 = variant.option1;
                                     newVariantRequest.option2 = variant.option2;
-                                    newVariantRequest.requires_shipping = GlobalConstants.requiresShipping;
+                                    newVariantRequest.requires_shipping = REQUIRESSHIPPING;
 
                                     newVariantMerge.variant = newVariantRequest;
 
@@ -404,7 +405,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                                     productsRepositoryVariant.Save();
 
-                                    UpdateProductStockQuantity(sku, Convert.ToInt32(GlobalConstants.minimumQuantity));
+                                    UpdateProductStockQuantity(sku, Convert.ToInt32(MINIMUMQUANTITY));
                                 }
                                 catch (Exception ex)
                                 {
@@ -423,7 +424,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                         }
                         else if (currentProduct.IsOutOfStock)
                         {
-                            UpdateProductStockQuantity(sku, Convert.ToInt32(GlobalConstants.minimumQuantity));
+                            UpdateProductStockQuantity(sku, Convert.ToInt32(MINIMUMQUANTITY));
                         }
 
                         if (currentProduct != null)
@@ -502,7 +503,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 {
                     ProductImageAttachVarient productImageAttachVarient = new();
                     Image1 image1 = new();
-                    string imageURL = csvProductsToProcessModel.products.Where(m => m.sku == productVariant.sku.Substring(GlobalConstants.fragranceNetSKUPrefix.Length, productVariant.sku.Length - GlobalConstants.fragranceNetSKUPrefix.Length)).First().imageLarge;
+                    string imageURL = csvProductsToProcessModel.products.Where(m => m.sku == productVariant.sku.Substring(FRAGRANCENETSKUPREFIX.Length, productVariant.sku.Length - FRAGRANCENETSKUPREFIX.Length)).First().imageLarge;
                     string[] imageURLParts = imageURL.Split('/');
                     string imageName = imageURLParts[imageURLParts.Length - 1];
                     long[] variantIds = new long[] { productVariant.id };
@@ -553,10 +554,10 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 shopifyID = ShopifyInventoryData.ShopifyId!;
                 inventoryItemId = ShopifyInventoryData.InventoryItemId!;
 
-                if (GlobalConstants.markOutOfStock.ToUpper() == "Y")
+                if (MARKOUTOFSTOCK.ToUpper() == "Y")
                 {
                     shopifyProductInventoryData.inventory_item_id = Convert.ToInt64(inventoryItemId);
-                    shopifyProductInventoryData.location_id = Convert.ToInt64(GlobalConstants.locationId);
+                    shopifyProductInventoryData.location_id = Convert.ToInt64(LOCATIONID);
                     shopifyProductInventoryData.available = quantity;
 
                     shopifyAPI.SetProductInventoryLevel(shopifyProductInventoryData);
@@ -672,7 +673,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor && s.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY
+                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
@@ -698,7 +699,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku && s.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY
+                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));

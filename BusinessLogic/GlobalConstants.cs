@@ -2,27 +2,31 @@
 {
     public static class GlobalConstants
     {
-        public static string tpsSKUPrefix { get; set; }
-        public static string minimumQuantity { get; set; }
-        public static string markOutOfStock { get; set; }
-        public static string locationId { get; set; }
-        public static string shopifyAccessKey { get; set; }
-        public static string shopifyBaseURL { get; set; }
-        public static string fragranceXSKUPrefix { get; set; }
-        public static string fragranceNetSKUPrefix { get; set; }
-        public static string apiAccessId { get; set; }
-        public static string apiAccessKey { get; set; }
-        public static string grant_type { get; set; }
-        public static string fragrancexURL { get; set; }
-        public static string fragranceNetURL { get; set; }
-        public static string fragranceNetUserName { get; set; }
-        public static string fragranceNetPassword { get; set; }
-        public static bool requiresShipping { get; set; }
-        public static string wmConsumerChannelType { get; set; }
-        public static string wmQosCorrelationId { get; set; }
-        public static string wmSvcName { get; set; }
-        public static string walmartAuthorization { get; set; }
-        public static string walmartURL { get; set; }
+        public static string TPSSKUPREFIX { get; set; }
+        public static string MINIMUMQUANTITY { get; set; }
+        public static string MARKOUTOFSTOCK { get; set; }
+        public static string LOCATIONID { get; set; }
+        public static string SHOPIFYACCESSKEY { get; set; }
+        public static string SHOPIFYBASEURL { get; set; }
+        public static string FRAGRANCEXSKUPREFIX { get; set; }
+        public static string FRAGRANCENETSKUPREFIX { get; set; }
+        public static string APIACCESSID { get; set; }
+        public static string APIACCESSKEY { get; set; }
+        public static string GRANT_TYPE { get; set; }
+        public static string FRAGRANCEXURL { get; set; }
+        public static string FRAGRANCENETURL { get; set; }
+        public static string FRAGRANCENETUSERNAME { get; set; }
+        public static string FRAGRANCENETPASSWORD { get; set; }
+        public static bool REQUIRESSHIPPING { get; set; }
+        public static string WMCONSUMERCHANNELTYPE { get; set; }
+        public static string WMQOSCORRELATIONID { get; set; }
+        public static string WMSVCNAME { get; set; }
+        public static string WALMARTAUTHORIZATION { get; set; }
+        public static string WALMARTURL { get; set; }
+        public static string SHIPPINGTEMPLATEID { get; set; }
+        public static string FULFILLMENTCENTERID { get; set; }
+        public static string WALMARTCHUNKSIZE { get; set; }
+        public static string WALMRTTOKEN { get; set; }
 
         public enum STORENAME
         {
@@ -46,15 +50,17 @@
         public enum WALMARTFEEDTYPE
         {
             MP_ITEM = 1,
-            MP_INVENTORY = 2
+            MP_INVENTORY = 2,
+            MP_SHIPPINGMAP = 2
         }
 
         public enum WALMARTFEEDTYPEPOST
         {
             RETIRE = 1,
             SETUPITEM = 2,
-            INVENTORYFEED = 3,
-            OUTOFSTOCK = 4
+            MAPSHIPPINGTEMPLATE = 3,
+            INVENTORYFEED = 4,
+            OUTOFSTOCK = 5
         }
     }
 }

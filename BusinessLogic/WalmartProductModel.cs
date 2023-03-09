@@ -115,17 +115,19 @@ namespace ShopifyInventorySync.BusinessLogic
         public object errors { get; set; }
     }
 
+    #region WalmartInventoryRequestModel
+
 
     public class WalmartInventoryRequestModel
     {
         public WalmartInventoryRequestModel()
         {
-            InventoryHeader = new();
-            Inventory = new List<Inventory>();
+            inventoryHeader = new();
+            inventory = new();
         }
 
-        public Inventoryheader InventoryHeader { get; set; }
-        public List<Inventory> Inventory { get; set; }
+        public Inventoryheader inventoryHeader { get; set; }
+        public List<Inventory> inventory { get; set; }
     }
 
     public class Inventoryheader
@@ -137,10 +139,21 @@ namespace ShopifyInventorySync.BusinessLogic
     {
         public Inventory()
         {
-            quantity = new();
+            shipNodes = new();
         }
 
         public string sku { get; set; }
+        public List<Shipnode> shipNodes { get; set; }
+    }
+
+    public class Shipnode
+    {
+        public Shipnode()
+        {
+            quantity = new();
+        }
+
+        public string shipNode { get; set; }
         public Quantity quantity { get; set; }
     }
 
@@ -150,9 +163,53 @@ namespace ShopifyInventorySync.BusinessLogic
         public int amount { get; set; }
     }
 
+
+    #endregion
+
     public class WalmartFeedObject
     {
         public string feedId { get; set; }
     }
+
+    #region Shipping_Template_Mapping
+
+    public class WalmartShippingTemplateMapping
+    {
+        public WalmartShippingTemplateMapping()
+        {
+            ItemFeedHeader = new();
+            Item = new();
+        }
+
+        public Itemfeedheader ItemFeedHeader { get; set; }
+        public List<ShippingTemplateItem> Item { get; set; }
+    }
+
+    public class Itemfeedheader
+    {
+        public string sellingChannel { get; set; }
+        public string locale { get; set; }
+        public string version { get; set; }
+    }
+
+    public class ShippingTemplateItem
+    {
+        public ShippingTemplateItem()
+        {
+            PreciseDelivery = new();
+        }
+
+        public Precisedelivery PreciseDelivery { get; set; }
+    }
+
+    public class Precisedelivery
+    {
+        public string sku { get; set; }
+        public string actionType { get; set; }
+        public string shippingTemplateId { get; set; }
+        public string fulfillmentCenterId { get; set; }
+    }
+
+    #endregion
 
 }

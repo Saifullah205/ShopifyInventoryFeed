@@ -2,6 +2,7 @@
 using ShopifyInventorySync.Repositories;
 using System.Data;
 using System.Reflection;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic
 {
@@ -71,8 +72,8 @@ namespace ShopifyInventorySync.BusinessLogic
                 shopifyMarkUpPrice.Clear();
                 walmartMarkUpPrice.Clear();
 
-                shopifyMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)GlobalConstants.STORENAME.SHOPIFY).ToList<MarkUpPrice>();
-                walmartMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)GlobalConstants.STORENAME.WALMART).ToList<MarkUpPrice>();
+                shopifyMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)STORENAME.SHOPIFY).ToList<MarkUpPrice>();
+                walmartMarkUpPrice = markUpPriceRepository.GetAll().Where(m => m.EcomStoreId == (int)STORENAME.WALMART).ToList<MarkUpPrice>();
             }
             catch (Exception ex)
             {
@@ -102,19 +103,19 @@ namespace ShopifyInventorySync.BusinessLogic
 
         public void LogErrorToFile(Exception ex)
         {
-            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace, GlobalConstants.LOGTYPE.ERROR);
+            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace, LOGTYPE.ERROR);
         }
 
         public void LogInfoToFile(string message)
         {
-            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + message, GlobalConstants.LOGTYPE.INFO);
+            WriteToLogToFile(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + message, LOGTYPE.INFO);
         }
 
-        public void WriteToLogToFile(String text, GlobalConstants.LOGTYPE lOGTYPE)
+        public void WriteToLogToFile(String text, LOGTYPE lOGTYPE)
         {
             try
             {
-                string fileType = lOGTYPE == GlobalConstants.LOGTYPE.ERROR ? "Error" : "Info";
+                string fileType = lOGTYPE == LOGTYPE.ERROR ? "Error" : "Info";
                 string fileName = fileType + "Log-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
 
                 lock (threadSafelock)
@@ -150,67 +151,76 @@ namespace ShopifyInventorySync.BusinessLogic
                 switch (tag.ToUpper())
                 {
                     case "SHOPIFYSKUPREFIX":
-                        GlobalConstants.tpsSKUPrefix = tagValue;
+                        TPSSKUPREFIX = tagValue;
                         break;
                     case "MINIMUMQUANTITY":
-                        GlobalConstants.minimumQuantity = tagValue;
+                        MINIMUMQUANTITY = tagValue;
                         break;
                     case "MARKOUTOFSTOCK":
-                        GlobalConstants.markOutOfStock = tagValue;
+                        MARKOUTOFSTOCK = tagValue;
                         break;
                     case "LOCATIONID":
-                        GlobalConstants.locationId = tagValue;
+                        LOCATIONID = tagValue;
                         break;
                     case "SHOPIFYACCESSKEY":
-                        GlobalConstants.shopifyAccessKey = tagValue;
+                        SHOPIFYACCESSKEY = tagValue;
                         break;
                     case "SHOPIFYBASEURL":
-                        GlobalConstants.shopifyBaseURL = tagValue;
+                        SHOPIFYBASEURL = tagValue;
                         break;
                     case "FRAGRANCEXSKUPREFIX":
-                        GlobalConstants.fragranceXSKUPrefix = tagValue;
+                        FRAGRANCEXSKUPREFIX = tagValue;
                         break;
                     case "APIACCESSID":
-                        GlobalConstants.apiAccessId = tagValue;
+                        APIACCESSID = tagValue;
                         break;
                     case "APIACCESSKEY":
-                        GlobalConstants.apiAccessKey = tagValue;
+                        APIACCESSKEY = tagValue;
                         break;
                     case "GRANT_TYPE":
-                        GlobalConstants.grant_type = tagValue;
+                        GRANT_TYPE = tagValue;
                         break;
                     case "FRAGRANCEXURL":
-                        GlobalConstants.fragrancexURL = tagValue;
+                        FRAGRANCEXURL = tagValue;
                         break;
                     case "FRAGRANCENETURL":
-                        GlobalConstants.fragranceNetURL = tagValue;
+                        FRAGRANCENETURL = tagValue;
                         break;
                     case "FRAGRANCENETUSERNAME":
-                        GlobalConstants.fragranceNetUserName = tagValue;
+                        FRAGRANCENETUSERNAME = tagValue;
                         break;
                     case "FRAGRANCENETPASSWORD":
-                        GlobalConstants.fragranceNetPassword = tagValue;
+                        FRAGRANCENETPASSWORD = tagValue;
                         break;
                     case "FRAGRANCENETSKUPREFIX":
-                        GlobalConstants.fragranceNetSKUPrefix = tagValue;
+                        FRAGRANCENETSKUPREFIX = tagValue;
                         break;
                     case "REQUIRESSHIPPING":
-                        GlobalConstants.requiresShipping = tagValue.ToUpper() == "Y" ? true : false;
+                        REQUIRESSHIPPING = tagValue.ToUpper() == "Y" ? true : false;
                         break;
                     case "WM_CONSUMER.CHANNEL.TYPE":
-                        GlobalConstants.wmConsumerChannelType = tagValue;
+                        WMCONSUMERCHANNELTYPE = tagValue;
                         break;
                     case "WM_QOS.CORRELATION_ID":
-                        GlobalConstants.wmQosCorrelationId = tagValue;
+                        WMQOSCORRELATIONID = tagValue;
                         break;
                     case "WM_SVC.NAME":
-                        GlobalConstants.wmSvcName = tagValue;
+                        WMSVCNAME = tagValue;
                         break;
                     case "WALMARTAUTHORIZATION":
-                        GlobalConstants.walmartAuthorization = tagValue;
+                        WALMARTAUTHORIZATION = tagValue;
                         break;
                     case "WALMARTURL":
-                        GlobalConstants.walmartURL = tagValue;
+                        WALMARTURL = tagValue;
+                        break;
+                    case "SHIPPINGTEMPLATEID":
+                        SHIPPINGTEMPLATEID = tagValue;
+                        break;
+                    case "FULFILLMENTCENTERID":
+                        FULFILLMENTCENTERID = tagValue;
+                        break;
+                    case "WALMARTCHUNKSIZE":
+                        WALMARTCHUNKSIZE = tagValue;
                         break;
                     default:
                         break;
@@ -273,7 +283,7 @@ namespace ShopifyInventorySync.BusinessLogic
             return null;
         }
 
-        public decimal GetMarkedUpPrice(string sku, string cost, GlobalConstants.STORENAME storeName)
+        public decimal GetMarkedUpPrice(string sku, string cost, STORENAME storeName)
         {
             FixedPrice? ProductFixedPrice = new();
             bool isFixedPrice = false;
@@ -317,18 +327,18 @@ namespace ShopifyInventorySync.BusinessLogic
             return updatedCost;
         }
 
-        public decimal CalculateMarkupPrice(decimal actualPrice, GlobalConstants.STORENAME storeName)
+        public decimal CalculateMarkupPrice(decimal actualPrice, STORENAME storeName)
         {
             decimal markedupPrice = actualPrice;
             List<MarkUpPrice> MarkUpPriceList = new();
 
             try
             {
-                if (storeName == GlobalConstants.STORENAME.SHOPIFY)
+                if (storeName == STORENAME.SHOPIFY)
                 {
                     MarkUpPriceList = shopifyMarkUpPrice;
                 }
-                else if (storeName == GlobalConstants.STORENAME.WALMART)
+                else if (storeName == STORENAME.WALMART)
                 {
                     MarkUpPriceList = walmartMarkUpPrice;
                 }

@@ -2,6 +2,7 @@
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System.Data;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
@@ -11,10 +12,10 @@ namespace ShopifyInventorySync
         IRestrictedSkusRepository restrictedSkusRepository;
         List<ClientApi> clientApis = new();
         List<RestrictedSku> restrictedSkusList = new List<RestrictedSku>();
-        public GlobalConstants.STORENAME selectedEComStoreID;
+        public STORENAME selectedEComStoreID;
         ApplicationState applicationState;
 
-        public RestrictedSkusForm(GlobalConstants.STORENAME sTORENAME)
+        public RestrictedSkusForm(STORENAME sTORENAME)
         {
             InitializeComponent();
 

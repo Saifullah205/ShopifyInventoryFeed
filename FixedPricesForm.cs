@@ -1,15 +1,8 @@
 ﻿using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
@@ -19,10 +12,10 @@ namespace ShopifyInventorySync
         List<FixedPrice> shopifyFixedPricesList = new List<FixedPrice>();
         CommonRepository commonRepository;
         IMarkUpPriceRepository markUpPriceRepository;
-        GlobalConstants.STORENAME selectedEComStoreID;
+        STORENAME selectedEComStoreID;
         ApplicationState applicationState;
 
-        public FixedPricesForm(GlobalConstants.STORENAME sTORENAME)
+        public FixedPricesForm(STORENAME sTORENAME)
         {
             InitializeComponent();
 

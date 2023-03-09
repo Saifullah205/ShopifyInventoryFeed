@@ -2,6 +2,7 @@
 using RestSharp;
 using ShopifyInventorySync.Models;
 using System.Net;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic.Shopify
 {
@@ -17,13 +18,13 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
         public bool DeleteShopifyProduct(ShopifyInventoryDatum product)
         {
             bool result = false;
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products/" + product.ShopifyId + ".json";
+            string url = SHOPIFYBASEURL + "/admin/api/2021-10/products/" + product.ShopifyId + ".json";
 
             try
             {
                 RestClient client = new();
                 RestRequest request = new(url, method: Method.Delete);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 RestResponse response = client.Execute(request);
 
                 if (response != null)
@@ -42,7 +43,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public ShopifyProductModel CreateNewShopifyItem(ShopifyProductModel shopifyProductModelData)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products.json";
+            string url = SHOPIFYBASEURL + "/admin/api/2021-10/products.json";
             ShopifyProductModel shopifyProductResponseData = new ShopifyProductModel();
 
             try
@@ -51,7 +52,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 RestRequest request = new RestRequest(url, Method.Post);
 
                 request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 var body = JsonConvert.SerializeObject(shopifyProductModelData);
                 request.AddParameter("application/json", body, ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -68,7 +69,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public Image1 UpdateProductVariantImage(ProductImageAttachVarient shopifyProductImageData, long productId)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images/" + shopifyProductImageData.image.id + ".json";
+            string url = SHOPIFYBASEURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images/" + shopifyProductImageData.image.id + ".json";
             Image1 shopifyProductResponseData = new Image1();
 
             try
@@ -77,7 +78,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 RestRequest request = new RestRequest(url, Method.Put);
 
                 request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 var body = JsonConvert.SerializeObject(shopifyProductImageData);
                 request.AddParameter("application/json", body, ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -94,7 +95,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public NewVariantImageResponseModel CreateProductVariantImage(OverrideVariantImageUpdateModel overrideVariantImageUpdateModel, long productId)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images.json";
+            string url = SHOPIFYBASEURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images.json";
             NewVariantImageResponseModel image = new NewVariantImageResponseModel();
 
             try
@@ -103,7 +104,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 RestRequest request = new RestRequest(url, Method.Post);
 
                 request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 request.AddHeader("Content-Type", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(overrideVariantImageUpdateModel), ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -123,14 +124,14 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public NewVariantRootModel CreateNewVariant(NewVariantMerge newVariantMerge, string shopifyID)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-10/products/" + shopifyID.ToString() + "/variants.json";
+            string url = SHOPIFYBASEURL + "/admin/api/2022-10/products/" + shopifyID.ToString() + "/variants.json";
             NewVariantRootModel newVariantRootModel = new();
 
             try
             {
                 RestClient client = new();
                 RestRequest request = new(url, method: Method.Post);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 request.AddHeader("Content-Type", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(newVariantMerge), ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -150,7 +151,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public ShopifyProductInventoryResponse SetProductInventoryLevel(ShopifyProductInventoryModel shopifyProductModelData)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-01/inventory_levels/set.json";
+            string url = SHOPIFYBASEURL + "/admin/api/2022-01/inventory_levels/set.json";
             ShopifyProductInventoryResponse shopifyProductResponseData = new();
 
             try
@@ -159,7 +160,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 RestRequest request = new RestRequest(url, Method.Post);
 
                 request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 var body = JsonConvert.SerializeObject(shopifyProductModelData);
                 request.AddParameter("application/json", body, ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -177,14 +178,14 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public bool UpdateVariantPrice(SingleVariantPriceUpdate singleVariantPriceUpdate)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-10/variants/" + singleVariantPriceUpdate.variant.id.ToString() + ".json";
+            string url = SHOPIFYBASEURL + "/admin/api/2022-10/variants/" + singleVariantPriceUpdate.variant.id.ToString() + ".json";
             bool result = false;
 
             try
             {
                 RestClient client = new RestClient();
                 RestRequest request = new RestRequest(url, Method.Put);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 request.AddHeader("Content-Type", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(singleVariantPriceUpdate), ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -204,7 +205,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public bool AddMetaField(string sku, string shopifyID)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-10/products/" + shopifyID + "/metafields.json";
+            string url = SHOPIFYBASEURL + "/admin/api/2022-10/products/" + shopifyID + "/metafields.json";
             bool result = false;
             MetafieldModel metafieldModel = new();
 
@@ -217,7 +218,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                 RestClient client = new();
                 RestRequest request = new(url, Method.Post);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 request.AddHeader("Content-Type", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(metafieldModel), ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -237,14 +238,14 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public bool OverrideShopifyVariant(OverrideVariantUpdateModel overrideVarianteUpdateModel)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2022-10/variants/" + overrideVarianteUpdateModel.variant.id.ToString() + ".json";
+            string url = SHOPIFYBASEURL + "/admin/api/2022-10/variants/" + overrideVarianteUpdateModel.variant.id.ToString() + ".json";
             bool result = false;
 
             try
             {
                 RestClient client = new();
                 RestRequest request = new(url, method: Method.Put);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 request.AddHeader("Content-Type", "application/json");
                 request.AddParameter("application/json", JsonConvert.SerializeObject(overrideVarianteUpdateModel), ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
@@ -267,14 +268,14 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
         public bool DeleteProductVariantImage(long productId, long imageID)
         {
-            string url = GlobalConstants.shopifyBaseURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images/" + imageID.ToString() + ".json";
+            string url = SHOPIFYBASEURL + "/admin/api/2021-10/products/" + productId.ToString() + "/images/" + imageID.ToString() + ".json";
             bool result = false;
 
             try
             {
                 RestClient client = new RestClient();
                 RestRequest request = new RestRequest(url, Method.Delete);
-                request.AddHeader("X-Shopify-Access-Token", GlobalConstants.shopifyAccessKey);
+                request.AddHeader("X-Shopify-Access-Token", SHOPIFYACCESSKEY);
                 RestResponse response = client.Execute(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)

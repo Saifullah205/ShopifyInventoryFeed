@@ -1,11 +1,14 @@
 ﻿using CsvHelper;
+using Microsoft.VisualBasic.FileIO;
 using Newtonsoft.Json;
 using ShopifyInventorySync.BusinessLogic.Shopify;
 using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
 using System.Globalization;
+using System.Linq;
 using System.Text;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic.Walmart
 {
@@ -60,25 +63,35 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return fragranceNetProducts;
         }
 
-        public List<WalmartInventoryDatum> FilterOutOfStockProducts(ThePerfumeSpotProductsList productsList)
+        public List<ThePerfumeSpotProduct> FilterOutOfStockProducts(ThePerfumeSpotProductsList productsList)
         {
             List<WalmartInventoryDatum> productsToRemove = new();
+            List<ThePerfumeSpotProduct> productsToRemoveList = new();
             List<ThePerfumeSpotProduct> products = new();
 
             try
             {
                 products = productsList.products;
 
-                productsToRemove = (from s in productsRepository.GetBySkuPrefix(GlobalConstants.tpsSKUPrefix)
+                productsToRemove = (from s in productsRepository.GetBySkuPrefix(TPSSKUPREFIX)
                                     where !products.Any(x => x.UPC == s.Sku)
                                     select s).ToList();
+
+                foreach (WalmartInventoryDatum item in productsToRemove)
+                {
+                    ThePerfumeSpotProduct thePerfumeSpotProduct = new();
+
+                    thePerfumeSpotProduct.SKU = item.Sku!;
+
+                    productsToRemoveList.Add(thePerfumeSpotProduct);
+                }
             }
             catch (Exception)
             {
                 throw;
             }
 
-            return productsToRemove;
+            return productsToRemoveList;
         }
 
         public List<ThePerfumeSpotProduct> FilterProductsToRemove(ThePerfumeSpotProductsList productsList)
@@ -92,11 +105,11 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 restrictedBrands = (from s in restrictedBrandsRepository.GetAll()
-                                    where (s.EcomStoreId == (int)GlobalConstants.STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
+                                    where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
                                     select s).ToList<RestrictedBrand>();
 
                 restrictedSku = (from s in restrictedSkusRepository.GetAll()
-                                 where (s.EcomStoreId == (int)GlobalConstants.STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
+                                 where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
@@ -107,7 +120,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 {
                     WalmartInventoryDatum walmartInventoryDatum = new();
 
-                    walmartInventoryDatum.SkuPrefix = GlobalConstants.tpsSKUPrefix;
+                    walmartInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                     walmartInventoryDatum.Sku = product.UPC;
                     walmartInventoryDatum.BrandName = product.Brand;
 
@@ -126,7 +139,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsToRemove;
         }
 
-        public List<ThePerfumeSpotProduct> FilterProductsToProcess(ThePerfumeSpotProductsList productsList, List<ThePerfumeSpotProduct> removedProducts, List<WalmartInventoryDatum> outOfStockProducts)
+        public List<ThePerfumeSpotProduct> FilterProductsToProcess(ThePerfumeSpotProductsList productsList, List<ThePerfumeSpotProduct> removedProducts, List<ThePerfumeSpotProduct> outOfStockProducts)
         {
             WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<ThePerfumeSpotProduct> productsToProcess = new(); ;
@@ -136,7 +149,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 productsToProcess = (from s in productsList.products
-                                    where (!removedProducts.Any(x => x.UPC == s.UPC) || !outOfStockProducts.Any(x => x.Sku == s.UPC))
+                                    where (!removedProducts.Any(x => x.UPC == s.UPC) || !outOfStockProducts.Any(x => x.SKU == s.UPC))
                                     select s).ToList<ThePerfumeSpotProduct>();
 
                 productsToSave = (from s in productsToProcess
@@ -147,7 +160,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 {
                     WalmartInventoryDatum walmartInventoryDatum = new();
 
-                    walmartInventoryDatum.SkuPrefix = GlobalConstants.tpsSKUPrefix;
+                    walmartInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                     walmartInventoryDatum.Sku = product.UPC;
                     walmartInventoryDatum.BrandName = product.Brand;
 
@@ -157,29 +170,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 walmartInventoryRepository.InsertMultiple(productsAddedSaveData);
 
                 walmartInventoryRepository.Save();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return productsToProcess;
-        }
-
-        public List<WalmartInventoryDatum> PrepareInStockProductsQtyToProcess(List<ThePerfumeSpotProduct> productsList)
-        {
-            List<WalmartInventoryDatum> productsToProcess = new();
-
-            try
-            {
-                foreach (ThePerfumeSpotProduct item in productsList)
-                {
-                    WalmartInventoryDatum thePerfumeSpotProduct = new();
-
-                    thePerfumeSpotProduct.Sku = item.UPC;
-
-                    productsToProcess.Add(thePerfumeSpotProduct);
-                }
             }
             catch (Exception)
             {
@@ -200,7 +190,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
             try
             {
-                thePerfumeSpotProductsMultiLists = productsList.Chunk(8000);
+                thePerfumeSpotProductsMultiLists = productsList.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
 
                 walmartProductModel.MPItemFeedHeader.sellingChannel = "marketplace";
                 walmartProductModel.MPItemFeedHeader.processMode = "REPLACE";
@@ -222,7 +212,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         string mainTitle = string.Empty;
 
                         sku = productData.UPC;
-                        fullSku = GlobalConstants.tpsSKUPrefix + productData.UPC;
+                        fullSku = TPSSKUPREFIX + productData.UPC;
                         vendor = productData.Brand;
                         mainTitle = productData.Name.Split(',')[0].ToString();
 
@@ -232,7 +222,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
-                        mpitem.Orderable.price = applicationState.GetMarkedUpPrice(sku, productData.Retail, GlobalConstants.STORENAME.WALMART);
+                        mpitem.Orderable.price = applicationState.GetMarkedUpPrice(sku, productData.Retail, STORENAME.WALMART);
                         mpitem.Orderable.ShippingWeight = (int)Convert.ToDecimal(string.IsNullOrEmpty(productData.Weight) ? "0" : productData.Weight);
                         mpitem.Orderable.electronicsIndicator = "No";
                         mpitem.Orderable.batteryTechnologyType = "Does Not Contain a Battery";
@@ -268,31 +258,36 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsData;
         }
 
-        public List<string> FormatSourceProductsInventoryData(List<WalmartInventoryDatum> productsList, bool markOutOfStock)
+        public List<string> FormatSourceProductsInventoryData(List<ThePerfumeSpotProduct> productsList, bool markOutOfStock)
         {
             WalmartInventoryRequestModel walmartInventoryRequestModel = new();
-            IEnumerable<WalmartInventoryDatum[]> thePerfumeSpotProductsMultiLists;
+            IEnumerable<ThePerfumeSpotProduct[]> thePerfumeSpotProductsMultiLists;
             List<string> productsData = new List<string>();
 
             try
             {
-                thePerfumeSpotProductsMultiLists = productsList.Chunk(500);
+                thePerfumeSpotProductsMultiLists = productsList.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
 
-                walmartInventoryRequestModel.InventoryHeader.version = "1.5";
+                walmartInventoryRequestModel.inventoryHeader.version = "1.5";
 
-                foreach (WalmartInventoryDatum[] productsSingleList in thePerfumeSpotProductsMultiLists)
+                foreach (ThePerfumeSpotProduct[] productsSingleList in thePerfumeSpotProductsMultiLists)
                 {
-                    walmartInventoryRequestModel.Inventory.Clear();
+                    walmartInventoryRequestModel.inventory.Clear();
 
-                    foreach (WalmartInventoryDatum productData in productsSingleList)
+                    foreach (ThePerfumeSpotProduct productData in productsSingleList)
                     {
                         Inventory inventory = new();
+                        Shipnode shipnode = new();
 
-                        inventory.sku = GlobalConstants.tpsSKUPrefix + productData.Sku;
-                        inventory.quantity.unit = "EACH";
-                        inventory.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(GlobalConstants.minimumQuantity);
+                        inventory.sku = TPSSKUPREFIX + productData.SKU;
 
-                        walmartInventoryRequestModel.Inventory.Add(inventory);
+                        shipnode.shipNode = FULFILLMENTCENTERID;
+                        shipnode.quantity.unit = "EACH";
+                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(productData.Retail);
+
+                        inventory.shipNodes.Add(shipnode);
+
+                        walmartInventoryRequestModel.inventory.Add(inventory);
                     }
 
                     productsData.Add(JsonConvert.SerializeObject(walmartInventoryRequestModel));
@@ -306,40 +301,53 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsData;
         }
 
-        public void ProcessProductToWalmart(string walmartProductsTextData, GlobalConstants.WALMARTFEEDTYPE wALMARTFEEDTYPE)
+        public List<string> FormatShippingTemplateMappingData(List<ThePerfumeSpotProduct> productsList)
         {
-            try
-            {
-                string response = walmartAPI.PostProductsToWalmart(walmartProductsTextData, wALMARTFEEDTYPE);
-
-                SaveWalmartFeed(response);
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-            }
-        }
-
-        private void SaveWalmartFeed(string response)
-        {
-            WalmartFeedObject walmartFeed = new();
-            WalmartFeedResponse walmartFeedResponse = new();
+            WalmartShippingTemplateMapping walmartShippingTemplate = new();
+            IEnumerable<ThePerfumeSpotProduct[]> thePerfumeSpotProductsMultiLists;
+            List<ThePerfumeSpotProduct> productsListToMap;
+            List<string> productsData = new List<string>();
 
             try
             {
-                walmartFeed = JsonConvert.DeserializeObject<WalmartFeedObject>(response)!;
+                productsListToMap = (from s in productsList
+                                    where (productsRepository.GetBySkuPrefix(TPSSKUPREFIX).Any(m => m.Sku == s.SKU && m.IsShippingMapped == false))
+                                    select s).ToList<ThePerfumeSpotProduct>();
 
-                walmartFeedResponse.FeedId = walmartFeed.feedId;
-                walmartFeedResponse.EcomStoreId = (int)GlobalConstants.STORENAME.WALMART;
+                thePerfumeSpotProductsMultiLists = productsListToMap.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
 
-                walmartFeedResponseRepository.Insert(walmartFeedResponse);
+                walmartShippingTemplate.ItemFeedHeader.sellingChannel = "precisedelivery";
+                walmartShippingTemplate.ItemFeedHeader.locale = "en";
+                walmartShippingTemplate.ItemFeedHeader.version = "1.0";
 
-                walmartFeedResponseRepository.Save();
+                foreach (ThePerfumeSpotProduct[] productsSingleList in thePerfumeSpotProductsMultiLists)
+                {
+                    walmartShippingTemplate.Item.Clear();
+
+                    foreach (ThePerfumeSpotProduct productData in productsSingleList)
+                    {
+                        ShippingTemplateItem shippingTemplateItem = new();
+                        Precisedelivery precisedelivery = new();
+
+                        precisedelivery.sku = productData.SKU;
+                        precisedelivery.actionType = "Add";
+                        precisedelivery.shippingTemplateId = SHIPPINGTEMPLATEID;
+                        precisedelivery.fulfillmentCenterId = FULFILLMENTCENTERID;
+
+                        shippingTemplateItem.PreciseDelivery = precisedelivery;
+
+                        walmartShippingTemplate.Item.Add(shippingTemplateItem);
+                    }
+
+                    productsData.Add(JsonConvert.SerializeObject(walmartShippingTemplate));
+                }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                applicationState.LogErrorToFile(ex);
+                throw;
             }
+
+            return productsData;
         }
 
         public void ProcessRetiredProductToWalmart(string sku)

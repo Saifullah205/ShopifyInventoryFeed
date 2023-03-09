@@ -11,6 +11,7 @@ using System.Windows.Forms;
 using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
@@ -20,10 +21,10 @@ namespace ShopifyInventorySync
         List<RestrictedBrand> restrictedBrandsList = new List<RestrictedBrand>();
         CommonRepository commonRepository;
         IRestrictedBrandsRepository restrictedBrandsRepository;
-        public GlobalConstants.STORENAME selectedEComStoreID;
+        public STORENAME selectedEComStoreID;
         ApplicationState applicationState;
 
-        public RestrictedBrandsForm(GlobalConstants.STORENAME sTORENAME)
+        public RestrictedBrandsForm(STORENAME sTORENAME)
         {
             InitializeComponent();
 

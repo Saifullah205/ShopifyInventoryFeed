@@ -8,6 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync.BusinessLogic.Vendors
 {
@@ -23,7 +24,7 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
         private string GetFragranceXAPIToken()
         {
             string token = string.Empty;
-            string url = GlobalConstants.fragrancexURL + "/token";
+            string url = FRAGRANCEXURL + "/token";
             FragranceXToken fragranceXToken = new();
 
             try
@@ -32,9 +33,9 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
                 var request = new RestRequest(url, Method.Post);
 
                 request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
-                request.AddParameter("grant_type", GlobalConstants.grant_type);
-                request.AddParameter("apiAccessId", GlobalConstants.apiAccessId);
-                request.AddParameter("apiAccessKey", GlobalConstants.apiAccessKey);
+                request.AddParameter("grant_type", GRANT_TYPE);
+                request.AddParameter("apiAccessId", APIACCESSID);
+                request.AddParameter("apiAccessKey", APIACCESSKEY);
 
                 RestResponse response = client.Execute(request);
 
@@ -58,7 +59,7 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
         private string GetFragranceXAPIData()
         {
             string productsData = string.Empty;
-            string url = GlobalConstants.fragrancexURL + "/product/list/";
+            string url = FRAGRANCEXURL + "/product/list/";
 
             try
             {

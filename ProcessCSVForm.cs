@@ -3,14 +3,15 @@ using ShopifyInventorySync.BusinessLogic.Shopify;
 using ShopifyInventorySync.BusinessLogic.Walmart;
 using ShopifyInventorySync.Models;
 using System.Data;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
     public partial class ProcessCSVForm : Form
     {
         DataTable productsDataTable = new ();
-        int selectedAPI = (int)GlobalConstants.APITYPE.TPS;
-        int selectedStore = (int)GlobalConstants.STORENAME.SHOPIFY;
+        int selectedAPI = (int)APITYPE.TPS;
+        int selectedStore = (int)STORENAME.SHOPIFY;
         decimal progressBarTotalValue = 0;
         decimal progressBarIncrementValue = 0;
         decimal progressBarValue = 0;
@@ -34,33 +35,33 @@ namespace ShopifyInventorySync
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (selectedStore == (int)GlobalConstants.STORENAME.SHOPIFY)
+            if (selectedStore == (int)STORENAME.SHOPIFY)
             {
-                if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+                if (selectedAPI == (int)APITYPE.TPS)
                 {
                     ProcessShopifyThePerfumeSpotProducts();
                 }
-                else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCEX)
+                else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
                 {
                     ProcessShopifyFragranceXProducts();
                 }
-                else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCENET)
+                else if (selectedAPI == (int)APITYPE.FRAGRANCENET)
                 {
                     ProcessShopifyFragranceNetProducts();
                 }
             }
-            else if (selectedStore == (int)GlobalConstants.STORENAME.WALMART)
+            else if (selectedStore == (int)STORENAME.WALMART)
             {
 
                 WalmartFeedTypeForm walmartFeedType = new ();
 
                 walmartFeedType.ShowDialog();
                                 
-                if (selectedAPI == (int)GlobalConstants.APITYPE.TPS)
+                if (selectedAPI == (int)APITYPE.TPS)
                 {
                     ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
                 }
-                else if (selectedAPI == (int)GlobalConstants.APITYPE.FRAGRANCEX)
+                else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
                 {
                     ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
                 }
@@ -73,29 +74,29 @@ namespace ShopifyInventorySync
 
         private void markupSettingsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            OpenMarkupSettingsWindow(GlobalConstants.STORENAME.WALMART);
+            OpenMarkupSettingsWindow(STORENAME.WALMART);
         }
 
         private void restrictedBrandsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            OpenRestrictedBrandsWindow(GlobalConstants.STORENAME.WALMART);
+            OpenRestrictedBrandsWindow(STORENAME.WALMART);
         }
 
         private void restrictedSKUsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            OpenRestrictedSKUsWindow(GlobalConstants.STORENAME.WALMART);
+            OpenRestrictedSKUsWindow(STORENAME.WALMART);
         }
 
         private void fixedPricesToolStripMenuItem1_Click(object sender, EventArgs e)
         {
-            OpenFixedPricesWindow(GlobalConstants.STORENAME.WALMART);
+            OpenFixedPricesWindow(STORENAME.WALMART);
         }
 
         private void loadThePerfumeSpotProductsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
-                SetSelectedStore(GlobalConstants.STORENAME.WALMART);
+                SetSelectedStore(STORENAME.WALMART);
 
                 BrowseThePerfumeSpotProducts();
             }
@@ -110,16 +111,17 @@ namespace ShopifyInventorySync
 
         #region ProcessProducts
 
-        private async void ProcessWalmartThePerfumeSpotProducts(GlobalConstants.WALMARTFEEDTYPEPOST actionType)
+        private async void ProcessWalmartThePerfumeSpotProducts(WALMARTFEEDTYPEPOST actionType)
         {
             WalmartThePerfumeSpot clientAPI = new();
-            List<WalmartInventoryDatum> outOfStockProducts = new();
-            List<WalmartInventoryDatum> inStockProducts = new();
+            WalmartAPI walmartAPI = new();
+            List<ThePerfumeSpotProduct> outOfStockProducts = new();
             List<ThePerfumeSpotProduct> productsToDelete = new();
             List<ThePerfumeSpotProduct> productsToProcess = new();
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
             List<string> outOfStockProductsToPostData;
+            List<string> shippingTemplateMappingToPostData;
 
             try
             {
@@ -128,9 +130,8 @@ namespace ShopifyInventorySync
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
                 productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
                 productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete, outOfStockProducts);
-                inStockProducts = clientAPI.PrepareInStockProductsQtyToProcess(productsToProcess);
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.SETUPITEM)
+                if (actionType == WALMARTFEEDTYPEPOST.SETUPITEM)
                 {
                     walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
 
@@ -144,14 +145,33 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
-                    }                    
+                    }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                if (actionType == WALMARTFEEDTYPEPOST.MAPSHIPPINGTEMPLATE)
                 {
-                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(inStockProducts, false);
+                    shippingTemplateMappingToPostData = clientAPI.FormatShippingTemplateMappingData(productsToProcess);
+
+                    if (shippingTemplateMappingToPostData.Count > 0)
+                    {
+                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (string feedData in shippingTemplateMappingToPostData)
+                        {
+                            IncrementProgressBar();
+
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                        }
+                    }
+                }
+
+                if (actionType == WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                {
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, false);
 
                     if(inStockProductsToPostData.Count > 0)
                     {
@@ -163,12 +183,12 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
-                    }                    
+                    }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
+                if (actionType == WALMARTFEEDTYPEPOST.OUTOFSTOCK)
                 {
                     outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
 
@@ -182,12 +202,12 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
-                    }                    
+                    }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.RETIRE)
+                if (actionType == WALMARTFEEDTYPEPOST.RETIRE)
                 {
                     progressBarTotalValue = productsToDelete.Count;
 
@@ -197,7 +217,7 @@ namespace ShopifyInventorySync
                     {
                         IncrementProgressBar();
 
-                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(GlobalConstants.tpsSKUPrefix + product.UPC!));
+                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
                     }
                 }                    
 
@@ -219,16 +239,17 @@ namespace ShopifyInventorySync
             }
         }
 
-        private async void ProcessWalmartFragranceXProducts(GlobalConstants.WALMARTFEEDTYPEPOST actionType)
+        private async void ProcessWalmartFragranceXProducts(WALMARTFEEDTYPEPOST actionType)
         {
             WalmartFragranceX clientAPI = new();
-            List<WalmartInventoryDatum> outOfStockProducts = new();
-            List<WalmartInventoryDatum> inStockProducts = new();
+            WalmartAPI walmartAPI = new();
+            List<FragranceXProduct> outOfStockProducts = new();
             List<FragranceXProduct> productsToDelete = new();
             List<FragranceXProduct> productsToProcess = new();
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
             List<string> outOfStockProductsToPostData;
+            List<string> shippingTemplateMappingToPostData;
 
             try
             {
@@ -237,9 +258,8 @@ namespace ShopifyInventorySync
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(fragranceXProducts);
                 productsToDelete = clientAPI.FilterProductsToRemove(fragranceXProducts);
                 productsToProcess = clientAPI.FilterProductsToProcess(fragranceXProducts, productsToDelete, outOfStockProducts);
-                inStockProducts = clientAPI.PrepareInStockProductsQtyToProcess(productsToProcess);
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.SETUPITEM)
+                if (actionType == WALMARTFEEDTYPEPOST.SETUPITEM)
                 {
                     walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
 
@@ -253,14 +273,33 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_ITEM));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                if (actionType == WALMARTFEEDTYPEPOST.MAPSHIPPINGTEMPLATE)
                 {
-                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(inStockProducts, false);
+                    shippingTemplateMappingToPostData = clientAPI.FormatShippingTemplateMappingData(productsToProcess);
+
+                    if (shippingTemplateMappingToPostData.Count > 0)
+                    {
+                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (string feedData in shippingTemplateMappingToPostData)
+                        {
+                            IncrementProgressBar();
+
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                        }
+                    }
+                }
+
+                if (actionType == WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                {
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, false);
 
                     if (inStockProductsToPostData.Count > 0)
                     {
@@ -272,12 +311,12 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.OUTOFSTOCK)
+                if (actionType == WALMARTFEEDTYPEPOST.OUTOFSTOCK)
                 {
                     outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
 
@@ -291,12 +330,12 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessProductToWalmart(feedData, GlobalConstants.WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
 
-                if (actionType == GlobalConstants.WALMARTFEEDTYPEPOST.RETIRE)
+                if (actionType == WALMARTFEEDTYPEPOST.RETIRE)
                 {
                     progressBarTotalValue = productsToDelete.Count;
 
@@ -306,7 +345,7 @@ namespace ShopifyInventorySync
                     {
                         IncrementProgressBar();
 
-                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(GlobalConstants.tpsSKUPrefix + product.Upc!));
+                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.Upc!));
                     }
                 }
 
@@ -377,7 +416,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void OpenMarkupSettingsWindow(GlobalConstants.STORENAME sTORENAME)
+        private void OpenMarkupSettingsWindow(STORENAME sTORENAME)
         {
             MarkUpPricesForm markUpPricesForm;
 
@@ -397,7 +436,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void OpenRestrictedBrandsWindow(GlobalConstants.STORENAME sTORENAME)
+        private void OpenRestrictedBrandsWindow(STORENAME sTORENAME)
         {
             RestrictedBrandsForm restrictedBrandsForm;
 
@@ -415,7 +454,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void OpenRestrictedSKUsWindow(GlobalConstants.STORENAME sTORENAME)
+        private void OpenRestrictedSKUsWindow(STORENAME sTORENAME)
         {
             RestrictedSkusForm restrictedSkusForm;
 
@@ -433,7 +472,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void OpenFixedPricesWindow(GlobalConstants.STORENAME sTORENAME)
+        private void OpenFixedPricesWindow(STORENAME sTORENAME)
         {
             FixedPricesForm fixedPricesForm;
 
@@ -460,7 +499,7 @@ namespace ShopifyInventorySync
 
             try
             {
-                selectedAPI = (int)GlobalConstants.APITYPE.TPS;
+                selectedAPI = (int)APITYPE.TPS;
 
                 lblSelectedAPI.Text = "The Perfume Spot API";
 
@@ -496,7 +535,7 @@ namespace ShopifyInventorySync
 
             try
             {
-                selectedAPI = (int)GlobalConstants.APITYPE.FRAGRANCENET;
+                selectedAPI = (int)APITYPE.FRAGRANCENET;
 
                 lblSelectedAPI.Text = "Fragrance Net API";
 
@@ -531,7 +570,7 @@ namespace ShopifyInventorySync
 
             try
             {
-                selectedAPI = (int)GlobalConstants.APITYPE.FRAGRANCEX;
+                selectedAPI = (int)APITYPE.FRAGRANCEX;
 
                 lblSelectedAPI.Text = "Fragrance X API";
 
@@ -630,7 +669,7 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void SetSelectedStore(GlobalConstants.STORENAME sTORENAME)
+        private void SetSelectedStore(STORENAME sTORENAME)
         {
             selectedStore = (int)sTORENAME;
         }
@@ -645,7 +684,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+                SetSelectedStore(STORENAME.SHOPIFY);
 
                 FetchFragranceXProducts();
             }
@@ -661,7 +700,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+                SetSelectedStore(STORENAME.SHOPIFY);
 
                 FetchTheFragranceNetProducts();
             }
@@ -677,7 +716,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+                SetSelectedStore(STORENAME.SHOPIFY);
 
                 BrowseThePerfumeSpotProducts();
             }
@@ -691,22 +730,22 @@ namespace ShopifyInventorySync
 
         private void markupSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenMarkupSettingsWindow(GlobalConstants.STORENAME.SHOPIFY);
+            OpenMarkupSettingsWindow(STORENAME.SHOPIFY);
         }
 
         private void restrictedBrandsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenRestrictedBrandsWindow(GlobalConstants.STORENAME.SHOPIFY);
+            OpenRestrictedBrandsWindow(STORENAME.SHOPIFY);
         }
 
         private void restrictedSKUsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenRestrictedSKUsWindow(GlobalConstants.STORENAME.SHOPIFY);
+            OpenRestrictedSKUsWindow(STORENAME.SHOPIFY);
         }
 
         private void fixedPricesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFixedPricesWindow(GlobalConstants.STORENAME.SHOPIFY);
+            OpenFixedPricesWindow(STORENAME.SHOPIFY);
         }
 
         #endregion
@@ -891,7 +930,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                SetSelectedStore(GlobalConstants.STORENAME.SHOPIFY);
+                SetSelectedStore(STORENAME.SHOPIFY);
 
                 FetchFragranceXProducts();
             }
