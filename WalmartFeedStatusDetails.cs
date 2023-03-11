@@ -2,15 +2,8 @@
 using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
 namespace ShopifyInventorySync
 {
@@ -25,6 +18,8 @@ namespace ShopifyInventorySync
         public WalmartFeedStatusDetails(string feedResponse, string feedType)
         {
             InitializeComponent();
+
+            feedResponse = File.ReadAllText("D:\\Clients_Work\\20220827_tdog5116\\Walmart\\SampleFeedResponse.txt");
 
             applicationState = ApplicationState.GetState;
             feedJsonResponse = feedResponse;
@@ -143,6 +138,60 @@ namespace ShopifyInventorySync
             {
 
                 throw;
+            }
+        }
+
+        private void dgvDetails_UserDeletingRow(object sender, DataGridViewRowCancelEventArgs e)
+        {
+            DataGridViewRow dataGridViewRow = dgvDetails.Rows[e.Row!.Index];
+            FixedPrice shopifyFixedPrice = new();
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
+            Itemingestionstats? itemingestionstats = new();
+            string fullsku;
+            string sku;
+            string skuPrefix;
+
+            try
+            {
+                fullsku = dataGridViewRow.Cells["SKU"].Value.ToString()!;
+
+                sku = fullsku.Substring(3,fullsku.Length - 3);
+                skuPrefix = fullsku.Substring(0, 3);
+
+                if (feedTypeSelected == WALMARTFEEDTYPEPOST.SETUPITEM.ToString())
+                {
+                    walmartInventoryRepository.Delete(sku!);
+
+                    walmartInventoryRepository.Save();
+                }
+                else if (feedTypeSelected == WALMARTFEEDTYPEPOST.MAPSHIPPINGTEMPLATE.ToString())
+                {
+                    WalmartInventoryDatum? walmartInventoryDatum = new ();
+
+                    walmartInventoryDatum = walmartInventoryRepository.GetAll().Where(m => m.Sku == sku && m.SkuPrefix == skuPrefix).FirstOrDefault();
+
+                    if (walmartInventoryDatum != null)
+                    {
+                        walmartInventoryDatum.IsShippingMapped = false;
+
+                        walmartInventoryRepository.Update(walmartInventoryDatum);
+
+                        walmartInventoryRepository.Save();
+                    }                    
+                }
+
+                itemingestionstats = walmartFeedResponseModel.itemDetails.itemIngestionStatus.Where(m => m.sku == fullsku).FirstOrDefault();
+
+                if (itemingestionstats != null)
+                {
+                    walmartFeedResponseModel.itemDetails.itemIngestionStatus.Remove(itemingestionstats);
+                }
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
             }
         }
     }

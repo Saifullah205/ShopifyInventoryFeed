@@ -2,6 +2,7 @@ using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.BusinessLogic.Shopify;
 using ShopifyInventorySync.BusinessLogic.Walmart;
 using ShopifyInventorySync.Models;
+using ShopifyInventorySync.Repositories;
 using System.Data;
 using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
@@ -957,6 +958,37 @@ namespace ShopifyInventorySync
                 SetSelectedStore(STORENAME.SHOPIFY);
 
                 FetchFragranceXProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void resetShippingMapsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
+            List<WalmartInventoryDatum> walmartInventoryDatumList = new();
+
+            try
+            {
+                DialogResult dialogResult = MessageBox.Show("Are you sure to reset shipment mappings?", "Reset shipment mappings", MessageBoxButtons.YesNo);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    walmartInventoryDatumList = (from s in walmartInventoryRepository.GetAll()
+                                                 select s).ToList<WalmartInventoryDatum>();
+
+                    walmartInventoryDatumList.ForEach(c => c.IsShippingMapped = false);
+
+                    walmartInventoryRepository.UpdateMultiple(walmartInventoryDatumList);
+
+                    walmartInventoryRepository.Save();
+
+                    MessageBox.Show("Shipment mappings reset successfully.");
+                }                
             }
             catch (Exception ex)
             {

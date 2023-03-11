@@ -62,6 +62,7 @@
             this.settingsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetShippingMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -283,11 +284,12 @@
             this.loadThePerfumeSpotProductsToolStripMenuItem,
             this.fetchFragranceXProductsToolStripMenuItem1,
             this.toolStripSeparator2,
-            this.getFeedStatusToolStripMenuItem,
             this.markupSettingsToolStripMenuItem1,
             this.restrictedBrandsToolStripMenuItem1,
             this.restrictedSKUsToolStripMenuItem1,
-            this.fixedPricesToolStripMenuItem1});
+            this.fixedPricesToolStripMenuItem1,
+            this.getFeedStatusToolStripMenuItem,
+            this.resetShippingMapsToolStripMenuItem});
             this.walmartToolStripMenuItem.Name = "walmartToolStripMenuItem";
             this.walmartToolStripMenuItem.Size = new System.Drawing.Size(79, 24);
             this.walmartToolStripMenuItem.Text = "Walmart";
@@ -376,6 +378,13 @@
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
             // 
+            // resetShippingMapsToolStripMenuItem
+            // 
+            this.resetShippingMapsToolStripMenuItem.Name = "resetShippingMapsToolStripMenuItem";
+            this.resetShippingMapsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.resetShippingMapsToolStripMenuItem.Text = "Reset Shipping Maps";
+            this.resetShippingMapsToolStripMenuItem.Click += new System.EventHandler(this.resetShippingMapsToolStripMenuItem_Click);
+            // 
             // ProcessCSVForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -436,5 +445,6 @@
         private ToolStripMenuItem restrictedSKUsToolStripMenuItem1;
         private ToolStripMenuItem fixedPricesToolStripMenuItem1;
         private ToolStripMenuItem getFeedStatusToolStripMenuItem;
+        private ToolStripMenuItem resetShippingMapsToolStripMenuItem;
     }
 }

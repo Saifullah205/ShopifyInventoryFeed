@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WalmartFeedStatusDetails));
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
             this.dgvDetails = new System.Windows.Forms.DataGridView();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
@@ -72,6 +73,7 @@
             this.dgvDetails.RowTemplate.Height = 25;
             this.dgvDetails.Size = new System.Drawing.Size(794, 368);
             this.dgvDetails.TabIndex = 0;
+            this.dgvDetails.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvDetails_UserDeletingRow);
             // 
             // tableLayoutPanel2
             // 
@@ -158,6 +160,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 451);
             this.Controls.Add(this.tableLayoutPanel1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "WalmartFeedStatusDetails";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

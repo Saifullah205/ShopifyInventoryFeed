@@ -307,6 +307,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             IEnumerable<ThePerfumeSpotProduct[]> thePerfumeSpotProductsMultiLists;
             List<ThePerfumeSpotProduct> productsListToMap;
             List<string> productsData = new List<string>();
+            List<WalmartInventoryDatum> walmartInventoryDatumList = new();
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
 
             try
             {
@@ -341,6 +343,16 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                     productsData.Add(JsonConvert.SerializeObject(walmartShippingTemplate));
                 }
+
+                walmartInventoryDatumList = (from s in productsRepository.GetBySkuPrefix(TPSSKUPREFIX)
+                                             where productsListToMap.Any(m => m.UPC == s.Sku)
+                                             select s).ToList<WalmartInventoryDatum>();
+
+                walmartInventoryDatumList.ForEach(c => c.IsShippingMapped = true);
+
+                walmartInventoryRepository.UpdateMultiple(walmartInventoryDatumList);
+
+                walmartInventoryRepository.Save();
             }
             catch (Exception)
             {
