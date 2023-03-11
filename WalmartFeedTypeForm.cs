@@ -5,6 +5,7 @@ namespace ShopifyInventorySync
     public partial class WalmartFeedTypeForm : Form
     {
         public WALMARTFEEDTYPEPOST selectedFeedType;
+        public bool selectionCancelled = true;
 
         public WalmartFeedTypeForm()
         {
@@ -43,6 +44,8 @@ namespace ShopifyInventorySync
             try
             {
                 selectedFeedType = (WALMARTFEEDTYPEPOST)((KeyValuePair<int, string>)(cmbWalmartFeedType.SelectedItem)).Key;
+
+                selectionCancelled = false;
 
                 this.Close();
             }

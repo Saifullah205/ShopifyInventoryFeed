@@ -287,7 +287,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         shipnode.shipNode = FULFILLMENTCENTERID;
                         shipnode.quantity.unit = "EACH";
-                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(MINIMUMQUANTITY);
+                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(productData.QuantityAvailable);
 
                         inventory.shipNodes.Add(shipnode);
 
@@ -333,7 +333,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         ShippingTemplateItem shippingTemplateItem = new();
                         Precisedelivery precisedelivery = new();
 
-                        precisedelivery.sku = productData.Upc;
+                        precisedelivery.sku = FRAGRANCEXSKUPREFIX + productData.Upc;
                         precisedelivery.actionType = "Add";
                         precisedelivery.shippingTemplateId = SHIPPINGTEMPLATEID;
                         precisedelivery.fulfillmentCenterId = FULFILLMENTCENTERID;

@@ -279,11 +279,11 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         Inventory inventory = new();
                         Shipnode shipnode = new();
 
-                        inventory.sku = TPSSKUPREFIX + productData.SKU;
+                        inventory.sku = TPSSKUPREFIX + productData.UPC;
 
                         shipnode.shipNode = FULFILLMENTCENTERID;
                         shipnode.quantity.unit = "EACH";
-                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(productData.Retail);
+                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(MINIMUMQUANTITY);
 
                         inventory.shipNodes.Add(shipnode);
 
@@ -311,7 +311,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 productsListToMap = (from s in productsList
-                                    where (productsRepository.GetBySkuPrefix(TPSSKUPREFIX).Any(m => m.Sku == s.SKU && m.IsShippingMapped == false))
+                                    where (productsRepository.GetBySkuPrefix(TPSSKUPREFIX).Any(m => m.Sku == s.UPC && m.IsShippingMapped == false))
                                     select s).ToList<ThePerfumeSpotProduct>();
 
                 thePerfumeSpotProductsMultiLists = productsListToMap.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
@@ -329,7 +329,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         ShippingTemplateItem shippingTemplateItem = new();
                         Precisedelivery precisedelivery = new();
 
-                        precisedelivery.sku = productData.SKU;
+                        precisedelivery.sku = TPSSKUPREFIX + productData.UPC;
                         precisedelivery.actionType = "Add";
                         precisedelivery.shippingTemplateId = SHIPPINGTEMPLATEID;
                         precisedelivery.fulfillmentCenterId = FULFILLMENTCENTERID;

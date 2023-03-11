@@ -51,7 +51,7 @@
         {
             MP_ITEM = 1,
             MP_INVENTORY = 2,
-            MP_SHIPPINGMAP = 2
+            MP_SHIPPINGMAP = 3
         }
 
         public enum WALMARTFEEDTYPEPOST

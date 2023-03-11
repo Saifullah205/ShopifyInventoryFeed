@@ -25,6 +25,9 @@
     <Compile Update="WalmartFeedStatus.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="WalmartFeedStatusDetails.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="WalmartFeedTypeForm.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -14,7 +14,7 @@ namespace ShopifyInventorySync.BusinessLogic
         public int expires_in { get; set; }
     }
 
-
+    #region Walmart_Product_Model
     public class WalmartProductModel
     {
         public WalmartProductModel()
@@ -114,6 +114,7 @@ namespace ShopifyInventorySync.BusinessLogic
         public object additionalAttributes { get; set; }
         public object errors { get; set; }
     }
+    #endregion
 
     #region WalmartInventoryRequestModel
 
@@ -212,4 +213,66 @@ namespace ShopifyInventorySync.BusinessLogic
 
     #endregion
 
+    #region Walmart_Feed_Response
+
+    public class WalmartFeedResponseModel
+    {
+        public WalmartFeedResponseModel()
+        {
+            itemDetails = new();
+        }
+
+        public string feedId { get; set; }
+        public string feedStatus { get; set; }
+        public object shipNode { get; set; }
+        public object submittedBy { get; set; }
+        public long feedSubmissionDate { get; set; }
+        public object ingestionErrors { get; set; }
+        public int itemsReceived { get; set; }
+        public int itemsSucceeded { get; set; }
+        public int itemsFailed { get; set; }
+        public int itemsProcessing { get; set; }
+        public int offset { get; set; }
+        public int limit { get; set; }
+        public Itemdetails itemDetails { get; set; }
+        public object additionalAttributes { get; set; }
+    }
+
+    public class Itemdetails
+    {
+        public Itemdetails()
+        {
+            itemIngestionStatus = new();
+        }
+
+        public List<Itemingestionstats> itemIngestionStatus { get; set; }
+    }
+
+    public class Itemingestionstats
+    {
+        public Itemingestionstats()
+        {
+            productIdentifiers = new();
+        }
+
+        public int martId { get; set; }
+        public string sku { get; set; }
+        public object wpid { get; set; }
+        public int index { get; set; }
+        public string itemid { get; set; }
+        public object shipNode { get; set; }
+        public Productidentifiers_WMTRes productIdentifiers { get; set; }
+        public string ingestionStatus { get; set; }
+        public object ingestionErrors { get; set; }
+        public object additionalAttributes { get; set; }
+    }
+
+    public class Productidentifiers_WMTRes
+    {
+        public object productIdentifier { get; set; }
+    }
+
+
+
+    #endregion
 }

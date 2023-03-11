@@ -133,9 +133,9 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     {
                         url = WALMARTURL + "/feeds?feedType=MP_INVENTORY";
                     }
-                    else if (wALMARTFEEDTYPE == WALMARTFEEDTYPE.MP_INVENTORY)
+                    else if (wALMARTFEEDTYPE == WALMARTFEEDTYPE.MP_SHIPPINGMAP)
                     {
-                        url = WALMARTURL + "/settings/shipping/templates";
+                        url = WALMARTURL + "/feeds?feedType=SKU_TEMPLATE_MAP";
                     }
 
                     RestClient client = new();
@@ -169,6 +169,12 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         GetWalmartToken();
 
                         retryCount++;
+                    }
+                    else
+                    {
+                        applicationState.LogInfoToFile(response.Content!.ToString());
+
+                        break;
                     }
                 }                
             }
@@ -218,6 +224,12 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         retryCount++;
                     }
+                    else
+                    {
+                        applicationState.LogInfoToFile(response.Content!.ToString());
+
+                        break;
+                    }
                 }                    
             }
             catch (Exception ex)
@@ -266,6 +278,12 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         GetWalmartToken();
 
                         retryCount++;
+                    }
+                    else
+                    {
+                        applicationState.LogInfoToFile(response.Content!.ToString());
+
+                        break;
                     }
 
                     applicationState.LogInfoToFile(url);

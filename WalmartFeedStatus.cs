@@ -2,15 +2,7 @@
 using ShopifyInventorySync.BusinessLogic.Walmart;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace ShopifyInventorySync
 {
@@ -37,15 +29,15 @@ namespace ShopifyInventorySync
         {
             try
             {
-                walmartFeedResponsesList = walmartFeedResponse.GetAll().OrderByDescending(m => m.AddDate).Take(40).ToList<WalmartFeedResponse>();
+                walmartFeedResponsesList = walmartFeedResponse.GetAll().OrderByDescending(m => m.AddDate).Take(50).ToList<WalmartFeedResponse>();
 
                 this.DGVFeedStatus.DataSource = applicationState.LinqToDataTable<WalmartFeedResponse>(walmartFeedResponsesList);
 
-                this.DGVFeedStatus.Columns["Id"].Visible = false;
                 this.DGVFeedStatus.Columns["EcomStoreId"].Visible = false;
                 this.DGVFeedStatus.Columns["EcomStore"].Visible = false;
+                this.DGVFeedStatus.Columns["FeedId"].Visible = false;
 
-                this.DGVFeedStatus.Columns["FeedID"].HeaderText = "Feed ID";
+                this.DGVFeedStatus.Columns["Id"].HeaderText = "Feed No";
                 this.DGVFeedStatus.Columns["AddDate"].HeaderText = "Feed Time";
 
                 this.DGVFeedStatus.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -61,42 +53,24 @@ namespace ShopifyInventorySync
         private void DGVFeedStatus_CellContentDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             String selectedFeedId = string.Empty;
+            String selectedFeedType = string.Empty;
+            string walmartFeedResponse;
+            WalmartFeedStatusDetails walmartFeedStatusDetails;
 
             try
             {
+                this.DGVFeedStatus.Enabled= false;
+
                 selectedFeedId = DGVFeedStatus.Rows[e.RowIndex].Cells["FeedId"].Value.ToString()!;
+                selectedFeedType = DGVFeedStatus.Rows[e.RowIndex].Cells["FeedType"].Value.ToString()!;
 
-                txtFeedResponse.Text = walmartAPI.GetWalmartFeedResponse(selectedFeedId,chkIncludeDetails.Checked);
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
+                walmartFeedResponse = walmartAPI.GetWalmartFeedResponse(selectedFeedId,true);
 
-                MessageBox.Show(ex.Message);
-            }
-        }
+                walmartFeedStatusDetails = new(walmartFeedResponse, selectedFeedType);
 
-        private void btnClear_Click(object sender, EventArgs e)
-        {
-            txtFeedResponse.Clear();
-            chkIncludeDetails.Checked = false;
-        }
+                walmartFeedStatusDetails.ShowDialog();
 
-        private void btnCopy_Click(object sender, EventArgs e)
-        {
-            walmartAPI.FormatWalmartFeedResponse(txtFeedResponse.Text);
-        }
-
-        private void chkIncludeDetails_CheckedChanged(object sender, EventArgs e)
-        {
-            try
-            {
-                btnPreview.Enabled = !chkIncludeDetails.Checked;
-
-                if (!chkIncludeDetails.Checked)
-                {
-                    txtFeedResponse.Clear();
-                }
+                this.DGVFeedStatus.Enabled = true;
             }
             catch (Exception ex)
             {

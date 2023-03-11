@@ -56,6 +56,11 @@ namespace ShopifyInventorySync
                 WalmartFeedTypeForm walmartFeedType = new ();
 
                 walmartFeedType.ShowDialog();
+
+                if (walmartFeedType.selectionCancelled)
+                {
+                    return;
+                }
                                 
                 if (selectedAPI == (int)APITYPE.TPS)
                 {
@@ -205,19 +210,31 @@ namespace ShopifyInventorySync
                             await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
+                    else
+                    {
+                        MessageBox.Show("No product found to process.");
+                    }
                 }
 
                 if (actionType == WALMARTFEEDTYPEPOST.RETIRE)
                 {
-                    progressBarTotalValue = productsToDelete.Count;
 
-                    progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
-
-                    foreach (ThePerfumeSpotProduct product in productsToDelete)
+                    if(productsToDelete.Count > 0)
                     {
-                        IncrementProgressBar();
+                        progressBarTotalValue = productsToDelete.Count; 
+                        
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
 
-                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
+                        foreach (ThePerfumeSpotProduct product in productsToDelete)
+                        {
+                            IncrementProgressBar();
+
+                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No product found to delete.");
                     }
                 }                    
 
@@ -292,7 +309,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -337,15 +354,22 @@ namespace ShopifyInventorySync
 
                 if (actionType == WALMARTFEEDTYPEPOST.RETIRE)
                 {
-                    progressBarTotalValue = productsToDelete.Count;
-
-                    progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
-
-                    foreach (FragranceXProduct product in productsToDelete)
+                    if (productsToDelete.Count > 0)
                     {
-                        IncrementProgressBar();
+                        progressBarTotalValue = productsToDelete.Count;
 
-                        await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.Upc!));
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (FragranceXProduct product in productsToDelete)
+                        {
+                            IncrementProgressBar();
+
+                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.Upc!));
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No product found to delete.");
                     }
                 }
 
