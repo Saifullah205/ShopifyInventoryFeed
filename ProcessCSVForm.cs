@@ -19,7 +19,6 @@ namespace ShopifyInventorySync
         ThePerfumeSpotProductsList thePerfumeSpotProductsList = new ();
         FragranceNetProductsList fragranceNetProducts = new ();
         FragranceXProductsList fragranceXProducts = new();
-
         ApplicationState applicationState;
 
         public ProcessCSVForm()
@@ -955,7 +954,7 @@ namespace ShopifyInventorySync
         {
             try
             {
-                SetSelectedStore(STORENAME.SHOPIFY);
+                SetSelectedStore(STORENAME.WALMART);
 
                 FetchFragranceXProducts();
             }

@@ -19,8 +19,6 @@ namespace ShopifyInventorySync
         {
             InitializeComponent();
 
-            feedResponse = File.ReadAllText("D:\\Clients_Work\\20220827_tdog5116\\Walmart\\SampleFeedResponse.txt");
-
             applicationState = ApplicationState.GetState;
             feedJsonResponse = feedResponse;
             feedTypeSelected = feedType;
@@ -100,7 +98,7 @@ namespace ShopifyInventorySync
             {
                 applicationState.LogErrorToFile(ex);
 
-                MessageBox.Show(ex.Message);
+                throw;
             }
         }
 

@@ -95,6 +95,7 @@
             this.BtnResetData.TabIndex = 0;
             this.BtnResetData.Text = "X";
             this.BtnResetData.UseVisualStyleBackColor = false;
+            this.BtnResetData.Visible = false;
             this.BtnResetData.Click += new System.EventHandler(this.BtnResetData_Click);
             // 
             // ApplicationSettingsForm

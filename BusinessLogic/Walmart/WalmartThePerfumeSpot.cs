@@ -65,25 +65,25 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
         public List<ThePerfumeSpotProduct> FilterOutOfStockProducts(ThePerfumeSpotProductsList productsList)
         {
-            List<WalmartInventoryDatum> productsToRemove = new();
-            List<ThePerfumeSpotProduct> productsToRemoveList = new();
+            List<WalmartInventoryDatum> productsOutOfStock = new();
+            List<ThePerfumeSpotProduct> productsOutOfStockList = new();
             List<ThePerfumeSpotProduct> products = new();
 
             try
             {
                 products = productsList.products;
 
-                productsToRemove = (from s in productsRepository.GetBySkuPrefix(TPSSKUPREFIX)
+                productsOutOfStock = (from s in productsRepository.GetBySkuPrefix(TPSSKUPREFIX)
                                     where !products.Any(x => x.UPC == s.Sku)
                                     select s).ToList();
 
-                foreach (WalmartInventoryDatum item in productsToRemove)
+                foreach (WalmartInventoryDatum item in productsOutOfStock)
                 {
                     ThePerfumeSpotProduct thePerfumeSpotProduct = new();
 
-                    thePerfumeSpotProduct.SKU = item.Sku!;
+                    thePerfumeSpotProduct.UPC = item.Sku!;
 
-                    productsToRemoveList.Add(thePerfumeSpotProduct);
+                    productsOutOfStockList.Add(thePerfumeSpotProduct);
                 }
             }
             catch (Exception)
@@ -91,13 +91,14 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 throw;
             }
 
-            return productsToRemoveList;
+            return productsOutOfStockList;
         }
 
         public List<ThePerfumeSpotProduct> FilterProductsToRemove(ThePerfumeSpotProductsList productsList)
         {
             WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<ThePerfumeSpotProduct> productsToRemove = new();
+            List<ThePerfumeSpotProduct> productsToOverride = new();
             List<RestrictedBrand> restrictedBrands = new List<RestrictedBrand>();
             List<RestrictedSku> restrictedSku = new List<RestrictedSku>();
             List<WalmartInventoryDatum> productsRemoveSaveData = new();
@@ -112,24 +113,26 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
                                  select s).ToList<RestrictedSku>();
 
+                //REMOVE RESTRICTED BRANDS/SKU PRODUCTS
                 productsToRemove = (from s in productsList.products
                                     where restrictedSku.Any(x => x.Sku == s.UPC) || restrictedBrands.Any(x => x.BrandName == s.Brand)
                                     select s).ToList<ThePerfumeSpotProduct>();
 
-                foreach (ThePerfumeSpotProduct product in productsToRemove)
-                {
-                    WalmartInventoryDatum walmartInventoryDatum = new();
+                //GET PRODUCTS TO OVERRIDE FROM FX VENDOR
+                productsToOverride = (from s in productsList.products
+                                      where productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX).Any(m => m.Sku == s.UPC)
+                                      select s).ToList<ThePerfumeSpotProduct>();
 
-                    walmartInventoryDatum.SkuPrefix = TPSSKUPREFIX;
-                    walmartInventoryDatum.Sku = product.UPC;
-                    walmartInventoryDatum.BrandName = product.Brand;
-
-                    productsRemoveSaveData.Add(walmartInventoryDatum);
-                }
+                //GET PRODUCTS TO REMOVE FROM BOTH VENDORS
+                productsRemoveSaveData = (from s in productsRepository.GetAll()
+                                          where (productsToRemove.Any(m => m.UPC == s.Sku && s.SkuPrefix == TPSSKUPREFIX) || productsToOverride.Any(m => m.UPC == s.Sku && s.SkuPrefix == FRAGRANCEXSKUPREFIX))
+                                          select s).ToList<WalmartInventoryDatum>();
 
                 walmartInventoryRepository.DeleteMultiple(productsRemoveSaveData);
 
                 walmartInventoryRepository.Save();
+
+                productsToRemove.AddRange(productsToOverride);
             }
             catch (Exception)
             {
@@ -149,7 +152,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 productsToProcess = (from s in productsList.products
-                                    where (!removedProducts.Any(x => x.UPC == s.UPC) || !outOfStockProducts.Any(x => x.SKU == s.UPC))
+                                    where !(removedProducts.Any(x => x.UPC == s.UPC) || outOfStockProducts.Any(x => x.UPC == s.UPC))
                                     select s).ToList<ThePerfumeSpotProduct>();
 
                 productsToSave = (from s in productsToProcess
@@ -163,6 +166,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     walmartInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                     walmartInventoryDatum.Sku = product.UPC;
                     walmartInventoryDatum.BrandName = product.Brand;
+                    walmartInventoryDatum.IsShippingMapped = false;
 
                     productsAddedSaveData.Add(walmartInventoryDatum);
                 }

@@ -51,18 +51,18 @@
             this.fixedPricesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.walmartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadThePerfumeSpotProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.fetchFragranceXProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.markupSettingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedBrandsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedSKUsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.fixedPricesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.resetShippingMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.resetShippingMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.tableLayoutPanel1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel3.SuspendLayout();
@@ -282,7 +282,7 @@
             // 
             this.walmartToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadThePerfumeSpotProductsToolStripMenuItem,
-            this.fetchFragranceXProductsToolStripMenuItem1,
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1,
             this.toolStripSeparator2,
             this.markupSettingsToolStripMenuItem1,
             this.restrictedBrandsToolStripMenuItem1,
@@ -301,24 +301,17 @@
             this.loadThePerfumeSpotProductsToolStripMenuItem.Text = "Load The Perfume Spot Products";
             this.loadThePerfumeSpotProductsToolStripMenuItem.Click += new System.EventHandler(this.loadThePerfumeSpotProductsToolStripMenuItem_Click);
             // 
-            // fetchFragranceXProductsToolStripMenuItem1
+            // fetchWalmartFragranceXProductsToolStripMenuItem1
             // 
-            this.fetchFragranceXProductsToolStripMenuItem1.Name = "fetchFragranceXProductsToolStripMenuItem1";
-            this.fetchFragranceXProductsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
-            this.fetchFragranceXProductsToolStripMenuItem1.Text = "Fetch FragranceX Products";
-            this.fetchFragranceXProductsToolStripMenuItem1.Click += new System.EventHandler(this.fetchFragranceXProductsToolStripMenuItem1_Click);
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1.Name = "fetchWalmartFragranceXProductsToolStripMenuItem1";
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1.Text = "Fetch FragranceX Products";
+            this.fetchWalmartFragranceXProductsToolStripMenuItem1.Click += new System.EventHandler(this.fetchFragranceXProductsToolStripMenuItem1_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
             this.toolStripSeparator2.Size = new System.Drawing.Size(304, 6);
-            // 
-            // getFeedStatusToolStripMenuItem
-            // 
-            this.getFeedStatusToolStripMenuItem.Name = "getFeedStatusToolStripMenuItem";
-            this.getFeedStatusToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
-            this.getFeedStatusToolStripMenuItem.Text = "Get Feed Status";
-            this.getFeedStatusToolStripMenuItem.Click += new System.EventHandler(this.getFeedStatusToolStripMenuItem_Click);
             // 
             // markupSettingsToolStripMenuItem1
             // 
@@ -347,6 +340,20 @@
             this.fixedPricesToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
             this.fixedPricesToolStripMenuItem1.Text = "Fixed Prices";
             this.fixedPricesToolStripMenuItem1.Click += new System.EventHandler(this.fixedPricesToolStripMenuItem1_Click);
+            // 
+            // getFeedStatusToolStripMenuItem
+            // 
+            this.getFeedStatusToolStripMenuItem.Name = "getFeedStatusToolStripMenuItem";
+            this.getFeedStatusToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.getFeedStatusToolStripMenuItem.Text = "Get Feed Status";
+            this.getFeedStatusToolStripMenuItem.Click += new System.EventHandler(this.getFeedStatusToolStripMenuItem_Click);
+            // 
+            // resetShippingMapsToolStripMenuItem
+            // 
+            this.resetShippingMapsToolStripMenuItem.Name = "resetShippingMapsToolStripMenuItem";
+            this.resetShippingMapsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.resetShippingMapsToolStripMenuItem.Text = "Reset Shipping Maps";
+            this.resetShippingMapsToolStripMenuItem.Click += new System.EventHandler(this.resetShippingMapsToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem1
             // 
@@ -377,13 +384,6 @@
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(133, 26);
             this.aboutToolStripMenuItem.Text = "About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.AboutToolStripMenuItem_Click);
-            // 
-            // resetShippingMapsToolStripMenuItem
-            // 
-            this.resetShippingMapsToolStripMenuItem.Name = "resetShippingMapsToolStripMenuItem";
-            this.resetShippingMapsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
-            this.resetShippingMapsToolStripMenuItem.Text = "Reset Shipping Maps";
-            this.resetShippingMapsToolStripMenuItem.Click += new System.EventHandler(this.resetShippingMapsToolStripMenuItem_Click);
             // 
             // ProcessCSVForm
             // 
@@ -438,7 +438,7 @@
         private ToolStripMenuItem settingsToolStripMenuItem1;
         private ToolStripMenuItem settingsToolStripMenuItem2;
         private ToolStripMenuItem loadThePerfumeSpotProductsToolStripMenuItem;
-        private ToolStripMenuItem fetchFragranceXProductsToolStripMenuItem1;
+        private ToolStripMenuItem fetchWalmartFragranceXProductsToolStripMenuItem1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem markupSettingsToolStripMenuItem1;
         private ToolStripMenuItem restrictedBrandsToolStripMenuItem1;

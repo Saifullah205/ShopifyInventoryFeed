@@ -79,6 +79,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
         {
             WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<FragranceXProduct> productsToRemove = new();
+            List<FragranceXProduct> productsToOverride = new();
             List<RestrictedBrand> restrictedBrands = new List<RestrictedBrand>();
             List<RestrictedSku> restrictedSku = new List<RestrictedSku>();
             List<WalmartInventoryDatum> productsRemoveSaveData = new();
@@ -86,31 +87,30 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 restrictedBrands = (from s in restrictedBrandsRepository.GetAll()
-                                    where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
+                                    where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBA"))
                                     select s).ToList<RestrictedBrand>();
 
                 restrictedSku = (from s in restrictedSkusRepository.GetAll()
-                                 where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBB"))
+                                 where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBA"))
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
-                                    where restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName == s.BrandName)
+                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName == s.BrandName))
                                     select s).ToList<FragranceXProduct>();
 
-                foreach (FragranceXProduct product in productsToRemove)
-                {
-                    WalmartInventoryDatum walmartInventoryDatum = new();
+                productsToOverride = (from s in productsList.products
+                                      where productsRepository.GetBySkuPrefix(TPSSKUPREFIX).Any(m =>  m.Sku == s.Upc)
+                                      select s).ToList<FragranceXProduct>();
 
-                    walmartInventoryDatum.SkuPrefix = FRAGRANCEXSKUPREFIX;
-                    walmartInventoryDatum.Sku = product.Upc;
-                    walmartInventoryDatum.BrandName = product.BrandName;
-
-                    productsRemoveSaveData.Add(walmartInventoryDatum);
-                }
+                productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)
+                                          where productsToRemove.Any(m => m.Upc == s.Sku)
+                                          select s).ToList<WalmartInventoryDatum>();
 
                 walmartInventoryRepository.DeleteMultiple(productsRemoveSaveData);
 
                 walmartInventoryRepository.Save();
+
+                productsToRemove.AddRange(productsToOverride);
             }
             catch (Exception)
             {
@@ -130,7 +130,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 productsToProcess = (from s in productsList.products
-                                    where (!removedProducts.Any(x => x.Upc == s.Upc) || !outOfStockProducts.Any(x => x.Upc == s.Upc))
+                                    where !(removedProducts.Any(x => x.Upc == s.Upc) || outOfStockProducts.Any(x => x.Upc == s.Upc))
                                     select s).ToList<FragranceXProduct>();
 
                 productsToSave = (from s in productsToProcess
@@ -144,6 +144,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     walmartInventoryDatum.SkuPrefix = FRAGRANCEXSKUPREFIX;
                     walmartInventoryDatum.Sku = product.Upc;
                     walmartInventoryDatum.BrandName = product.BrandName;
+                    walmartInventoryDatum.IsShippingMapped = false;
 
                     productsAddedSaveData.Add(walmartInventoryDatum);
                 }
@@ -348,7 +349,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     productsData.Add(JsonConvert.SerializeObject(walmartShippingTemplate));
                 }
 
-                walmartInventoryDatumList = (from s in productsRepository.GetBySkuPrefix(TPSSKUPREFIX)
+                walmartInventoryDatumList = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)
                                              where productsListToMap.Any(m => m.Upc == s.Sku)
                                              select s).ToList<WalmartInventoryDatum>();
 
