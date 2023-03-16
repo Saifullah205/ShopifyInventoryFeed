@@ -16,27 +16,35 @@ namespace ShopifyInventorySync.BusinessLogic
         public List<MarkUpPrice> walmartMarkUpPrice = new();
         public List<FixedPrice> shopifyFixedPricesList = new();
         public string processingMessages;
+        public int selectedStore = (int)STORENAME.SHOPIFY;
 
         public static ApplicationState GetState
         {
             get
             {
-                if (instance == null)
+                try
                 {
-                    lock (threadSafelock)
+                    if (instance == null)
                     {
-                        if (instance == null)
+                        lock (threadSafelock)
                         {
-                            instance = new ApplicationState();
+                            if (instance == null)
+                            {
+                                instance = new ApplicationState();
 
-                            instance.RefreshApplicationSettings();
-                            instance.RefreshMarkUPPricesList();
-                            instance.RefreshFixedPricesList();
+                                instance.RefreshApplicationSettings();
+                                instance.RefreshMarkUPPricesList();
+                                instance.RefreshFixedPricesList();
+                            }
                         }
                     }
-                }
 
-                return instance;
+                    return instance;
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
             }
         }
 
@@ -57,9 +65,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     SetGlobalConstants(item);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                LogErrorToFile(ex);
             }
         }
 
@@ -78,8 +86,6 @@ namespace ShopifyInventorySync.BusinessLogic
             catch (Exception ex)
             {
                 LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
             }
         }
 
@@ -96,8 +102,6 @@ namespace ShopifyInventorySync.BusinessLogic
             catch (Exception ex)
             {
                 LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
             }
         }
 
@@ -133,8 +137,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     File.AppendAllText(Path.Combine(Environment.CurrentDirectory, fileType + "Log", fileName), text + Environment.NewLine);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                LogErrorToFile(ex);
             }
         }
 
@@ -226,9 +231,9 @@ namespace ShopifyInventorySync.BusinessLogic
                         break;
                 }
             }
-            catch (Exception)
-            {
-                throw;
+            catch (Exception ex) 
+            { 
+                LogErrorToFile(ex);
             }
         }
 

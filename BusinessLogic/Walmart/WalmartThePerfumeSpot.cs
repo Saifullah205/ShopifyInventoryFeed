@@ -34,35 +34,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             walmartFeedResponseRepository = new WalmartFeedResponseRepository();
         }
 
-        public ThePerfumeSpotProductsList GetDataFromSource()
-        {
-            string fileTextData;
-            ThePerfumeSpotProductsList fragranceNetProducts = new();
-            byte[] csvBytes;
-
-            try
-            {
-                fileTextData = thePerfumeSpotAPI.FetchDataFromAPI();
-
-                if (!string.IsNullOrEmpty(fileTextData))
-                {
-                    csvBytes = Encoding.UTF8.GetBytes(fileTextData);
-
-                    using (var reader = new StreamReader(new MemoryStream(csvBytes)))
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        fragranceNetProducts.products = csv.GetRecords<ThePerfumeSpotProduct>().ToList();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return fragranceNetProducts;
-        }
-
         public List<ThePerfumeSpotProduct> FilterOutOfStockProducts(ThePerfumeSpotProductsList productsList)
         {
             List<WalmartInventoryDatum> productsOutOfStock = new();
@@ -262,7 +233,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsData;
         }
 
-        public List<string> FormatSourceProductsInventoryData(List<ThePerfumeSpotProduct> productsList, bool markOutOfStock)
+        public List<string> FormatSourceProductsInventoryData(List<ThePerfumeSpotProduct> productsList, List<ThePerfumeSpotProduct> outOfStockList, bool markOutOfStock)
         {
             WalmartInventoryRequestModel walmartInventoryRequestModel = new();
             IEnumerable<ThePerfumeSpotProduct[]> thePerfumeSpotProductsMultiLists;
@@ -270,6 +241,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
             try
             {
+                productsList.AddRange(outOfStockList);
+
                 thePerfumeSpotProductsMultiLists = productsList.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
 
                 walmartInventoryRequestModel.inventoryHeader.version = "1.5";
@@ -287,7 +260,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         shipnode.shipNode = FULFILLMENTCENTERID;
                         shipnode.quantity.unit = "EACH";
-                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(MINIMUMQUANTITY);
+                        shipnode.quantity.amount = outOfStockList.Where(m => m.UPC == productData.UPC).ToList().Count > 0 ? 0 : Convert.ToInt32(MINIMUMQUANTITY);
 
                         inventory.shipNodes.Add(shipnode);
 

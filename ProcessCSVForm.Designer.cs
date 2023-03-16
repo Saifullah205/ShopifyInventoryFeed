@@ -52,6 +52,7 @@
             this.walmartToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loadThePerfumeSpotProductsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fetchWalmartFragranceXProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.fetchFragranceNetProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.markupSettingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.restrictedBrandsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
@@ -152,6 +153,7 @@
             // 
             this.ProcessProgress.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ProcessProgress.Location = new System.Drawing.Point(3, 53);
+            this.ProcessProgress.MarqueeAnimationSpeed = 5;
             this.ProcessProgress.Name = "ProcessProgress";
             this.ProcessProgress.Size = new System.Drawing.Size(794, 14);
             this.ProcessProgress.TabIndex = 1;
@@ -174,11 +176,14 @@
             // 
             // loadedDataGridView
             // 
+            this.loadedDataGridView.AllowUserToAddRows = false;
+            this.loadedDataGridView.AllowUserToDeleteRows = false;
             this.loadedDataGridView.BackgroundColor = System.Drawing.SystemColors.Control;
             this.loadedDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.loadedDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.loadedDataGridView.Location = new System.Drawing.Point(3, 3);
             this.loadedDataGridView.Name = "loadedDataGridView";
+            this.loadedDataGridView.ReadOnly = true;
             this.loadedDataGridView.RowHeadersWidth = 51;
             this.loadedDataGridView.RowTemplate.Height = 29;
             this.loadedDataGridView.Size = new System.Drawing.Size(391, 340);
@@ -283,6 +288,7 @@
             this.walmartToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.loadThePerfumeSpotProductsToolStripMenuItem,
             this.fetchWalmartFragranceXProductsToolStripMenuItem1,
+            this.fetchFragranceNetProductsToolStripMenuItem1,
             this.toolStripSeparator2,
             this.markupSettingsToolStripMenuItem1,
             this.restrictedBrandsToolStripMenuItem1,
@@ -307,6 +313,14 @@
             this.fetchWalmartFragranceXProductsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
             this.fetchWalmartFragranceXProductsToolStripMenuItem1.Text = "Fetch FragranceX Products";
             this.fetchWalmartFragranceXProductsToolStripMenuItem1.Click += new System.EventHandler(this.fetchFragranceXProductsToolStripMenuItem1_Click);
+            // 
+            // fetchFragranceNetProductsToolStripMenuItem1
+            // 
+            this.fetchFragranceNetProductsToolStripMenuItem1.Name = "fetchFragranceNetProductsToolStripMenuItem1";
+            this.fetchFragranceNetProductsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
+            this.fetchFragranceNetProductsToolStripMenuItem1.Text = "Fetch FragranceNet Products";
+            this.fetchFragranceNetProductsToolStripMenuItem1.Visible = false;
+            this.fetchFragranceNetProductsToolStripMenuItem1.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem1_Click);
             // 
             // toolStripSeparator2
             // 
@@ -446,5 +460,6 @@
         private ToolStripMenuItem fixedPricesToolStripMenuItem1;
         private ToolStripMenuItem getFeedStatusToolStripMenuItem;
         private ToolStripMenuItem resetShippingMapsToolStripMenuItem;
+        private ToolStripMenuItem fetchFragranceNetProductsToolStripMenuItem1;
     }
 }

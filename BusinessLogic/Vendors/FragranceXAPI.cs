@@ -115,5 +115,21 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
 
             return loadedFragranceXProducts;
         }
+
+        public FragranceXProductsList GetDataFromSource()
+        {
+            FragranceXProductsList fragranceXProductsList = new();
+
+            try
+            {
+                fragranceXProductsList.products = FetchDataFromAPI().Where(m => m.Upc != "").ToList();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return fragranceXProductsList;
+        }
     }
 }

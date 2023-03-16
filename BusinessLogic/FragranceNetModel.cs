@@ -36,6 +36,12 @@ namespace ShopifyInventorySync.BusinessLogic
         public string imageSmall { get; set; }
         [Index(15)]
         public string url { get; set; }
+        [Index(16)]
+        public string upc { get; set; }
+        [Index(17)]
+        public string quantity { get; set; }
+        [Index(18)]
+        public string contentsUnderPressure { get; set; }
     }
 
     public class FragranceNetProductsList

@@ -59,8 +59,7 @@
             RETIRE = 1,
             SETUPITEM = 2,
             MAPSHIPPINGTEMPLATE = 3,
-            INVENTORYFEED = 4,
-            OUTOFSTOCK = 5
+            INVENTORYFEED = 4
         }
     }
 }

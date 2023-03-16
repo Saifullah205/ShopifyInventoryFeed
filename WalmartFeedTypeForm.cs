@@ -25,7 +25,6 @@ namespace ShopifyInventorySync
                 walmartFeedTypes.Add(2, "Setup Products");
                 walmartFeedTypes.Add(3, "Map Shipping Template");
                 walmartFeedTypes.Add(4, "Push Inventory Feed");
-                walmartFeedTypes.Add(5, "Mark Out of Stock");
 
                 cmbWalmartFeedType.DataSource = new BindingSource(walmartFeedTypes, null);
                 cmbWalmartFeedType.DisplayMember = "Value";

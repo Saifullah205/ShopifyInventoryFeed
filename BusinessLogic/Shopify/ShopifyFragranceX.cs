@@ -25,22 +25,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             fragranceXAPI = new();
         }
 
-        public FragranceXProductsList GetDataFromSource()
-        {
-            FragranceXProductsList fragranceXProductsList = new();
-
-            try
-            {
-                fragranceXProductsList.products = fragranceXAPI.FetchDataFromAPI().Where(m => m.Upc != "").ToList();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return fragranceXProductsList;
-        }
-
         public List<ShopifyInventoryDatum> FilterRemovedProducts(FragranceXProductsList fragranceXProductsList)
         {
             List<ShopifyInventoryDatum> shopifyProductsToRemove = new();

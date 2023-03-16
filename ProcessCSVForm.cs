@@ -1,8 +1,10 @@
 using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.BusinessLogic.Shopify;
+using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.BusinessLogic.Walmart;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
+using System.CodeDom;
 using System.Data;
 using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
@@ -12,7 +14,6 @@ namespace ShopifyInventorySync
     {
         DataTable productsDataTable = new ();
         int selectedAPI = (int)APITYPE.TPS;
-        int selectedStore = (int)STORENAME.SHOPIFY;
         decimal progressBarTotalValue = 0;
         decimal progressBarIncrementValue = 0;
         decimal progressBarValue = 0;
@@ -35,7 +36,7 @@ namespace ShopifyInventorySync
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (selectedStore == (int)STORENAME.SHOPIFY)
+            if (applicationState.selectedStore == (int)STORENAME.SHOPIFY)
             {
                 if (selectedAPI == (int)APITYPE.TPS)
                 {
@@ -50,7 +51,7 @@ namespace ShopifyInventorySync
                     ProcessShopifyFragranceNetProducts();
                 }
             }
-            else if (selectedStore == (int)STORENAME.WALMART)
+            else if (applicationState.selectedStore == (int)STORENAME.WALMART)
             {
 
                 WalmartFeedTypeForm walmartFeedType = new ();
@@ -61,14 +62,16 @@ namespace ShopifyInventorySync
                 {
                     return;
                 }
-                                
-                if (selectedAPI == (int)APITYPE.TPS)
+                else
                 {
-                    ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
-                }
-                else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
-                {
-                    ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
+                    if (selectedAPI == (int)APITYPE.TPS)
+                    {
+                        ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
+                    }
+                    else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
+                    {
+                        ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
+                    }
                 }
             }
         }
@@ -125,7 +128,6 @@ namespace ShopifyInventorySync
             List<ThePerfumeSpotProduct> productsToProcess = new();
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
-            List<string> outOfStockProductsToPostData;
             List<string> shippingTemplateMappingToPostData;
 
             try
@@ -176,7 +178,7 @@ namespace ShopifyInventorySync
 
                 if (actionType == WALMARTFEEDTYPEPOST.INVENTORYFEED)
                 {
-                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, false);
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, outOfStockProducts, false);
 
                     if(inStockProductsToPostData.Count > 0)
                     {
@@ -190,29 +192,6 @@ namespace ShopifyInventorySync
 
                             await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
-                    }
-                }
-
-                if (actionType == WALMARTFEEDTYPEPOST.OUTOFSTOCK)
-                {
-                    outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
-
-                    if(outOfStockProductsToPostData.Count > 0)
-                    {
-                        progressBarTotalValue = outOfStockProductsToPostData.Count;
-
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
-
-                        foreach (string feedData in outOfStockProductsToPostData)
-                        {
-                            IncrementProgressBar();
-
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("No product found to process.");
                     }
                 }
 
@@ -265,7 +244,6 @@ namespace ShopifyInventorySync
             List<FragranceXProduct> productsToProcess = new();
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
-            List<string> outOfStockProductsToPostData;
             List<string> shippingTemplateMappingToPostData;
 
             try
@@ -316,7 +294,7 @@ namespace ShopifyInventorySync
 
                 if (actionType == WALMARTFEEDTYPEPOST.INVENTORYFEED)
                 {
-                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, false);
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, outOfStockProducts, false);
 
                     if (inStockProductsToPostData.Count > 0)
                     {
@@ -325,25 +303,6 @@ namespace ShopifyInventorySync
                         progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
 
                         foreach (string feedData in inStockProductsToPostData)
-                        {
-                            IncrementProgressBar();
-
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
-                        }
-                    }
-                }
-
-                if (actionType == WALMARTFEEDTYPEPOST.OUTOFSTOCK)
-                {
-                    outOfStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(outOfStockProducts, true);
-
-                    if (outOfStockProductsToPostData.Count > 0)
-                    {
-                        progressBarTotalValue = outOfStockProductsToPostData.Count;
-
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
-
-                        foreach (string feedData in outOfStockProductsToPostData)
                         {
                             IncrementProgressBar();
 
@@ -426,13 +385,25 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void EnableApplicationMainControls(bool enable)
+        private void EnableApplicationMainControls(bool enable, bool showUnlimitedProgress = false)
         {
             try
             {
                 btnClear.Enabled = enable;
                 btnProcess.Enabled = enable;
                 fileToolStripMenuItem.Enabled = enable;
+                walmartToolStripMenuItem.Enabled = enable;
+                settingsToolStripMenuItem1.Enabled = enable;
+                helpToolStripMenuItem.Enabled = enable;
+
+                if (showUnlimitedProgress)
+                {
+                    ProcessProgress.Style = ProgressBarStyle.Marquee;
+                }
+                else
+                {
+                    ProcessProgress.Style = ProgressBarStyle.Continuous;
+                }                
             }
             catch (Exception)
             {
@@ -519,7 +490,7 @@ namespace ShopifyInventorySync
         private void BrowseThePerfumeSpotProducts()
         {
             DataTable productsDataTable = new();
-            ShopifyThePerfumeSpot clientAPI = new();
+            ThePerfumeSpotAPI clientAPI = new();
 
             try
             {
@@ -552,13 +523,17 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void FetchTheFragranceNetProducts()
+        private async void FetchTheFragranceNetProducts()
         {
             DataTable productsDataTable = new();
-            ShopifyFragranceNet clientAPI = new ShopifyFragranceNet();
+            FragranceNetAPI clientAPI = new ();
 
             try
             {
+                EnableApplicationMainControls(false,true);
+
+                UnlimitedProgressBarMessageUpdate("Please Wait, Fetching data...");
+
                 selectedAPI = (int)APITYPE.FRAGRANCENET;
 
                 lblSelectedAPI.Text = "Fragrance Net API";
@@ -566,7 +541,7 @@ namespace ShopifyInventorySync
                 loadedDataGridView.DataSource = null;
                 loadedDataGridView.Rows.Clear();
 
-                fragranceNetProducts = clientAPI.GetDataFromSource();
+                fragranceNetProducts = await clientAPI.FetchDataFromAPI();
 
                 if (fragranceNetProducts.products.Count <= 0)
                 {
@@ -575,14 +550,24 @@ namespace ShopifyInventorySync
                     return;
                 }
 
+                UnlimitedProgressBarMessageUpdate("Formatting fetched data...");
+
                 productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
 
                 loadedDataGridView.DataSource = productsDataTable;
 
                 btnProcess.Enabled = true;
+
+                EnableApplicationMainControls(true);
+
+                UnlimitedProgressBarMessageUpdate("Process completed successfully.");
             }
             catch (Exception)
             {
+                EnableApplicationMainControls(true);
+
+                UnlimitedProgressBarMessageUpdate("Unexpected error occurred.");
+
                 throw;
             }
         }
@@ -590,7 +575,7 @@ namespace ShopifyInventorySync
         private void FetchFragranceXProducts()
         {
             DataTable productsDataTable = new();
-            ShopifyFragranceX clientAPI = new();
+            FragranceXAPI clientAPI = new();
 
             try
             {
@@ -635,6 +620,11 @@ namespace ShopifyInventorySync
             lblProgressCount.Text = ((int)progressBarValue).ToString() + "% Completed";
 
             ProcessProgress.Value = (int)progressBarValue;
+        }
+
+        private void UnlimitedProgressBarMessageUpdate(string message)
+        {
+            lblProgressCount.Text = message;
         }
 
         private void settingsToolStripMenuItem2_Click(object sender, EventArgs e)
@@ -695,7 +685,7 @@ namespace ShopifyInventorySync
 
         private void SetSelectedStore(STORENAME sTORENAME)
         {
-            selectedStore = (int)sTORENAME;
+            applicationState.selectedStore  = (int)sTORENAME;
         }
 
         #endregion
@@ -988,6 +978,22 @@ namespace ShopifyInventorySync
 
                     MessageBox.Show("Shipment mappings reset successfully.");
                 }                
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void fetchFragranceNetProductsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SetSelectedStore(STORENAME.WALMART);
+
+                FetchTheFragranceNetProducts();
             }
             catch (Exception ex)
             {

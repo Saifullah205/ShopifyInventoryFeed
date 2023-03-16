@@ -28,35 +28,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             restrictedSkusRepository = new RestrictedSkusRepository();
         }
 
-        public ThePerfumeSpotProductsList GetDataFromSource()
-        {
-            string fileTextData;
-            ThePerfumeSpotProductsList fragranceNetProducts = new();
-            byte[] csvBytes;
-
-            try
-            {
-                fileTextData = thePerfumeSpotAPI.FetchDataFromAPI();
-
-                if (!string.IsNullOrEmpty(fileTextData))
-                {
-                    csvBytes = Encoding.UTF8.GetBytes(fileTextData);
-
-                    using (var reader = new StreamReader(new MemoryStream(csvBytes)))
-                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
-                    {
-                        fragranceNetProducts.products = csv.GetRecords<ThePerfumeSpotProduct>().ToList();
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return fragranceNetProducts;
-        }
-
         public List<ShopifyInventoryDatum> FilterRemovedProducts(ThePerfumeSpotProductsList fragranceNetProducts)
         {
             List<ShopifyInventoryDatum> shopifyProductsToRemove = new();

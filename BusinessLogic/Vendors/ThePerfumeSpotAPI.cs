@@ -1,5 +1,7 @@
-﻿using System;
+﻿using CsvHelper;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +42,35 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
             }
 
             return responseData;
+        }
+
+        public ThePerfumeSpotProductsList GetDataFromSource()
+        {
+            string fileTextData;
+            ThePerfumeSpotProductsList fragranceNetProducts = new();
+            byte[] csvBytes;
+
+            try
+            {
+                fileTextData = FetchDataFromAPI();
+
+                if (!string.IsNullOrEmpty(fileTextData))
+                {
+                    csvBytes = Encoding.UTF8.GetBytes(fileTextData);
+
+                    using (var reader = new StreamReader(new MemoryStream(csvBytes)))
+                    using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+                    {
+                        fragranceNetProducts.products = csv.GetRecords<ThePerfumeSpotProduct>().ToList();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+
+            return fragranceNetProducts;
         }
     }
 }

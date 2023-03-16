@@ -28,22 +28,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             fragranceXAPI = new();
         }
 
-        public FragranceXProductsList GetDataFromSource()
-        {
-            FragranceXProductsList fragranceXProductsList = new();
-
-            try
-            {
-                fragranceXProductsList.products = fragranceXAPI.FetchDataFromAPI().Where(m => m.Upc != "").ToList();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-
-            return fragranceXProductsList;
-        }
-
         public List<FragranceXProduct> FilterOutOfStockProducts(FragranceXProductsList productsList)
         {
             List<WalmartInventoryDatum> productsToRemove = new();
@@ -263,7 +247,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsData;
         }
 
-        public List<string> FormatSourceProductsInventoryData(List<FragranceXProduct> productsList, bool markOutOfStock)
+        public List<string> FormatSourceProductsInventoryData(List<FragranceXProduct> productsList, List<FragranceXProduct> outOfStockList, bool markOutOfStock)
         {
             WalmartInventoryRequestModel walmartInventoryRequestModel = new();
             IEnumerable<FragranceXProduct[]> thePerfumeSpotProductsMultiLists;
@@ -271,6 +255,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
             try
             {
+                productsList.AddRange(outOfStockList);
+
                 thePerfumeSpotProductsMultiLists = productsList.Chunk(Convert.ToInt32(WALMARTCHUNKSIZE));
 
                 walmartInventoryRequestModel.inventoryHeader.version = "1.5";
@@ -288,7 +274,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         shipnode.shipNode = FULFILLMENTCENTERID;
                         shipnode.quantity.unit = "EACH";
-                        shipnode.quantity.amount = markOutOfStock ? 0 : Convert.ToInt32(productData.QuantityAvailable);
+                        shipnode.quantity.amount = outOfStockList.Where(m => m.Upc == productData.Upc).ToList().Count > 0 ? 0 : Convert.ToInt32(productData.QuantityAvailable);
 
                         inventory.shipNodes.Add(shipnode);
 
