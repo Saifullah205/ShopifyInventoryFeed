@@ -103,7 +103,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             string imageURL = string.Empty;
             string vendor = string.Empty;
             string productDescription = string.Empty;
-            string skuPrefix = string.Empty;
             string fullSku = string.Empty;
             string minimumQty = string.Empty;
             string genderM = string.Empty;
@@ -123,8 +122,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 headerProduct = productsToProcessData.products[0];
-
-                skuPrefix = TPSSKUPREFIX;
 
                 mainTitle = headerProduct.Name.Split(',')[0].ToString();
                 vendor = headerProduct.Brand;
@@ -160,7 +157,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                     variantTitle = productData.Name.Split(',')[0].ToString();
                     sku = productData.UPC.ToString()!;
-                    fullSku = skuPrefix + sku.Trim();
+                    fullSku = TPSSKUPREFIX + sku.Trim();
                     weight = productData.Weight.ToString()!;
                     cost = productData.YourCost.ToString()!;
                     imageURL = productData.ImageURL.ToString()!;
@@ -169,7 +166,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     giftSet = productData.GiftSet.ToString()!;
                     minimumQty = MINIMUMQUANTITY;
 
-                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.Retail, STORENAME.SHOPIFY).ToString();
+                    updatedCost = applicationState.GetMarkedUpPrice(sku, productData.YourCost, STORENAME.SHOPIFY).ToString();
 
                     if (!ValidateRestrictedSKU(sku))
                     {
@@ -253,7 +250,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                 shopifyAPI.DeleteProductVariantImage(Convert.ToInt64(currentProduct.ShopifyId), Convert.ToInt64(currentProduct.ImageId));
                                 newImage = shopifyAPI.CreateProductVariantImage(overrideVariantImageUpdateModel, overrideVariantImageUpdateModel.image.product_id);
 
-                                currentProduct.SkuPrefix = skuPrefix;
+                                currentProduct.SkuPrefix = TPSSKUPREFIX;
                                 currentProduct.ImageId = newImage.image.id.ToString();
 
                                 isSKUReplaced = true;
@@ -345,7 +342,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                     shopifyInventoryDatum.ShopifyId = sameNameProduct.ShopifyId.ToString();
                                     shopifyInventoryDatum.BrandName = sameNameProduct.BrandName;
                                     shopifyInventoryDatum.Sku = sku.Trim();
-                                    shopifyInventoryDatum.SkuPrefix = skuPrefix;
+                                    shopifyInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                                     shopifyInventoryDatum.VariantId = newVariantRootModel.variant.id.ToString();
                                     shopifyInventoryDatum.InventoryItemId = newVariantRootModel.variant.inventory_item_id.ToString();
                                     shopifyInventoryDatum.ImageId = newImage.image.id.ToString();
@@ -404,8 +401,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             shopifyInventoryDatum.ProductGender = genderDescription;
                             shopifyInventoryDatum.ShopifyId = shopifyProductResponseData.product.id.ToString();
                             shopifyInventoryDatum.BrandName = shopifyProductResponseData.product.vendor;
-                            shopifyInventoryDatum.Sku = productVarient.sku.Substring(skuPrefix.Length, productVarient.sku.Length - skuPrefix.Length);
-                            shopifyInventoryDatum.SkuPrefix = skuPrefix;
+                            shopifyInventoryDatum.Sku = productVarient.sku.Substring(TPSSKUPREFIX.Length, productVarient.sku.Length - TPSSKUPREFIX.Length);
+                            shopifyInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                             shopifyInventoryDatum.VariantId = productVarient.id.ToString();
                             shopifyInventoryDatum.InventoryItemId = productVarient.inventory_item_id.ToString();
 

@@ -157,6 +157,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     variantTitle = productData.ProductName + " by " + productData.BrandName;
                     weightDescription = productData.Size + " " + productData.Type;
                     sku = productData.Upc.ToString()!;
+                    fullSku = skuPrefix + sku.Trim();
                     weight = "0";
                     cost = productData.WholesalePriceUSD.ToString()!;
                     imageURL = productData.LargeImageUrl.ToString()!;
@@ -164,7 +165,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     minimumQty = productData.QuantityAvailable.ToString();
                     updatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), STORENAME.SHOPIFY).ToString();
 
-                    fullSku = skuPrefix + sku.Trim();
+                    
 
                     if (!ValidateRestrictedSKU(sku))
                     {
@@ -557,7 +558,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.BrandName == vendor
+                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.BrandName == vendor && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
@@ -583,7 +584,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.Sku == sku
+                     where (s.ApiType == "ALL" || s.ApiType == "SBA") && s.Sku == sku && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));
