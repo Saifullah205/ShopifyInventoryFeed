@@ -75,7 +75,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  select s).ToList();
 
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.upc) || restrictedBrands.Any(x => x.BrandName!.ToUpper() == s.brand.ToUpper()))
+                                    where (restrictedSku.Any(x => x.Sku == s.upc) || restrictedBrands.Any(x => x.BrandName!.ToUpper() == s.designer.ToUpper()))
                                     select s).ToList();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCENETSKUPREFIX)
@@ -130,7 +130,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     {
                         SkuPrefix = FRAGRANCENETSKUPREFIX,
                         Sku = product.upc,
-                        BrandName = product.brand,
+                        BrandName = product.designer,
                         IsShippingMapped = false,
                         Price = Convert.ToDecimal(product.fnetWholesalePrice)
                     };
@@ -191,8 +191,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         sku = productData.upc;
                         fullSku = FRAGRANCENETSKUPREFIX + productData.upc;
-                        vendor = productData.brand;
-                        mainTitle = productData.name + " by " + vendor;
+                        vendor = productData.designer;
+                        mainTitle = productData.name;
 
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
@@ -217,7 +217,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         mpitem.Visible.Office.smallPartsWarnings = new List<string> { "0 - No warning applicable" };
                         mpitem.Visible.Office.compositeWoodCertificationCode = "1 - Does not contain composite wood";
                         mpitem.Visible.Office.keyFeatures = new List<string> { mainTitle };
-                        mpitem.Visible.Office.manufacturer = productData.brand;
+                        mpitem.Visible.Office.manufacturer = productData.designer;
                         mpitem.Visible.Office.manufacturerPartNumber = productData.upc;
 
                         walmartProductModel.MPItem.Add(mpitem);                        
@@ -308,15 +308,18 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                     foreach (FragranceNetProduct productData in productsSingleList)
                     {
-                        ShippingTemplateItem shippingTemplateItem = new();
-                        Precisedelivery precisedelivery = new();
+                        Precisedelivery precisedelivery = new()
+                        {
+                            sku = FRAGRANCENETSKUPREFIX + productData.upc,
+                            actionType = "Add",
+                            shippingTemplateId = SHIPPINGTEMPLATEID,
+                            fulfillmentCenterId = FULFILLMENTCENTERID
+                        };
 
-                        precisedelivery.sku = FRAGRANCENETSKUPREFIX + productData.upc;
-                        precisedelivery.actionType = "Add";
-                        precisedelivery.shippingTemplateId = SHIPPINGTEMPLATEID;
-                        precisedelivery.fulfillmentCenterId = FULFILLMENTCENTERID;
-
-                        shippingTemplateItem.PreciseDelivery = precisedelivery;
+                        ShippingTemplateItem shippingTemplateItem = new()
+                        {
+                            PreciseDelivery = precisedelivery
+                        };
 
                         walmartShippingTemplate.Item.Add(shippingTemplateItem);
                     }

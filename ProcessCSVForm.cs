@@ -156,7 +156,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
@@ -175,7 +175,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -194,7 +194,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
@@ -212,7 +212,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
+                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
                         }
                     }
                     else
@@ -220,8 +220,6 @@ namespace ShopifyInventorySync
                         MessageBox.Show("No product found to delete.");
                     }
                 }
-
-                await Task.Delay(100);
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
 
@@ -274,7 +272,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
@@ -293,7 +291,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -312,7 +310,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
@@ -329,7 +327,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCEXSKUPREFIX + product.Upc!));
+                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCEXSKUPREFIX + product.Upc!));
                         }
                     }
                     else
@@ -391,7 +389,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
@@ -410,7 +408,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -429,7 +427,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
@@ -446,7 +444,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCENETSKUPREFIX + product.upc!));
+                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCENETSKUPREFIX + product.upc!));
                         }
                     }
                     else
@@ -454,8 +452,6 @@ namespace ShopifyInventorySync
                         MessageBox.Show("No product found to delete.");
                     }
                 }
-
-                await Task.Delay(100);
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
 
@@ -697,20 +693,22 @@ namespace ShopifyInventorySync
             }
         }
 
-        private void FetchFragranceXProducts()
+        private async void FetchFragranceXProducts()
         {
             DataTable productsDataTable = new();
             FragranceXAPI clientAPI = new();
 
             try
             {
+                EnableApplicationMainControls(false, true);
+
                 selectedAPI = (int)APITYPE.FRAGRANCEX;
 
                 lblSelectedAPI.Text = "Fragrance X API";
 
                 fragranceXProducts.products.Clear();
 
-                fragranceXProducts = clientAPI.GetDataFromSource();
+                fragranceXProducts = await clientAPI.GetDataFromSource();
 
                 if (fragranceXProducts.products.Count <= 0)
                 {
@@ -724,9 +722,17 @@ namespace ShopifyInventorySync
                 loadedDataGridView.DataSource = productsDataTable;
 
                 btnProcess.Enabled = true;
+
+                EnableApplicationMainControls(true);
+
+                UnlimitedProgressBarMessageUpdate("Process completed successfully.");
             }
             catch (Exception)
             {
+                EnableApplicationMainControls(true);
+
+                UnlimitedProgressBarMessageUpdate("Unexpected error occurred.");
+
                 throw;
             }
         }

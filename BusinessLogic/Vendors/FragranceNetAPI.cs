@@ -30,6 +30,8 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
                 response = await client.GetAsync(FRAGRANCENETURL);
                 response.EnsureSuccessStatusCode();
                 responseBody = await response.Content.ReadAsStringAsync();
+
+                //responseBody = File.ReadAllText("D:\\Clients_Work\\20220827_tdog5116\\Walmart\\Testing\\FNet_Orig_Test.txt");
             }
             catch (Exception)
             {

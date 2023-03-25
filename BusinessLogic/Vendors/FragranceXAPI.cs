@@ -21,7 +21,7 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
             applicationState = ApplicationState.GetState;
         }
 
-        private string GetFragranceXAPIToken()
+        private async Task<string> GetFragranceXAPIToken()
         {
             string token = string.Empty;
             string url = FRAGRANCEXURL + "/token";
@@ -37,7 +37,7 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
                 request.AddParameter("apiAccessId", APIACCESSID);
                 request.AddParameter("apiAccessKey", APIACCESSKEY);
 
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -56,7 +56,7 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
             return token;
         }
 
-        private string GetFragranceXAPIData()
+        private async Task<string> GetFragranceXAPIData(string token)
         {
             string productsData = string.Empty;
             string url = FRAGRANCEXURL + "/product/list/";
@@ -67,9 +67,9 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
                 var request = new RestRequest(url, Method.Get);
 
                 request.AddHeader("Content-Type", "application/json");
-                request.AddHeader("Authorization", "Bearer " + GetFragranceXAPIToken());
+                request.AddHeader("Authorization", "Bearer " + token);
 
-                RestResponse response = client.Execute(request);
+                RestResponse response = await client.ExecuteAsync(request);
 
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
@@ -84,23 +84,24 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
             return productsData;
         }
 
-        public List<FragranceXProduct> FetchDataFromAPI()
+        public async Task<List<FragranceXProduct>> FetchDataFromAPI()
         {
-            string fragranceXJsonData = string.Empty;
+            Task<string> fragranceXJsonData;
+            string fragranceXResponseData;
             List<FragranceXProduct> loadedFragranceXProducts = new();
             string token = string.Empty;
 
             try
             {
-                token = GetFragranceXAPIToken();
+                token = await GetFragranceXAPIToken();
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    //fragranceXJsonData = GetFragranceXAPIData();
+                    fragranceXJsonData = GetFragranceXAPIData(token);
 
-                    fragranceXJsonData = File.ReadAllText("D:\\Clients_Work\\20220827_tdog5116\\Walmart\\Testing\\FragranceX_ProductsData - Copy.txt");
+                    fragranceXResponseData = await fragranceXJsonData;
 
-                    loadedFragranceXProducts = JsonConvert.DeserializeObject<List<FragranceXProduct>>(fragranceXJsonData!)!;
+                    loadedFragranceXProducts = JsonConvert.DeserializeObject<List<FragranceXProduct>>(fragranceXResponseData!)!;
                 }
                 else
                 {
@@ -118,13 +119,16 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
             return loadedFragranceXProducts;
         }
 
-        public FragranceXProductsList GetDataFromSource()
+        public async Task<FragranceXProductsList> GetDataFromSource()
         {
             FragranceXProductsList fragranceXProductsList = new();
+            List<FragranceXProduct> products;
 
             try
             {
-                fragranceXProductsList.products = FetchDataFromAPI().Where(m => m.Upc != "").ToList();
+                products = await FetchDataFromAPI();
+
+                fragranceXProductsList.products = products.Where(m => m.Upc != "").ToList();
             }
             catch (Exception)
             {
