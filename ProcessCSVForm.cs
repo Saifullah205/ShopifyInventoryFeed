@@ -72,6 +72,10 @@ namespace ShopifyInventorySync
                     {
                         ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
                     }
+                    else if (selectedAPI == (int)APITYPE.FRAGRANCENET)
+                    {
+                        ProcessWalmartFragranceNetProducts(walmartFeedType.selectedFeedType);
+                    }
                 }
             }
         }
@@ -123,20 +127,20 @@ namespace ShopifyInventorySync
         {
             WalmartThePerfumeSpot clientAPI = new();
             WalmartAPI walmartAPI = new();
-            List<ThePerfumeSpotProduct> outOfStockProducts = new();
-            List<ThePerfumeSpotProduct> productsToDelete = new();
-            List<ThePerfumeSpotProduct> productsToProcess = new();
+            List<ThePerfumeSpotProduct> outOfStockProducts;
+            List<ThePerfumeSpotProduct> productsToDelete;
+            List<ThePerfumeSpotProduct> productsToProcess;
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
             List<string> shippingTemplateMappingToPostData;
 
             try
             {
-                EnableApplicationMainControls(false);
+                EnableApplicationMainControls(false,true);
 
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
                 productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
-                productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete, outOfStockProducts);
+                productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete);
 
                 if (actionType == WALMARTFEEDTYPEPOST.SETUPITEM)
                 {
@@ -152,7 +156,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
@@ -171,7 +175,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -190,7 +194,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
@@ -208,14 +212,16 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
+                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.UPC!));
                         }
                     }
                     else
                     {
                         MessageBox.Show("No product found to delete.");
                     }
-                }                    
+                }
+
+                await Task.Delay(100);
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
 
@@ -239,9 +245,9 @@ namespace ShopifyInventorySync
         {
             WalmartFragranceX clientAPI = new();
             WalmartAPI walmartAPI = new();
-            List<FragranceXProduct> outOfStockProducts = new();
-            List<FragranceXProduct> productsToDelete = new();
-            List<FragranceXProduct> productsToProcess = new();
+            List<FragranceXProduct> outOfStockProducts;
+            List<FragranceXProduct> productsToDelete;
+            List<FragranceXProduct> productsToProcess;
             List<string> walmartProductsToPostData;
             List<string> inStockProductsToPostData;
             List<string> shippingTemplateMappingToPostData;
@@ -252,7 +258,7 @@ namespace ShopifyInventorySync
 
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(fragranceXProducts);
                 productsToDelete = clientAPI.FilterProductsToRemove(fragranceXProducts);
-                productsToProcess = clientAPI.FilterProductsToProcess(fragranceXProducts, productsToDelete, outOfStockProducts);
+                productsToProcess = clientAPI.FilterProductsToProcess(fragranceXProducts, productsToDelete);
 
                 if (actionType == WALMARTFEEDTYPEPOST.SETUPITEM)
                 {
@@ -268,7 +274,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
                         }
                     }
                 }
@@ -287,7 +293,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
                         }
                     }
                 }
@@ -306,7 +312,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
                         }
                     }
                 }
@@ -323,7 +329,7 @@ namespace ShopifyInventorySync
                         {
                             IncrementProgressBar();
 
-                            await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(TPSSKUPREFIX + product.Upc!));
+                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCEXSKUPREFIX + product.Upc!));
                         }
                     }
                     else
@@ -331,6 +337,125 @@ namespace ShopifyInventorySync
                         MessageBox.Show("No product found to delete.");
                     }
                 }
+
+                await Task.Delay(100);
+
+                txtProcessedProducts.Text = applicationState.processingMessages;
+
+                applicationState.ClearLogMessages();
+
+                MessageBox.Show("Process Completed Successfully");
+
+                ClearGridData();
+
+                EnableApplicationMainControls(true);
+            }
+            catch (Exception)
+            {
+                EnableApplicationMainControls(true);
+
+                throw;
+            }
+        }
+
+        private async void ProcessWalmartFragranceNetProducts(WALMARTFEEDTYPEPOST actionType)
+        {
+            WalmartFragranceNet clientAPI = new();
+            WalmartAPI walmartAPI = new();
+            List<FragranceNetProduct> outOfStockProducts;
+            List<FragranceNetProduct> productsToDelete;
+            List<FragranceNetProduct> productsToProcess;
+            List<string> walmartProductsToPostData;
+            List<string> inStockProductsToPostData;
+            List<string> shippingTemplateMappingToPostData;
+
+            try
+            {
+                EnableApplicationMainControls(false);
+
+                outOfStockProducts = clientAPI.FilterOutOfStockProducts(fragranceNetProducts);
+                productsToDelete = clientAPI.FilterProductsToRemove(fragranceNetProducts);
+                productsToProcess = clientAPI.FilterProductsToProcess(fragranceNetProducts, productsToDelete);
+
+                if (actionType == WALMARTFEEDTYPEPOST.SETUPITEM)
+                {
+                    walmartProductsToPostData = clientAPI.FormatSourceProductsData(productsToProcess);
+
+                    if (walmartProductsToPostData.Count > 0)
+                    {
+                        progressBarTotalValue = walmartProductsToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (string feedData in walmartProductsToPostData)
+                        {
+                            IncrementProgressBar();
+
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_ITEM));
+                        }
+                    }
+                }
+
+                if (actionType == WALMARTFEEDTYPEPOST.MAPSHIPPINGTEMPLATE)
+                {
+                    shippingTemplateMappingToPostData = clientAPI.FormatShippingTemplateMappingData(productsToProcess);
+
+                    if (shippingTemplateMappingToPostData.Count > 0)
+                    {
+                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (string feedData in shippingTemplateMappingToPostData)
+                        {
+                            IncrementProgressBar();
+
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_SHIPPINGMAP));
+                        }
+                    }
+                }
+
+                if (actionType == WALMARTFEEDTYPEPOST.INVENTORYFEED)
+                {
+                    inStockProductsToPostData = clientAPI.FormatSourceProductsInventoryData(productsToProcess, outOfStockProducts, false);
+
+                    if (inStockProductsToPostData.Count > 0)
+                    {
+                        progressBarTotalValue = inStockProductsToPostData.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (string feedData in inStockProductsToPostData)
+                        {
+                            IncrementProgressBar();
+
+                            //await Task.Run(() => walmartAPI.ProcessProductToWalmart(feedData, WALMARTFEEDTYPE.MP_INVENTORY));
+                        }
+                    }
+                }
+
+                if (actionType == WALMARTFEEDTYPEPOST.RETIRE)
+                {
+                    if (productsToDelete.Count > 0)
+                    {
+                        progressBarTotalValue = productsToDelete.Count;
+
+                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+
+                        foreach (FragranceNetProduct product in productsToDelete)
+                        {
+                            IncrementProgressBar();
+
+                            //await Task.Run(() => clientAPI.ProcessRetiredProductToWalmart(FRAGRANCENETSKUPREFIX + product.upc!));
+                        }
+                    }
+                    else
+                    {
+                        MessageBox.Show("No product found to delete.");
+                    }
+                }
+
+                await Task.Delay(100);
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
 

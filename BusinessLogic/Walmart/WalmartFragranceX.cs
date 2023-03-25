@@ -15,7 +15,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
         private readonly IRestrictedBrandsRepository restrictedBrandsRepository;
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly WalmartAPI walmartAPI;
-        private readonly FragranceXAPI fragranceXAPI;
 
         public WalmartFragranceX()
         {
@@ -25,7 +24,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
             walmartFeedResponseRepository = new WalmartFeedResponseRepository();
-            fragranceXAPI = new();
         }
 
         public List<FragranceXProduct> FilterOutOfStockProducts(FragranceXProductsList productsList)
@@ -63,7 +61,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
         {
             WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<FragranceXProduct> productsToRemove = new();
-            List<FragranceXProduct> productsToOverride = new();
             List<RestrictedBrand> restrictedBrands = new List<RestrictedBrand>();
             List<RestrictedSku> restrictedSku = new List<RestrictedSku>();
             List<WalmartInventoryDatum> productsRemoveSaveData = new();
@@ -79,12 +76,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName == s.BrandName))
+                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName!.ToUpper() == s.BrandName.ToUpper()))
                                     select s).ToList<FragranceXProduct>();
-
-                productsToOverride = (from s in productsList.products
-                                      where productsRepository.GetBySkuPrefix(TPSSKUPREFIX).Any(m =>  m.Sku == s.Upc)
-                                      select s).ToList<FragranceXProduct>();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)
                                           where productsToRemove.Any(m => m.Upc == s.Sku)
@@ -93,8 +86,6 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                 walmartInventoryRepository.DeleteMultiple(productsRemoveSaveData);
 
                 walmartInventoryRepository.Save();
-
-                productsToRemove.AddRange(productsToOverride);
             }
             catch (Exception)
             {
@@ -104,22 +95,35 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             return productsToRemove;
         }
 
-        public List<FragranceXProduct> FilterProductsToProcess(FragranceXProductsList productsList, List<FragranceXProduct> removedProducts, List<FragranceXProduct> outOfStockProducts)
+        public List<FragranceXProduct> FilterProductsToProcess(FragranceXProductsList productsList, List<FragranceXProduct> removedProducts)
         {
             WalmartInventoryDataRepository walmartInventoryRepository = new();
             List<FragranceXProduct> productsToProcess = new();
+            List<FragranceXProduct> productsToIgnore = new();
             List<FragranceXProduct> productsToSave = new();
+            List<WalmartInventoryDatum> productsToUpdate = new();
             List<WalmartInventoryDatum> productsAddedSaveData = new();
+            List<WalmartInventoryDatum> allWalmartProducts = new();
 
             try
             {
-                productsToProcess = (from s in productsList.products
-                                    where !(removedProducts.Any(x => x.Upc == s.Upc) || outOfStockProducts.Any(x => x.Upc == s.Upc))
+                allWalmartProducts = productsRepository.GetAll().ToList<WalmartInventoryDatum>();
+
+                productsToIgnore = (from s in productsList.products
+                                    where allWalmartProducts.Any(m => m.Sku == s.Upc && m.SkuPrefix != FRAGRANCENETSKUPREFIX && m.Price < Convert.ToDecimal(s.WholesalePriceUSD))
                                     select s).ToList<FragranceXProduct>();
 
+                productsToProcess = (from s in productsList.products
+                                    where !(removedProducts.Any(x => x.Upc == s.Upc) || productsToIgnore.Any(x => x.Upc == s.Upc))
+                                     select s).ToList<FragranceXProduct>();
+
                 productsToSave = (from s in productsToProcess
-                                where !productsRepository.GetAll().Any(m => m.Sku == s.Upc)
+                                where !allWalmartProducts.Any(m => m.Sku == s.Upc)
                                 select s).ToList<FragranceXProduct>();
+
+                productsToUpdate = (from s in walmartInventoryRepository.GetAll()
+                                    where productsToProcess.Any(x => x.Upc == s.Sku)
+                                    select s).ToList<WalmartInventoryDatum>();
 
                 foreach (FragranceXProduct product in productsToSave)
                 {
@@ -129,11 +133,19 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                     walmartInventoryDatum.Sku = product.Upc;
                     walmartInventoryDatum.BrandName = product.BrandName;
                     walmartInventoryDatum.IsShippingMapped = false;
+                    walmartInventoryDatum.Price = Convert.ToDecimal(product.WholesalePriceUSD);
 
                     productsAddedSaveData.Add(walmartInventoryDatum);
                 }
 
+                productsToUpdate.ForEach(x =>
+                {
+                    x.Price = Convert.ToDecimal(productsToProcess.Where(m => m.Upc == x.Sku).First().WholesalePriceUSD);
+                    x.SkuPrefix = FRAGRANCEXSKUPREFIX;
+                });
+
                 walmartInventoryRepository.InsertMultiple(productsAddedSaveData);
+                walmartInventoryRepository.UpdateMultiple(productsToUpdate);
 
                 walmartInventoryRepository.Save();
             }

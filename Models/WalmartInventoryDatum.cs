@@ -11,5 +11,6 @@ namespace ShopifyInventorySync.Models
         public string? BrandName { get; set; }
         public string? SkuPrefix { get; set; }
         public bool? IsShippingMapped { get; set; }
+        public decimal? Price { get; set; }
     }
 }

@@ -96,7 +96,9 @@ namespace ShopifyInventorySync.BusinessLogic.Vendors
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    fragranceXJsonData = GetFragranceXAPIData();
+                    //fragranceXJsonData = GetFragranceXAPIData();
+
+                    fragranceXJsonData = File.ReadAllText("D:\\Clients_Work\\20220827_tdog5116\\Walmart\\Testing\\FragranceX_ProductsData - Copy.txt");
 
                     loadedFragranceXProducts = JsonConvert.DeserializeObject<List<FragranceXProduct>>(fragranceXJsonData!)!;
                 }

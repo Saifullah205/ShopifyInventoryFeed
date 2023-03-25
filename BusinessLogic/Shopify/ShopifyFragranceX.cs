@@ -13,7 +13,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
         private readonly IRestrictedBrandsRepository restrictedBrandsRepository;
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
         private readonly ShopifyAPI shopifyAPI;
-        private readonly FragranceXAPI fragranceXAPI;
 
         public ShopifyFragranceX()
         {
@@ -22,7 +21,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             productsRepository = new ProductsRepository();
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
-            fragranceXAPI = new();
         }
 
         public List<ShopifyInventoryDatum> FilterRemovedProducts(FragranceXProductsList fragranceXProductsList)
