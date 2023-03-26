@@ -114,7 +114,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             Option GenderOption = new();
             List<string> restrictedSKus = new();
             ThePerfumeSpotProduct headerProduct = new();
-            ProductsRepository productsRepositoryContext = new();
             List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
             ShopifyProductModel shopifyProductModelData = new();
             ShopifyProductModel shopifyProductResponseData = new();
@@ -224,9 +223,9 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                     if (currentProduct != null)
                     {
-                        if (currentProduct.SkuPrefix?.ToUpper() == FRAGRANCEXSKUPREFIX.ToUpper())
+                        if (currentProduct.SkuPrefix?.ToUpper() != TPSSKUPREFIX.ToUpper() && currentProduct.Price > Convert.ToDecimal(productData.YourCost))
                         {
-                            ProductsRepository productsContext = new();
+                            ProductsRepository productsRepositoryContext = new();
                             OverrideVariantUpdateModel overrideVariantUpdateModel = new();
                             OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
                             NewVariantImageResponseModel newImage = new();
@@ -252,12 +251,13 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                                 currentProduct.SkuPrefix = TPSSKUPREFIX;
                                 currentProduct.ImageId = newImage.image.id.ToString();
+                                currentProduct.Price = Convert.ToDecimal(productData.YourCost);
 
                                 isSKUReplaced = true;
 
-                                productsContext.Update(currentProduct);
+                                productsRepositoryContext.Update(currentProduct);
 
-                                productsContext.Save();
+                                productsRepositoryContext.Save();
                             }
                             catch (Exception ex)
                             {
@@ -309,7 +309,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                 ShopifyInventoryDatum shopifyInventoryDatum = new();
                                 long[] variantIds;
                                 NewVariantRequest newVariantRequest = new();
-                                ProductsRepository productsRepositoryVariant = new();
+                                ProductsRepository productsRepositoryContext = new();
 
                                 try
                                 {
@@ -346,10 +346,11 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                     shopifyInventoryDatum.VariantId = newVariantRootModel.variant.id.ToString();
                                     shopifyInventoryDatum.InventoryItemId = newVariantRootModel.variant.inventory_item_id.ToString();
                                     shopifyInventoryDatum.ImageId = newImage.image.id.ToString();
+                                    shopifyInventoryDatum.Price = Convert.ToDecimal(productData.YourCost);
 
-                                    productsRepositoryVariant.Insert(shopifyInventoryDatum);
+                                    productsRepositoryContext.Insert(shopifyInventoryDatum);
 
-                                    productsRepositoryVariant.Save();
+                                    productsRepositoryContext.Save();
 
                                     UpdateProductStockQuantity(sku, Convert.ToInt32(MINIMUMQUANTITY));
                                 }
@@ -368,14 +369,19 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                             applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                         }
-                        else if (currentProduct.IsOutOfStock)
-                        {
-                            UpdateProductStockQuantity(sku, Convert.ToInt32(MINIMUMQUANTITY));
-                        }
 
                         if (currentProduct != null)
                         {
+                            ShopifyInventoryDatum shopifyInventoryDatum = new();
+                            ProductsRepository productsRepositoryContext = new();
+                            shopifyInventoryDatum = productsRepositoryContext.GetById(currentProduct.ShopifyId!);
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productData.YourCost);
+                            shopifyInventoryDatum.IsOutOfStock = false;
+                            productsRepositoryContext.Update(shopifyInventoryDatum);
+                            productsRepositoryContext.Save();
+
                             UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
+                            UpdateProductStockQuantity(sku, Convert.ToInt32(MINIMUMQUANTITY));
                         }
                     }
                 }
@@ -405,6 +411,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             shopifyInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                             shopifyInventoryDatum.VariantId = productVarient.id.ToString();
                             shopifyInventoryDatum.InventoryItemId = productVarient.inventory_item_id.ToString();
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productsToProcessData.products.Where(m => m.UPC == shopifyInventoryDatum.Sku).First().YourCost);
 
                             try
                             {
@@ -420,6 +427,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         if (shopifyInventoryDataList.Count > 0)
                         {
+                            ProductsRepository productsRepositoryContext = new();
+
                             productsRepositoryContext.InsertMultiple(shopifyInventoryDataList);
 
                             productsRepositoryContext.Save();

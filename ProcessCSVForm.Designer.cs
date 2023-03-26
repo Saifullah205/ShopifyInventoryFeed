@@ -247,7 +247,6 @@
             this.fetchFragranceNetProductsToolStripMenuItem.Name = "fetchFragranceNetProductsToolStripMenuItem";
             this.fetchFragranceNetProductsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
             this.fetchFragranceNetProductsToolStripMenuItem.Text = "Fetch FragranceNet Products";
-            this.fetchFragranceNetProductsToolStripMenuItem.Visible = false;
             this.fetchFragranceNetProductsToolStripMenuItem.Click += new System.EventHandler(this.fetchFragranceNetProductsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1

@@ -108,7 +108,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             Option GenderOption = new();
             List<string> restrictedSKus = new();
             FragranceNetProduct headerProduct = new();
-            ProductsRepository productsRepositoryContext = new();
             List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
             ShopifyProductModel shopifyProductModelData = new();
             ShopifyProductModel shopifyProductResponseData = new();
@@ -181,7 +180,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                     if (currentProduct != null)
                     {
-                        if (currentProduct.SkuPrefix?.ToUpper() == TPSSKUPREFIX.ToUpper() || currentProduct.SkuPrefix?.ToUpper() == FRAGRANCEXSKUPREFIX.ToUpper())
+                        if (currentProduct.SkuPrefix?.ToUpper() != FRAGRANCENETSKUPREFIX.ToUpper() && currentProduct.Price > Convert.ToDecimal(productData.fnetWholesalePrice))
                         {
                             ProductsRepository productsContext = new();
                             OverrideVariantUpdateModel overrideVariantUpdateModel = new();
@@ -209,6 +208,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                                 currentProduct.SkuPrefix = FRAGRANCENETSKUPREFIX;
                                 currentProduct.ImageId = newImage.image.id.ToString();
+                                currentProduct.Price = Convert.ToDecimal(productData.fnetWholesalePrice);
 
                                 isSKUReplaced = true;
 
@@ -303,6 +303,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                                     shopifyInventoryDatum.VariantId = newVariantRootModel.variant.id.ToString();
                                     shopifyInventoryDatum.InventoryItemId = newVariantRootModel.variant.inventory_item_id.ToString();
                                     shopifyInventoryDatum.ImageId = newImage.image.id.ToString();
+                                    shopifyInventoryDatum.Price = Convert.ToDecimal(productData.fnetWholesalePrice);
 
                                     productsRepositoryVariant.Insert(shopifyInventoryDatum);
 
@@ -325,14 +326,19 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                             applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                         }
-                        else if (currentProduct.IsOutOfStock)
-                        {
-                            UpdateProductStockQuantity(sku, Convert.ToInt32(minimumQty));
-                        }
 
                         if (currentProduct != null)
                         {
+                            ShopifyInventoryDatum shopifyInventoryDatum = new();
+                            ProductsRepository productsRepositoryContext = new();
+                            shopifyInventoryDatum = productsRepositoryContext.GetById(currentProduct.ShopifyId!);
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productData.fnetWholesalePrice);
+                            shopifyInventoryDatum.IsOutOfStock = false;
+                            productsRepositoryContext.Update(shopifyInventoryDatum);
+                            productsRepositoryContext.Save();
+
                             UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
+                            UpdateProductStockQuantity(sku, Convert.ToInt32(minimumQty));
                         }
                     }
                 }
@@ -362,6 +368,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             shopifyInventoryDatum.SkuPrefix = FRAGRANCENETSKUPREFIX;
                             shopifyInventoryDatum.VariantId = productVarient.id.ToString();
                             shopifyInventoryDatum.InventoryItemId = productVarient.inventory_item_id.ToString();
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productsToProcessData.products.Where(m => m.upc == shopifyInventoryDatum.Sku).First().fnetWholesalePrice);
 
                             try
                             {
@@ -378,8 +385,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         if (shopifyInventoryDataList.Count > 0)
                         {
+                            ProductsRepository productsRepositoryContext = new();
                             productsRepositoryContext.InsertMultiple(shopifyInventoryDataList);
-
                             productsRepositoryContext.Save();
 
                             applicationState.AddMessageToLogs(Convert.ToString("--------New product created successfully--------"));

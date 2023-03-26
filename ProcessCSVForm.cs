@@ -99,6 +99,83 @@ namespace ShopifyInventorySync
 
         #region MenuItems
 
+        private void getFeedStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                WalmartFeedStatus walmartFeedStatus = new();
+
+                walmartFeedStatus.ShowDialog();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        private void fetchFragranceXProductsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SetSelectedStore(STORENAME.WALMART);
+
+                FetchFragranceXProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void resetShippingMapsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            WalmartInventoryDataRepository walmartInventoryRepository = new();
+            List<WalmartInventoryDatum> walmartInventoryDatumList = new();
+
+            try
+            {
+                DialogResult dialogResult = MessageBox.Show("Are you sure to reset shipment mappings?", "Reset shipment mappings", MessageBoxButtons.YesNo);
+
+                if (dialogResult == DialogResult.Yes)
+                {
+                    walmartInventoryDatumList = (from s in walmartInventoryRepository.GetAll()
+                                                 select s).ToList<WalmartInventoryDatum>();
+
+                    walmartInventoryDatumList.ForEach(c => c.IsShippingMapped = false);
+
+                    walmartInventoryRepository.UpdateMultiple(walmartInventoryDatumList);
+
+                    walmartInventoryRepository.Save();
+
+                    MessageBox.Show("Shipment mappings reset successfully.");
+                }
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void fetchFragranceNetProductsToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SetSelectedStore(STORENAME.WALMART);
+
+                FetchTheFragranceNetProducts();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
         private void markupSettingsToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             OpenMarkupSettingsWindow(STORENAME.WALMART);
@@ -1081,82 +1158,5 @@ namespace ShopifyInventorySync
         #endregion
 
         #endregion
-
-        private void getFeedStatusToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                WalmartFeedStatus walmartFeedStatus = new();
-
-                walmartFeedStatus.ShowDialog();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-
-        private void fetchFragranceXProductsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SetSelectedStore(STORENAME.WALMART);
-
-                FetchFragranceXProducts();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void resetShippingMapsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            WalmartInventoryDataRepository walmartInventoryRepository = new();
-            List<WalmartInventoryDatum> walmartInventoryDatumList = new();
-
-            try
-            {
-                DialogResult dialogResult = MessageBox.Show("Are you sure to reset shipment mappings?", "Reset shipment mappings", MessageBoxButtons.YesNo);
-
-                if (dialogResult == DialogResult.Yes)
-                {
-                    walmartInventoryDatumList = (from s in walmartInventoryRepository.GetAll()
-                                                 select s).ToList<WalmartInventoryDatum>();
-
-                    walmartInventoryDatumList.ForEach(c => c.IsShippingMapped = false);
-
-                    walmartInventoryRepository.UpdateMultiple(walmartInventoryDatumList);
-
-                    walmartInventoryRepository.Save();
-
-                    MessageBox.Show("Shipment mappings reset successfully.");
-                }                
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
-
-        private void fetchFragranceNetProductsToolStripMenuItem1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                SetSelectedStore(STORENAME.WALMART);
-
-                FetchTheFragranceNetProducts();
-            }
-            catch (Exception ex)
-            {
-                applicationState.LogErrorToFile(ex);
-
-                MessageBox.Show(ex.Message);
-            }
-        }
     }
 }

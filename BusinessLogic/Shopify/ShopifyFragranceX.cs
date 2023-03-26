@@ -64,7 +64,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     FragranceXProductsList csvProductsToProcessModel = new();
 
                     selectedProduct = productsListPrePrepare.First();
-
                     productName = selectedProduct.ProductName;
                     gender = selectedProduct.Gender;
 
@@ -108,7 +107,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             Option GenderOption = new();
             List<string> restrictedSKus = new();
             FragranceXProduct headerProduct = new();
-            ProductsRepository productsRepositoryContext = new();
             List<ShopifyInventoryDatum> shopifyInventoryDataList = new();
             ShopifyProductModel shopifyProductModelData = new();
             ShopifyProductModel shopifyProductResponseData = new();
@@ -149,6 +147,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     ShopifyInventoryDatum? currentProduct = new();
                     FixedPrice? shopifyFixedPrice = new();
                     Image1 image = new();
+                    bool isSKUReplaced = false;
                     string cost = string.Empty;
                     string updatedCost = string.Empty;
 
@@ -162,8 +161,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                     gender = productData.Gender.ToString()!;
                     minimumQty = productData.QuantityAvailable.ToString();
                     updatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), STORENAME.SHOPIFY).ToString();
-
-                    
 
                     if (!ValidateRestrictedSKU(sku))
                     {
@@ -193,120 +190,178 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                         variantTitle = "Gift Set - " + variantTitle;
                     }
 
-                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku).ToList<ShopifyInventoryDatum>().FirstOrDefault();
+                    currentProduct = productsRepository.GetAll().Where(m => m.Sku == sku).ToList().FirstOrDefault();
 
-                    if (currentProduct == null)
+                    if (currentProduct != null)
                     {
-                        Variant variant = new();
-                        ShopifyInventoryDatum? sameNameProduct = new();
-                        ShopifyInventoryDatum? sameSKUProduct = new();
-
-                        variant.title = variantTitle;
-                        variant.sku = fullSku;
-                        variant.barcode = sku.Trim();
-                        variant.price = updatedCost;
-                        variant.weight = Convert.ToDouble(weight);
-                        variant.inventory_management = "shopify";
-                        variant.inventory_policy = "deny";
-                        variant.fulfillment_service = "manual";
-                        variant.inventory_quantity = productData.QuantityAvailable;
-                        variant.option1 = weightDescription;
-                        variant.option2 = genderDescription;
-                        variant.requires_shipping = REQUIRESSHIPPING;
-
-                        image.src = imageURL;
-
-                        if (!WeightOption.values.Contains("weightDescription"))
+                        if (currentProduct.SkuPrefix?.ToUpper() != FRAGRANCEXSKUPREFIX.ToUpper() && currentProduct.Price > Convert.ToDecimal(productData.WholesalePriceUSD))
                         {
-                            WeightOption.values.Add(weightDescription);
-                        }
-
-                        if (!WeightOption.values.Contains("genderDescription"))
-                        {
-                            GenderOption.values.Add(genderDescription);
-                        }
-
-                        sameNameProduct = productsRepository.GetAll().Where(m => m.ProductName == variantTitle && m.ProductGender == genderDescription).FirstOrDefault();
-
-                        if (sameNameProduct != null)
-                        {
-                            sameSKUProduct = productsRepository.GetAll().Where(m => m.ShopifyId == sameNameProduct.ShopifyId && m.Sku == sku).FirstOrDefault();
-
-                            if (sameSKUProduct != null)
-                            {
-                                return;
-                            }
-
-                            NewVariantRootModel newVariantRootModel = new();
-                            NewVariantMerge newVariantMerge = new();
+                            ProductsRepository productsContext = new();
+                            OverrideVariantUpdateModel overrideVariantUpdateModel = new();
                             OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
                             NewVariantImageResponseModel newImage = new();
-                            ShopifyInventoryDatum shopifyInventoryDatum = new();
-                            long[] variantIds;
-                            NewVariantRequest newVariantRequest = new();
-                            ProductsRepository productsRepositoryVariant = new();
+                            long[] variantIds = new long[] { Convert.ToInt64(currentProduct.VariantId!) };
 
                             try
                             {
-                                newVariantRequest.title = variant.title;
-                                newVariantRequest.sku = variant.sku;
-                                newVariantRequest.barcode = variant.barcode;
-                                newVariantRequest.price = variant.price;
-                                newVariantRequest.weight = variant.weight;
-                                newVariantRequest.inventory_management = variant.inventory_management;
-                                newVariantRequest.inventory_policy = variant.inventory_policy;
-                                newVariantRequest.fulfillment_service = variant.fulfillment_service;
-                                newVariantRequest.option1 = variant.option1;
-                                newVariantRequest.option2 = variant.option2;
-                                newVariantRequest.requires_shipping = REQUIRESSHIPPING;
 
-                                newVariantMerge.variant = newVariantRequest;
+                                overrideVariantUpdateModel.variant.id = Convert.ToInt64(currentProduct.VariantId!);
+                                overrideVariantUpdateModel.variant.sku = fullSku;
+                                overrideVariantUpdateModel.variant.price = updatedCost;
+                                overrideVariantUpdateModel.variant.title = variantTitle;
+                                overrideVariantUpdateModel.variant.option1 = weightDescription;
 
-                                newVariantRootModel = shopifyAPI.CreateNewVariant(newVariantMerge, sameNameProduct.ShopifyId!.ToString());
+                                shopifyAPI.OverrideShopifyVariant(overrideVariantUpdateModel);
 
-                                variantIds = new long[] { Convert.ToInt64(newVariantRootModel.variant.id) };
-
-                                overrideVariantImageUpdateModel.image.product_id = Convert.ToInt64(sameNameProduct.ShopifyId);
-                                overrideVariantImageUpdateModel.image.src = imageURL;
+                                overrideVariantImageUpdateModel.image.product_id = Convert.ToInt64(currentProduct.ShopifyId);
+                                overrideVariantImageUpdateModel.image.src = productData.LargeImageUrl;
                                 overrideVariantImageUpdateModel.image.variant_ids = variantIds;
 
+                                shopifyAPI.DeleteProductVariantImage(Convert.ToInt64(currentProduct.ShopifyId), Convert.ToInt64(currentProduct.ImageId));
                                 newImage = shopifyAPI.CreateProductVariantImage(overrideVariantImageUpdateModel, overrideVariantImageUpdateModel.image.product_id);
 
-                                shopifyInventoryDatum.ProductName = mainTitle.Split(",")[0];
-                                shopifyInventoryDatum.ProductGender = genderDescription;
-                                shopifyInventoryDatum.ShopifyId = sameNameProduct.ShopifyId.ToString();
-                                shopifyInventoryDatum.BrandName = sameNameProduct.BrandName;
-                                shopifyInventoryDatum.Sku = sku.Trim();
-                                shopifyInventoryDatum.SkuPrefix = skuPrefix;
-                                shopifyInventoryDatum.VariantId = newVariantRootModel.variant.id.ToString();
-                                shopifyInventoryDatum.InventoryItemId = newVariantRootModel.variant.inventory_item_id.ToString();
-                                shopifyInventoryDatum.ImageId = newImage.image.id.ToString();
+                                currentProduct.SkuPrefix = FRAGRANCEXSKUPREFIX;
+                                currentProduct.ImageId = newImage.image.id.ToString();
+                                currentProduct.Price = Convert.ToDecimal(productData.WholesalePriceUSD);
 
-                                productsRepositoryVariant.Insert(shopifyInventoryDatum);
+                                isSKUReplaced = true;
 
-                                productsRepositoryVariant.Save();
+                                productsContext.Update(currentProduct);
 
-                                UpdateProductStockQuantity(sku, productData.QuantityAvailable);
+                                productsContext.Save();
                             }
                             catch (Exception ex)
                             {
                                 applicationState.LogErrorToFile(ex);
                             }
                         }
-                        else
-                        {
-                            shopifyProductModelData.product.variants.Add(variant);
-                            shopifyProductModelData.product.images.Add(image);
+                    }
 
-                            isVariantAdded = true;
+                    if (!isSKUReplaced)
+                    {
+                        if (currentProduct == null)
+                        {
+                            Variant variant = new();
+                            ShopifyInventoryDatum? sameNameProduct = new();
+                            ShopifyInventoryDatum? sameSKUProduct = new();
+
+                            variant.title = variantTitle;
+                            variant.sku = fullSku;
+                            variant.barcode = sku.Trim();
+                            variant.price = updatedCost;
+                            variant.weight = Convert.ToDouble(weight);
+                            variant.inventory_management = "shopify";
+                            variant.inventory_policy = "deny";
+                            variant.fulfillment_service = "manual";
+                            variant.inventory_quantity = productData.QuantityAvailable;
+                            variant.option1 = weightDescription;
+                            variant.option2 = genderDescription;
+                            variant.requires_shipping = REQUIRESSHIPPING;
+
+                            image.src = imageURL;
+
+                            if (!WeightOption.values.Contains("weightDescription"))
+                            {
+                                WeightOption.values.Add(weightDescription);
+                            }
+
+                            if (!WeightOption.values.Contains("genderDescription"))
+                            {
+                                GenderOption.values.Add(genderDescription);
+                            }
+
+                            sameNameProduct = productsRepository.GetAll().Where(m => m.ProductName == variantTitle && m.ProductGender == genderDescription).FirstOrDefault();
+
+                            if (sameNameProduct != null)
+                            {
+                                sameSKUProduct = productsRepository.GetAll().Where(m => m.ShopifyId == sameNameProduct.ShopifyId && m.Sku == sku).FirstOrDefault();
+
+                                if (sameSKUProduct != null)
+                                {
+                                    return;
+                                }
+
+                                NewVariantRootModel newVariantRootModel = new();
+                                NewVariantMerge newVariantMerge = new();
+                                OverrideVariantImageUpdateModel overrideVariantImageUpdateModel = new();
+                                NewVariantImageResponseModel newImage = new();
+                                ShopifyInventoryDatum shopifyInventoryDatum = new();
+                                long[] variantIds;
+                                NewVariantRequest newVariantRequest = new();
+                                ProductsRepository productsRepositoryVariant = new();
+
+                                try
+                                {
+                                    newVariantRequest.title = variant.title;
+                                    newVariantRequest.sku = variant.sku;
+                                    newVariantRequest.barcode = variant.barcode;
+                                    newVariantRequest.price = variant.price;
+                                    newVariantRequest.weight = variant.weight;
+                                    newVariantRequest.inventory_management = variant.inventory_management;
+                                    newVariantRequest.inventory_policy = variant.inventory_policy;
+                                    newVariantRequest.fulfillment_service = variant.fulfillment_service;
+                                    newVariantRequest.option1 = variant.option1;
+                                    newVariantRequest.option2 = variant.option2;
+                                    newVariantRequest.requires_shipping = REQUIRESSHIPPING;
+
+                                    newVariantMerge.variant = newVariantRequest;
+
+                                    newVariantRootModel = shopifyAPI.CreateNewVariant(newVariantMerge, sameNameProduct.ShopifyId!.ToString());
+
+                                    variantIds = new long[] { Convert.ToInt64(newVariantRootModel.variant.id) };
+
+                                    overrideVariantImageUpdateModel.image.product_id = Convert.ToInt64(sameNameProduct.ShopifyId);
+                                    overrideVariantImageUpdateModel.image.src = imageURL;
+                                    overrideVariantImageUpdateModel.image.variant_ids = variantIds;
+
+                                    newImage = shopifyAPI.CreateProductVariantImage(overrideVariantImageUpdateModel, overrideVariantImageUpdateModel.image.product_id);
+
+                                    shopifyInventoryDatum.ProductName = mainTitle.Split(",")[0];
+                                    shopifyInventoryDatum.ProductGender = genderDescription;
+                                    shopifyInventoryDatum.ShopifyId = sameNameProduct.ShopifyId.ToString();
+                                    shopifyInventoryDatum.BrandName = sameNameProduct.BrandName;
+                                    shopifyInventoryDatum.Sku = sku.Trim();
+                                    shopifyInventoryDatum.SkuPrefix = skuPrefix;
+                                    shopifyInventoryDatum.VariantId = newVariantRootModel.variant.id.ToString();
+                                    shopifyInventoryDatum.InventoryItemId = newVariantRootModel.variant.inventory_item_id.ToString();
+                                    shopifyInventoryDatum.ImageId = newImage.image.id.ToString();
+                                    shopifyInventoryDatum.Price = Convert.ToDecimal(productData.WholesalePriceUSD);
+
+                                    productsRepositoryVariant.Insert(shopifyInventoryDatum);
+
+                                    productsRepositoryVariant.Save();
+
+                                    UpdateProductStockQuantity(sku, productData.QuantityAvailable);
+                                }
+                                catch (Exception ex)
+                                {
+                                    applicationState.LogErrorToFile(ex);
+                                }
+                            }
+                            else
+                            {
+                                shopifyProductModelData.product.variants.Add(variant);
+                                shopifyProductModelData.product.images.Add(image);
+
+                                isVariantAdded = true;
+                            }
+
+                            applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                         }
 
-                        applicationState.AddMessageToLogs(fullSku + " : SKU merged");
-                    }
-                    else if (currentProduct.SkuPrefix == FRAGRANCEXSKUPREFIX)
-                    {
-                        UpdateProductStockQuantity(sku, productData.QuantityAvailable);
-                        UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
+                        if (currentProduct != null)
+                        {
+                            ShopifyInventoryDatum shopifyInventoryDatum = new();
+                            ProductsRepository productsRepositoryContext = new();
+                            shopifyInventoryDatum = productsRepositoryContext.GetById(currentProduct.ShopifyId!);
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productData.WholesalePriceUSD);
+                            shopifyInventoryDatum.IsOutOfStock = false;
+                            productsRepositoryContext.Update(shopifyInventoryDatum);
+                            productsRepositoryContext.Save();
+
+                            UpdateProductNewPrice(sku, currentProduct.VariantId!.ToString(), Convert.ToDecimal(updatedCost));
+                            UpdateProductStockQuantity(sku, productData.QuantityAvailable);
+                        }
                     }
                 }
 
@@ -335,6 +390,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             shopifyInventoryDatum.SkuPrefix = skuPrefix;
                             shopifyInventoryDatum.VariantId = productVarient.id.ToString();
                             shopifyInventoryDatum.InventoryItemId = productVarient.inventory_item_id.ToString();
+                            shopifyInventoryDatum.Price = Convert.ToDecimal(productsToProcessData.products.Where(m => m.Upc == shopifyInventoryDatum.Sku).First().WholesalePriceUSD);
 
                             try
                             {
@@ -351,8 +407,8 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                         if (shopifyInventoryDataList.Count > 0)
                         {
+                            ProductsRepository productsRepositoryContext = new();
                             productsRepositoryContext.InsertMultiple(shopifyInventoryDataList);
-
                             productsRepositoryContext.Save();
 
                             applicationState.AddMessageToLogs(Convert.ToString("--------New product created successfully--------"));
