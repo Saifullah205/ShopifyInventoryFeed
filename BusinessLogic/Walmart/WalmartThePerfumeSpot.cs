@@ -79,7 +79,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
-                                    where restrictedSku.Any(x => x.Sku == s.UPC) || restrictedBrands.Any(x => x.BrandName!.ToUpper() == s.Brand.ToUpper())
+                                    where restrictedSku.Any(x => x.Sku == s.UPC) || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.Brand.Trim().ToUpper())
                                     select s).ToList<ThePerfumeSpotProduct>();
 
                 productsRemoveSaveData = (from s in productsRepository.GetAll()
@@ -134,7 +134,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                     walmartInventoryDatum.SkuPrefix = TPSSKUPREFIX;
                     walmartInventoryDatum.Sku = product.UPC;
-                    walmartInventoryDatum.BrandName = product.Brand;
+                    walmartInventoryDatum.BrandName = product.Brand.Trim();
                     walmartInventoryDatum.IsShippingMapped = false;
                     walmartInventoryDatum.Price = Convert.ToDecimal(product.YourCost);
 

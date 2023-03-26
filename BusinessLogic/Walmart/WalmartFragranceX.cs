@@ -76,7 +76,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName!.ToUpper() == s.BrandName.ToUpper()))
+                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.BrandName.Trim().ToUpper()))
                                     select s).ToList<FragranceXProduct>();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)
@@ -127,13 +127,14 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                 foreach (FragranceXProduct product in productsToSave)
                 {
-                    WalmartInventoryDatum walmartInventoryDatum = new();
-
-                    walmartInventoryDatum.SkuPrefix = FRAGRANCEXSKUPREFIX;
-                    walmartInventoryDatum.Sku = product.Upc;
-                    walmartInventoryDatum.BrandName = product.BrandName;
-                    walmartInventoryDatum.IsShippingMapped = false;
-                    walmartInventoryDatum.Price = Convert.ToDecimal(product.WholesalePriceUSD);
+                    WalmartInventoryDatum walmartInventoryDatum = new()
+                    {
+                        SkuPrefix = FRAGRANCEXSKUPREFIX,
+                        Sku = product.Upc,
+                        BrandName = product.BrandName.Trim(),
+                        IsShippingMapped = false,
+                        Price = Convert.ToDecimal(product.WholesalePriceUSD)
+                    };
 
                     productsAddedSaveData.Add(walmartInventoryDatum);
                 }
@@ -214,7 +215,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         sku = productData.Upc;
                         fullSku = FRAGRANCEXSKUPREFIX + productData.Upc;
-                        vendor = productData.BrandName;
+                        vendor = productData.BrandName.Trim();
                         mainTitle = productData.ProductName + " by " + vendor;
 
                         mpitem.Orderable.sku = fullSku;
@@ -240,7 +241,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         mpitem.Visible.Office.smallPartsWarnings = new List<string> { "0 - No warning applicable" };
                         mpitem.Visible.Office.compositeWoodCertificationCode = "1 - Does not contain composite wood";
                         mpitem.Visible.Office.keyFeatures = new List<string> { mainTitle };
-                        mpitem.Visible.Office.manufacturer = productData.BrandName;
+                        mpitem.Visible.Office.manufacturer = productData.BrandName.Trim();
                         mpitem.Visible.Office.manufacturerPartNumber = productData.Upc;
 
                         walmartProductModel.MPItem.Add(mpitem);                        

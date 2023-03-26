@@ -36,47 +36,62 @@ namespace ShopifyInventorySync
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if (applicationState.selectedStore == (int)STORENAME.SHOPIFY)
+            try
             {
-                if (selectedAPI == (int)APITYPE.TPS)
-                {
-                    ProcessShopifyThePerfumeSpotProducts();
-                }
-                else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
-                {
-                    ProcessShopifyFragranceXProducts();
-                }
-                else if (selectedAPI == (int)APITYPE.FRAGRANCENET)
-                {
-                    ProcessShopifyFragranceNetProducts();
-                }
-            }
-            else if (applicationState.selectedStore == (int)STORENAME.WALMART)
-            {
-
-                WalmartFeedTypeForm walmartFeedType = new ();
-
-                walmartFeedType.ShowDialog();
-
-                if (walmartFeedType.selectionCancelled)
-                {
-                    return;
-                }
-                else
+                if (applicationState.selectedStore == (int)STORENAME.SHOPIFY)
                 {
                     if (selectedAPI == (int)APITYPE.TPS)
                     {
-                        ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
+                        ProcessShopifyThePerfumeSpotProducts();
                     }
                     else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
                     {
-                        ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
+                        ProcessShopifyFragranceXProducts();
                     }
                     else if (selectedAPI == (int)APITYPE.FRAGRANCENET)
                     {
-                        ProcessWalmartFragranceNetProducts(walmartFeedType.selectedFeedType);
+                        ProcessShopifyFragranceNetProducts();
                     }
                 }
+                else if (applicationState.selectedStore == (int)STORENAME.WALMART)
+                {
+
+                    WalmartFeedTypeForm walmartFeedType = new();
+
+                    walmartFeedType.ShowDialog();
+
+                    if (walmartFeedType.selectionCancelled)
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        EnableApplicationMainControls(false);
+
+                        if (selectedAPI == (int)APITYPE.TPS)
+                        {
+                            ProcessWalmartThePerfumeSpotProducts(walmartFeedType.selectedFeedType);
+                        }
+                        else if (selectedAPI == (int)APITYPE.FRAGRANCEX)
+                        {
+                            ProcessWalmartFragranceXProducts(walmartFeedType.selectedFeedType);
+                        }
+                        else if (selectedAPI == (int)APITYPE.FRAGRANCENET)
+                        {
+                            ProcessWalmartFragranceNetProducts(walmartFeedType.selectedFeedType);
+                        }
+
+                        EnableApplicationMainControls(true);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                EnableApplicationMainControls(true);
+
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
             }
         }
 
@@ -136,8 +151,6 @@ namespace ShopifyInventorySync
 
             try
             {
-                EnableApplicationMainControls(false,true);
-
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(thePerfumeSpotProductsList);
                 productsToDelete = clientAPI.FilterProductsToRemove(thePerfumeSpotProductsList);
                 productsToProcess = clientAPI.FilterProductsToProcess(thePerfumeSpotProductsList, productsToDelete);
@@ -228,13 +241,9 @@ namespace ShopifyInventorySync
                 MessageBox.Show("Process Completed Successfully");
 
                 ClearGridData();
-
-                EnableApplicationMainControls(true);
             }
             catch (Exception)
             {
-                EnableApplicationMainControls(true);
-
                 throw;
             }
         }
@@ -252,8 +261,6 @@ namespace ShopifyInventorySync
 
             try
             {
-                EnableApplicationMainControls(false);
-
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(fragranceXProducts);
                 productsToDelete = clientAPI.FilterProductsToRemove(fragranceXProducts);
                 productsToProcess = clientAPI.FilterProductsToProcess(fragranceXProducts, productsToDelete);
@@ -345,13 +352,9 @@ namespace ShopifyInventorySync
                 MessageBox.Show("Process Completed Successfully");
 
                 ClearGridData();
-
-                EnableApplicationMainControls(true);
             }
             catch (Exception)
             {
-                EnableApplicationMainControls(true);
-
                 throw;
             }
         }
@@ -369,8 +372,6 @@ namespace ShopifyInventorySync
 
             try
             {
-                EnableApplicationMainControls(false);
-
                 outOfStockProducts = clientAPI.FilterOutOfStockProducts(fragranceNetProducts);
                 productsToDelete = clientAPI.FilterProductsToRemove(fragranceNetProducts);
                 productsToProcess = clientAPI.FilterProductsToProcess(fragranceNetProducts, productsToDelete);
@@ -460,13 +461,9 @@ namespace ShopifyInventorySync
                 MessageBox.Show("Process Completed Successfully");
 
                 ClearGridData();
-
-                EnableApplicationMainControls(true);
             }
             catch (Exception)
             {
-                EnableApplicationMainControls(true);
-
                 throw;
             }
         }
