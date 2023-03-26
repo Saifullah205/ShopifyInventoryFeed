@@ -4,7 +4,6 @@ using ShopifyInventorySync.BusinessLogic.Vendors;
 using ShopifyInventorySync.BusinessLogic.Walmart;
 using ShopifyInventorySync.Models;
 using ShopifyInventorySync.Repositories;
-using System.CodeDom;
 using System.Data;
 using static ShopifyInventorySync.BusinessLogic.GlobalConstants;
 
@@ -14,9 +13,10 @@ namespace ShopifyInventorySync
     {
         DataTable productsDataTable = new ();
         int selectedAPI = (int)APITYPE.TPS;
-        decimal progressBarTotalValue = 0;
+        decimal totalProductsToProcessCount = 0;
         decimal progressBarIncrementValue = 0;
         decimal progressBarValue = 0;
+        decimal shopifyprogressIndex = 0;
         ThePerfumeSpotProductsList thePerfumeSpotProductsList = new ();
         FragranceNetProductsList fragranceNetProducts = new ();
         FragranceXProductsList fragranceXProducts = new();
@@ -148,9 +148,9 @@ namespace ShopifyInventorySync
 
                     if(walmartProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = walmartProductsToPostData.Count;
+                        totalProductsToProcessCount = walmartProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in walmartProductsToPostData)
                         {
@@ -167,9 +167,9 @@ namespace ShopifyInventorySync
 
                     if (shippingTemplateMappingToPostData.Count > 0)
                     {
-                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+                        totalProductsToProcessCount = shippingTemplateMappingToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in shippingTemplateMappingToPostData)
                         {
@@ -186,9 +186,9 @@ namespace ShopifyInventorySync
 
                     if(inStockProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = inStockProductsToPostData.Count;
+                        totalProductsToProcessCount = inStockProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in inStockProductsToPostData)
                         {
@@ -204,9 +204,9 @@ namespace ShopifyInventorySync
 
                     if(productsToDelete.Count > 0)
                     {
-                        progressBarTotalValue = productsToDelete.Count; 
+                        totalProductsToProcessCount = productsToDelete.Count; 
                         
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (ThePerfumeSpotProduct product in productsToDelete)
                         {
@@ -264,9 +264,9 @@ namespace ShopifyInventorySync
 
                     if (walmartProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = walmartProductsToPostData.Count;
+                        totalProductsToProcessCount = walmartProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in walmartProductsToPostData)
                         {
@@ -283,9 +283,9 @@ namespace ShopifyInventorySync
 
                     if (shippingTemplateMappingToPostData.Count > 0)
                     {
-                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+                        totalProductsToProcessCount = shippingTemplateMappingToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in shippingTemplateMappingToPostData)
                         {
@@ -302,9 +302,9 @@ namespace ShopifyInventorySync
 
                     if (inStockProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = inStockProductsToPostData.Count;
+                        totalProductsToProcessCount = inStockProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in inStockProductsToPostData)
                         {
@@ -319,9 +319,9 @@ namespace ShopifyInventorySync
                 {
                     if (productsToDelete.Count > 0)
                     {
-                        progressBarTotalValue = productsToDelete.Count;
+                        totalProductsToProcessCount = productsToDelete.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (FragranceXProduct product in productsToDelete)
                         {
@@ -381,9 +381,9 @@ namespace ShopifyInventorySync
 
                     if (walmartProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = walmartProductsToPostData.Count;
+                        totalProductsToProcessCount = walmartProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in walmartProductsToPostData)
                         {
@@ -400,9 +400,9 @@ namespace ShopifyInventorySync
 
                     if (shippingTemplateMappingToPostData.Count > 0)
                     {
-                        progressBarTotalValue = shippingTemplateMappingToPostData.Count;
+                        totalProductsToProcessCount = shippingTemplateMappingToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in shippingTemplateMappingToPostData)
                         {
@@ -419,9 +419,9 @@ namespace ShopifyInventorySync
 
                     if (inStockProductsToPostData.Count > 0)
                     {
-                        progressBarTotalValue = inStockProductsToPostData.Count;
+                        totalProductsToProcessCount = inStockProductsToPostData.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (string feedData in inStockProductsToPostData)
                         {
@@ -436,9 +436,9 @@ namespace ShopifyInventorySync
                 {
                     if (productsToDelete.Count > 0)
                     {
-                        progressBarTotalValue = productsToDelete.Count;
+                        totalProductsToProcessCount = productsToDelete.Count;
 
-                        progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                        progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                         foreach (FragranceNetProduct product in productsToDelete)
                         {
@@ -492,7 +492,7 @@ namespace ShopifyInventorySync
                     productsDataTable.Rows.Clear();
                 }
 
-                progressBarValue = 0;
+                progressBarValue = shopifyprogressIndex = 0;
 
                 ProcessProgress.Value = (int)progressBarValue;
 
@@ -653,7 +653,7 @@ namespace ShopifyInventorySync
             {
                 EnableApplicationMainControls(false,true);
 
-                UnlimitedProgressBarMessageUpdate("Please Wait, Fetching data...");
+                ProgressBarLabelUpdate("Please Wait, Fetching data...");
 
                 selectedAPI = (int)APITYPE.FRAGRANCENET;
 
@@ -671,7 +671,7 @@ namespace ShopifyInventorySync
                     return;
                 }
 
-                UnlimitedProgressBarMessageUpdate("Formatting fetched data...");
+                ProgressBarLabelUpdate("Formatting fetched data...");
 
                 productsDataTable = applicationState.LinqToDataTable<FragranceNetProduct>(fragranceNetProducts.products as IEnumerable<FragranceNetProduct>);
 
@@ -681,13 +681,13 @@ namespace ShopifyInventorySync
 
                 EnableApplicationMainControls(true);
 
-                UnlimitedProgressBarMessageUpdate("Process completed successfully.");
+                ProgressBarLabelUpdate("Process completed successfully.");
             }
             catch (Exception)
             {
                 EnableApplicationMainControls(true);
 
-                UnlimitedProgressBarMessageUpdate("Unexpected error occurred.");
+                ProgressBarLabelUpdate("Unexpected error occurred.");
 
                 throw;
             }
@@ -725,16 +725,32 @@ namespace ShopifyInventorySync
 
                 EnableApplicationMainControls(true);
 
-                UnlimitedProgressBarMessageUpdate("Process completed successfully.");
+                ProgressBarLabelUpdate("Process completed successfully.");
             }
             catch (Exception)
             {
                 EnableApplicationMainControls(true);
 
-                UnlimitedProgressBarMessageUpdate("Unexpected error occurred.");
+                ProgressBarLabelUpdate("Unexpected error occurred.");
 
                 throw;
             }
+        }
+
+        private void IncrementShopifyProgressBar()
+        {
+            if (progressBarValue < 90)
+            {
+                progressBarValue += progressBarIncrementValue;
+            }
+            else
+            {
+                progressBarValue = 100;
+            }
+
+            ProgressBarLabelUpdate(shopifyprogressIndex.ToString() + "/" + totalProductsToProcessCount.ToString() + " Processed");
+
+            ProcessProgress.Value = (int)progressBarValue;
         }
 
         private void IncrementProgressBar()
@@ -748,12 +764,12 @@ namespace ShopifyInventorySync
                 progressBarValue = 100;
             }
 
-            lblProgressCount.Text = ((int)progressBarValue).ToString() + "% Completed";
+            ProgressBarLabelUpdate(((int)progressBarValue).ToString() + "% Completed");
 
             ProcessProgress.Value = (int)progressBarValue;
         }
 
-        private void UnlimitedProgressBarMessageUpdate(string message)
+        private void ProgressBarLabelUpdate(string message)
         {
             lblProgressCount.Text = message;
         }
@@ -913,22 +929,26 @@ namespace ShopifyInventorySync
 
                 fragranceNetProductsLists = clientAPI.FormatSourceProductsData(thePerfumeSpotProductsList);
 
-                progressBarTotalValue = fragranceNetProductsLists.Count + outOfStockProducts.Count;
+                totalProductsToProcessCount = fragranceNetProductsLists.Count + outOfStockProducts.Count;
 
-                progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                 foreach (ThePerfumeSpotProductsList productsList in fragranceNetProductsLists)
                 {
                     await Task.Run(() => clientAPI.ProcessProductToShopify(productsList));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 foreach (ShopifyInventoryDatum product in outOfStockProducts)
                 {
                     await Task.Run(() => clientAPI.UpdateProductStockQuantity(product.Sku!, 0));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
@@ -965,22 +985,26 @@ namespace ShopifyInventorySync
 
                 fragranceNetProductsLists = clientAPI.FormatSourceProductsData(fragranceXProducts);
 
-                progressBarTotalValue = fragranceNetProductsLists.Count + outOfStockProducts.Count;
+                totalProductsToProcessCount = fragranceNetProductsLists.Count + outOfStockProducts.Count;
 
-                progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                 foreach (FragranceXProductsList productsList in fragranceNetProductsLists)
                 {
                     await Task.Run(() => clientAPI.ProcessProductToShopify(productsList));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 foreach (ShopifyInventoryDatum product in outOfStockProducts)
                 {
                     await Task.Run(() => clientAPI.UpdateProductStockQuantity(product.Sku!, 0));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
@@ -1017,22 +1041,26 @@ namespace ShopifyInventorySync
 
                 fragranceNetProductsLists = clientAPI.FormatSourceProductsData(fragranceNetProducts);
 
-                progressBarTotalValue = fragranceNetProductsLists.Count + outOfStockProducts.Count;
+                totalProductsToProcessCount = fragranceNetProductsLists.Count + outOfStockProducts.Count;
 
-                progressBarIncrementValue = (decimal)(100 / progressBarTotalValue);
+                progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
 
                 foreach (FragranceNetProductsList productsList in fragranceNetProductsLists)
                 {
                     await Task.Run(() => clientAPI.ProcessProductToShopify(productsList));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 foreach (ShopifyInventoryDatum product in outOfStockProducts)
                 {
                     await Task.Run(() => clientAPI.UpdateProductStockQuantity(product.Sku!, 0));
 
-                    IncrementProgressBar();
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
                 }
 
                 txtProcessedProducts.Text = applicationState.processingMessages;
