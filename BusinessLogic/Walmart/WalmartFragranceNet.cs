@@ -188,11 +188,13 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         string fullSku = string.Empty;
                         string vendor = string.Empty;
                         string mainTitle = string.Empty;
+                        decimal calculatedCost = 0;
 
                         sku = productData.upc;
                         fullSku = FRAGRANCENETSKUPREFIX + productData.upc;
                         vendor = productData.designer.Trim();
                         mainTitle = productData.name;
+                        calculatedCost = applicationState.GetMarkedUpPrice(sku, productData.fnetWholesalePrice.ToString(), STORENAME.WALMART);
 
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
@@ -200,7 +202,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
-                        mpitem.Orderable.price = applicationState.GetMarkedUpPrice(sku, productData.fnetWholesalePrice.ToString(), STORENAME.WALMART);
+                        mpitem.Orderable.price = calculatedCost < Convert.ToDecimal(WALMARTMINPRICELEVEL) ? Convert.ToDecimal(WALMARTMINPRICELEVEL) : calculatedCost;
                         mpitem.Orderable.ShippingWeight = 0;
                         mpitem.Orderable.electronicsIndicator = "No";
                         mpitem.Orderable.batteryTechnologyType = "Does Not Contain a Battery";

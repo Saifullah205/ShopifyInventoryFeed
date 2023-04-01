@@ -227,6 +227,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     case "WALMARTCHUNKSIZE":
                         WALMARTCHUNKSIZE = tagValue;
                         break;
+                    case "WALMARTMINPRICELEVEL":
+                        WALMARTMINPRICELEVEL = tagValue;
+                        break;
                     default:
                         break;
                 }

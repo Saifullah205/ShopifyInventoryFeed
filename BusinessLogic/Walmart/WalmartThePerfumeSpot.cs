@@ -191,6 +191,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         string fullSku = string.Empty;
                         string vendor = string.Empty;
                         string mainTitle = string.Empty;
+                        decimal calculatedCost = 0;
 
                         sku = productData.UPC;
                         fullSku = TPSSKUPREFIX + productData.UPC;
@@ -200,10 +201,11 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
                         mpitem.Orderable.productIdentifiers.productId = sku.PadLeft(14, '0');
+                        calculatedCost = applicationState.GetMarkedUpPrice(sku, productData.YourCost, STORENAME.WALMART);
 
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
-                        mpitem.Orderable.price = applicationState.GetMarkedUpPrice(sku, productData.YourCost, STORENAME.WALMART);
+                        mpitem.Orderable.price = calculatedCost < Convert.ToDecimal(WALMARTMINPRICELEVEL) ? Convert.ToDecimal(WALMARTMINPRICELEVEL) : calculatedCost;
                         mpitem.Orderable.ShippingWeight = (int)Convert.ToDecimal(string.IsNullOrEmpty(productData.Weight) ? "0" : productData.Weight);
                         mpitem.Orderable.electronicsIndicator = "No";
                         mpitem.Orderable.batteryTechnologyType = "Does Not Contain a Battery";
