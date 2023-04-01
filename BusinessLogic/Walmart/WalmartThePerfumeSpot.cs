@@ -202,6 +202,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
                         mpitem.Orderable.productIdentifiers.productId = sku.PadLeft(14, '0');
+                        calculatedCost = applicationState.GetMarkedUpPrice(sku, productData.YourCost, STORENAME.WALMART);
 
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
