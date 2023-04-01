@@ -583,7 +583,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedBrandsRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.BrandName == vendor && s.EcomStoreId == (int)STORENAME.SHOPIFY
+                     where (s.ApiType == "ALL" || s.ApiType == FRAGRANCENETSKUPREFIX) && s.BrandName == vendor && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedBrand>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(vendor + " : Restricted Brand Found"));
@@ -609,7 +609,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
             try
             {
                 if ((from s in restrictedSkusRepository.GetAll()
-                     where (s.ApiType == "ALL" || s.ApiType == "SBC") && s.Sku == sku && s.EcomStoreId == (int)STORENAME.SHOPIFY
+                     where (s.ApiType == "ALL" || s.ApiType == FRAGRANCENETSKUPREFIX) && s.Sku == sku && s.EcomStoreId == (int)STORENAME.SHOPIFY
                      select s).ToList<RestrictedSku>().Count > 0)
                 {
                     applicationState.AddMessageToLogs(Convert.ToString(sku + " : Restricted SKU Found"));

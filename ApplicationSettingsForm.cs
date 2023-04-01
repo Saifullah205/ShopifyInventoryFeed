@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.EntityFrameworkCore;
+using ShopifyInventorySync.BusinessLogic;
 using ShopifyInventorySync.Models;
 
 namespace ShopifyInventorySync
@@ -16,11 +17,13 @@ namespace ShopifyInventorySync
     public partial class ApplicationSettingsForm : Form
     {
         List<ApplicationSetting> applicationSettingsList = new List<ApplicationSetting>();
+        ApplicationState applicationState;
 
         public ApplicationSettingsForm()
         {
             InitializeComponent();
 
+            applicationState = ApplicationState.GetState;
             RefreshApplicationSettingsGrid();
 
             this.DGVApplicationSettings.Columns["Id"].Visible = false;
@@ -38,11 +41,11 @@ namespace ShopifyInventorySync
             {
                 applicationSettingsList = shopifyDBContext.ApplicationSettings.ToList<ApplicationSetting>();
 
-                this.DGVApplicationSettings.DataSource = this.LinqToDataTable<ApplicationSetting>(applicationSettingsList);
+                this.DGVApplicationSettings.DataSource = applicationState.LinqToDataTable<ApplicationSetting>(applicationSettingsList);
             }
             catch (Exception ex)
             {
-                logErrorToFile(ex);
+                applicationState.LogErrorToFile(ex);
 
                 MessageBox.Show(ex.Message);
             }
@@ -52,7 +55,7 @@ namespace ShopifyInventorySync
         {
             DataGridViewRow dataGridViewRow = DGVApplicationSettings.Rows[e.RowIndex];
             ApplicationSetting applicationSetting = new ();
-            EFDbContext shopifyDBContext = new ();
+            EFDbContext efDbContext = new ();
 
             try
             {
@@ -61,68 +64,14 @@ namespace ShopifyInventorySync
                 applicationSetting.TagValue = Convert.ToString(dataGridViewRow.Cells["TagValue"].Value);
                 applicationSetting.AddDate = DateTime.Now;
 
-                shopifyDBContext.ApplicationSettings.Update(applicationSetting);
+                efDbContext.ApplicationSettings.Update(applicationSetting);
 
-                shopifyDBContext.SaveChanges();
+                efDbContext.SaveChanges();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        private DataTable LinqToDataTable<T>(IEnumerable<T> items)
-        {
-            //Createa DataTable with the Name of the Class i.e. Customer class.
-            DataTable dt = new DataTable(typeof(T).Name);
-
-            //Read all the properties of the Class i.e. Customer class.
-            PropertyInfo[] propInfos = typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance);
-
-            //Loop through each property of the Class i.e. Customer class.
-            foreach (PropertyInfo propInfo in propInfos)
-            {
-                //Add Columns in DataTable based on Property Name and Type.
-                dt.Columns.Add(new DataColumn(propInfo.Name, Nullable.GetUnderlyingType(propInfo.PropertyType) ?? propInfo.PropertyType));
-            }
-
-            //Loop through the items if the Collection.
-            foreach (T item in items)
-            {
-                //Add a new Row to DataTable.
-                DataRow dr = dt.Rows.Add();
-
-                //Loop through each property of the Class i.e. Customer class.
-                foreach (PropertyInfo propInfo in propInfos)
-                {
-                    //Add value Column to the DataRow.
-                    dr[propInfo.Name] = propInfo.GetValue(item, null);
-                }
-            }
-
-            return dt;
-        }
-
-        private void logErrorToFile(Exception ex)
-        {
-            WriteToErrorLog(DateTime.Now.ToString("yyyy-MM-ddTHH:mm:ss") + " : " + ex.Message + " : " + ex.StackTrace);
-        }
-
-        private void WriteToErrorLog(String text)
-        {
-            string fileName = "ExceptionLog-" + DateTime.Now.ToString("yyyy-MM-dd") + ".txt";
-
-            if (!Directory.Exists(Path.Combine(Environment.CurrentDirectory, "ErrorLog")))
-            {
-                Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "ErrorLog"));
-
-                if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName)))
-                {
-                    File.Create(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName));
-                }
-            }
-
-            File.AppendAllText(Path.Combine(Environment.CurrentDirectory, "ErrorLog", fileName), text + Environment.NewLine);
         }
 
         private void BtnResetData_Click(object sender, EventArgs e)

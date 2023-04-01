@@ -68,11 +68,11 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             try
             {
                 restrictedBrands = (from s in restrictedBrandsRepository.GetAll()
-                                    where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBA"))
+                                    where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == FRAGRANCEXSKUPREFIX))
                                     select s).ToList<RestrictedBrand>();
 
                 restrictedSku = (from s in restrictedSkusRepository.GetAll()
-                                 where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == "SBA"))
+                                 where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == FRAGRANCEXSKUPREFIX))
                                  select s).ToList<RestrictedSku>();
 
                 productsToRemove = (from s in productsList.products
@@ -212,11 +212,13 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                         string fullSku = string.Empty;
                         string vendor = string.Empty;
                         string mainTitle = string.Empty;
+                        decimal calculatedCost = 0;
 
                         sku = productData.Upc;
                         fullSku = FRAGRANCEXSKUPREFIX + productData.Upc;
                         vendor = productData.BrandName.Trim();
                         mainTitle = productData.ProductName + " by " + vendor;
+                        calculatedCost = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), STORENAME.WALMART);
 
                         mpitem.Orderable.sku = fullSku;
                         mpitem.Orderable.productIdentifiers.productIdType = "GTIN";
@@ -224,7 +226,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                         mpitem.Orderable.productName = mainTitle;
                         mpitem.Orderable.brand = vendor;
-                        mpitem.Orderable.price = applicationState.GetMarkedUpPrice(sku, productData.WholesalePriceUSD.ToString(), STORENAME.WALMART);
+                        mpitem.Orderable.price = calculatedCost < Convert.ToDecimal(WALMARTMINPRICELEVEL) ? Convert.ToDecimal(WALMARTMINPRICELEVEL) : calculatedCost;
                         mpitem.Orderable.ShippingWeight = 0;
                         mpitem.Orderable.electronicsIndicator = "No";
                         mpitem.Orderable.batteryTechnologyType = "Does Not Contain a Battery";

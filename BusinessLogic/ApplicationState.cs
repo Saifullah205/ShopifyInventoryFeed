@@ -62,7 +62,7 @@ namespace ShopifyInventorySync.BusinessLogic
 
                 foreach (ApplicationSetting item in applicationSettings)
                 {
-                    SetGlobalConstants(item);
+                    UpdateGlobalConstants(item);
                 }
             }
             catch (Exception ex)
@@ -143,7 +143,7 @@ namespace ShopifyInventorySync.BusinessLogic
             }
         }
 
-        public void SetGlobalConstants(ApplicationSetting applicationSetting)
+        public void UpdateGlobalConstants(ApplicationSetting applicationSetting)
         {
             string tag;
             string tagValue;
@@ -226,6 +226,9 @@ namespace ShopifyInventorySync.BusinessLogic
                         break;
                     case "WALMARTCHUNKSIZE":
                         WALMARTCHUNKSIZE = tagValue;
+                        break;
+                    case "WALMARTMINPRICELEVEL":
+                        WALMARTMINPRICELEVEL = tagValue;
                         break;
                     default:
                         break;
