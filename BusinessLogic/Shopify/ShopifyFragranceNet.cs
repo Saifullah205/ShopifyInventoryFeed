@@ -327,7 +327,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                         }
 
-                        if (currentProduct != null)
+                        if (currentProduct != null && currentProduct.SkuPrefix == FRAGRANCENETSKUPREFIX)
                         {
                             ShopifyInventoryDatum shopifyInventoryDatum = new();
                             ProductsRepository productsRepositoryContext = new();

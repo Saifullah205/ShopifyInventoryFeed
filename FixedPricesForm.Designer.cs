@@ -58,7 +58,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 70F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 450);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 453);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // dgvFixedPrice
@@ -70,7 +70,7 @@
             this.dgvFixedPrice.Location = new System.Drawing.Point(3, 73);
             this.dgvFixedPrice.Name = "dgvFixedPrice";
             this.dgvFixedPrice.RowHeadersWidth = 51;
-            this.dgvFixedPrice.Size = new System.Drawing.Size(794, 374);
+            this.dgvFixedPrice.Size = new System.Drawing.Size(976, 377);
             this.dgvFixedPrice.TabIndex = 0;
             this.dgvFixedPrice.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvFixedPrice_CellEndEdit);
             this.dgvFixedPrice.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvFixedPrice_UserDeletingRow);
@@ -89,15 +89,15 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 64);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 64);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // btnAdd
             // 
             this.btnAdd.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAdd.Location = new System.Drawing.Point(613, 3);
+            this.btnAdd.Location = new System.Drawing.Point(753, 3);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(178, 58);
+            this.btnAdd.Size = new System.Drawing.Size(220, 58);
             this.btnAdd.TabIndex = 0;
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
@@ -110,12 +110,12 @@
             this.tableLayoutPanel3.Controls.Add(this.txtfixedPrice, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.label1, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(308, 3);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(378, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(299, 58);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(369, 58);
             this.tableLayoutPanel3.TabIndex = 1;
             // 
             // txtfixedPrice
@@ -123,7 +123,7 @@
             this.txtfixedPrice.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtfixedPrice.Location = new System.Drawing.Point(3, 29);
             this.txtfixedPrice.Name = "txtfixedPrice";
-            this.txtfixedPrice.Size = new System.Drawing.Size(293, 27);
+            this.txtfixedPrice.Size = new System.Drawing.Size(363, 27);
             this.txtfixedPrice.TabIndex = 0;
             // 
             // label1
@@ -132,7 +132,7 @@
             this.label1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.label1.Location = new System.Drawing.Point(3, 6);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(293, 20);
+            this.label1.Size = new System.Drawing.Size(363, 20);
             this.label1.TabIndex = 1;
             this.label1.Text = "Fixed Price";
             // 
@@ -148,7 +148,7 @@
             this.tableLayoutPanel4.RowCount = 2;
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 45F));
             this.tableLayoutPanel4.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 55F));
-            this.tableLayoutPanel4.Size = new System.Drawing.Size(299, 58);
+            this.tableLayoutPanel4.Size = new System.Drawing.Size(369, 58);
             this.tableLayoutPanel4.TabIndex = 2;
             // 
             // txtsku
@@ -156,7 +156,7 @@
             this.txtsku.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtsku.Location = new System.Drawing.Point(3, 29);
             this.txtsku.Name = "txtsku";
-            this.txtsku.Size = new System.Drawing.Size(293, 27);
+            this.txtsku.Size = new System.Drawing.Size(363, 27);
             this.txtsku.TabIndex = 0;
             // 
             // label2
@@ -165,7 +165,7 @@
             this.label2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.label2.Location = new System.Drawing.Point(3, 6);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(293, 20);
+            this.label2.Size = new System.Drawing.Size(363, 20);
             this.label2.TabIndex = 1;
             this.label2.Text = "SKU";
             // 
@@ -173,9 +173,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "FixedPricesForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Fixed Prices";

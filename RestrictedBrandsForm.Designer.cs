@@ -52,7 +52,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 450);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 453);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel2
@@ -69,7 +69,7 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 44);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 44);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // txtBrandName
@@ -77,12 +77,12 @@
             this.txtBrandName.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.txtBrandName.Location = new System.Drawing.Point(3, 14);
             this.txtBrandName.Name = "txtBrandName";
-            this.txtBrandName.Size = new System.Drawing.Size(388, 27);
+            this.txtBrandName.Size = new System.Drawing.Size(570, 27);
             this.txtBrandName.TabIndex = 1;
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(597, 3);
+            this.btnAdd.Location = new System.Drawing.Point(779, 3);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(194, 38);
             this.btnAdd.TabIndex = 0;
@@ -94,7 +94,7 @@
             // 
             this.ddlClientAPIs.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.ddlClientAPIs.FormattingEnabled = true;
-            this.ddlClientAPIs.Location = new System.Drawing.Point(397, 13);
+            this.ddlClientAPIs.Location = new System.Drawing.Point(579, 13);
             this.ddlClientAPIs.Name = "ddlClientAPIs";
             this.ddlClientAPIs.Size = new System.Drawing.Size(194, 28);
             this.ddlClientAPIs.Sorted = true;
@@ -111,7 +111,7 @@
             this.dgvRBGrid.Name = "dgvRBGrid";
             this.dgvRBGrid.RowHeadersWidth = 51;
             this.dgvRBGrid.RowTemplate.Height = 29;
-            this.dgvRBGrid.Size = new System.Drawing.Size(794, 394);
+            this.dgvRBGrid.Size = new System.Drawing.Size(976, 397);
             this.dgvRBGrid.TabIndex = 1;
             this.dgvRBGrid.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRBGrid_CellEndEdit);
             this.dgvRBGrid.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvRBGrid_UserDeletingRow);
@@ -120,9 +120,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "RestrictedBrandsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Restricted Brands";

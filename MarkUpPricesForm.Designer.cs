@@ -58,7 +58,7 @@
             this.DGVMarkUpPrices.Name = "DGVMarkUpPrices";
             this.DGVMarkUpPrices.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
             this.DGVMarkUpPrices.RowTemplate.Height = 29;
-            this.DGVMarkUpPrices.Size = new System.Drawing.Size(794, 379);
+            this.DGVMarkUpPrices.Size = new System.Drawing.Size(976, 382);
             this.DGVMarkUpPrices.TabIndex = 1;
             this.DGVMarkUpPrices.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.DGVMarkUpPrices_CellEndEdit);
             this.DGVMarkUpPrices.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.DGVMarkUpPrices_UserDeletingRow);
@@ -75,7 +75,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 65F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 450);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 453);
             this.tableLayoutPanel1.TabIndex = 2;
             // 
             // tableLayoutPanel2
@@ -99,13 +99,13 @@
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 37.93103F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 62.06897F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 59);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 59);
             this.tableLayoutPanel2.TabIndex = 2;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(399, 0);
+            this.label3.Location = new System.Drawing.Point(491, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 20);
             this.label3.TabIndex = 5;
@@ -114,7 +114,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(201, 0);
+            this.label2.Location = new System.Drawing.Point(247, 0);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(73, 20);
             this.label2.TabIndex = 4;
@@ -125,23 +125,23 @@
             this.txtMinPrice.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtMinPrice.Location = new System.Drawing.Point(3, 25);
             this.txtMinPrice.Name = "txtMinPrice";
-            this.txtMinPrice.Size = new System.Drawing.Size(192, 27);
+            this.txtMinPrice.Size = new System.Drawing.Size(238, 27);
             this.txtMinPrice.TabIndex = 0;
             // 
             // txtMaxPrice
             // 
             this.txtMaxPrice.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtMaxPrice.Location = new System.Drawing.Point(201, 25);
+            this.txtMaxPrice.Location = new System.Drawing.Point(247, 25);
             this.txtMaxPrice.Name = "txtMaxPrice";
-            this.txtMaxPrice.Size = new System.Drawing.Size(192, 27);
+            this.txtMaxPrice.Size = new System.Drawing.Size(238, 27);
             this.txtMaxPrice.TabIndex = 1;
             // 
             // txtMarkupAmount
             // 
             this.txtMarkupAmount.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtMarkupAmount.Location = new System.Drawing.Point(399, 25);
+            this.txtMarkupAmount.Location = new System.Drawing.Point(491, 25);
             this.txtMarkupAmount.Name = "txtMarkupAmount";
-            this.txtMarkupAmount.Size = new System.Drawing.Size(192, 27);
+            this.txtMarkupAmount.Size = new System.Drawing.Size(238, 27);
             this.txtMarkupAmount.TabIndex = 2;
             // 
             // label1
@@ -156,9 +156,9 @@
             // btnAdd
             // 
             this.btnAdd.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnAdd.Location = new System.Drawing.Point(597, 25);
+            this.btnAdd.Location = new System.Drawing.Point(735, 25);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(194, 31);
+            this.btnAdd.Size = new System.Drawing.Size(238, 31);
             this.btnAdd.TabIndex = 6;
             this.btnAdd.Text = "Add";
             this.btnAdd.UseVisualStyleBackColor = true;
@@ -168,9 +168,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "MarkUpPricesForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "MarkUpPricesForm";

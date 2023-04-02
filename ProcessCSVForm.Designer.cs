@@ -34,11 +34,9 @@
             this.lblProgressCount = new System.Windows.Forms.Label();
             this.btnClear = new System.Windows.Forms.Button();
             this.btnProcess = new System.Windows.Forms.Button();
-            this.lblSelectedAPI = new System.Windows.Forms.Label();
             this.ProcessProgress = new System.Windows.Forms.ProgressBar();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.loadedDataGridView = new System.Windows.Forms.DataGridView();
-            this.txtProcessedProducts = new System.Windows.Forms.TextBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -86,26 +84,24 @@
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 422);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 425);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // tableLayoutPanel2
             // 
-            this.tableLayoutPanel2.ColumnCount = 4;
+            this.tableLayoutPanel2.ColumnCount = 3;
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 200F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 450F));
             this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 150F));
             this.tableLayoutPanel2.Controls.Add(this.lblProgressCount, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnClear, 3, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnProcess, 2, 0);
-            this.tableLayoutPanel2.Controls.Add(this.lblSelectedAPI, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnClear, 2, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnProcess, 1, 0);
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 39F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 44);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 44);
             this.tableLayoutPanel2.TabIndex = 0;
             // 
             // lblProgressCount
@@ -120,7 +116,8 @@
             // 
             // btnClear
             // 
-            this.btnClear.Location = new System.Drawing.Point(647, 3);
+            this.btnClear.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnClear.Location = new System.Drawing.Point(829, 3);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(144, 38);
             this.btnClear.TabIndex = 2;
@@ -130,24 +127,17 @@
             // 
             // btnProcess
             // 
+            this.btnProcess.BackColor = System.Drawing.Color.Transparent;
+            this.btnProcess.Dock = System.Windows.Forms.DockStyle.Fill;
             this.btnProcess.Enabled = false;
-            this.btnProcess.Location = new System.Drawing.Point(497, 3);
+            this.btnProcess.FlatAppearance.BorderSize = 0;
+            this.btnProcess.Location = new System.Drawing.Point(379, 3);
             this.btnProcess.Name = "btnProcess";
-            this.btnProcess.Size = new System.Drawing.Size(144, 38);
+            this.btnProcess.Size = new System.Drawing.Size(444, 38);
             this.btnProcess.TabIndex = 1;
             this.btnProcess.Text = "Process";
-            this.btnProcess.UseVisualStyleBackColor = true;
+            this.btnProcess.UseVisualStyleBackColor = false;
             this.btnProcess.Click += new System.EventHandler(this.button2_Click);
-            // 
-            // lblSelectedAPI
-            // 
-            this.lblSelectedAPI.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblSelectedAPI.AutoSize = true;
-            this.lblSelectedAPI.Location = new System.Drawing.Point(297, 12);
-            this.lblSelectedAPI.Name = "lblSelectedAPI";
-            this.lblSelectedAPI.Size = new System.Drawing.Size(92, 20);
-            this.lblSelectedAPI.TabIndex = 4;
-            this.lblSelectedAPI.Text = "Selected API";
             // 
             // ProcessProgress
             // 
@@ -155,23 +145,21 @@
             this.ProcessProgress.Location = new System.Drawing.Point(3, 53);
             this.ProcessProgress.MarqueeAnimationSpeed = 5;
             this.ProcessProgress.Name = "ProcessProgress";
-            this.ProcessProgress.Size = new System.Drawing.Size(794, 14);
+            this.ProcessProgress.Size = new System.Drawing.Size(976, 14);
             this.ProcessProgress.TabIndex = 1;
             // 
             // tableLayoutPanel3
             // 
-            this.tableLayoutPanel3.ColumnCount = 2;
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel3.ColumnCount = 1;
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel3.Controls.Add(this.loadedDataGridView, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.txtProcessedProducts, 1, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 73);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 1;
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(794, 346);
+            this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(976, 349);
             this.tableLayoutPanel3.TabIndex = 2;
             // 
             // loadedDataGridView
@@ -179,6 +167,7 @@
             this.loadedDataGridView.AllowUserToAddRows = false;
             this.loadedDataGridView.AllowUserToDeleteRows = false;
             this.loadedDataGridView.BackgroundColor = System.Drawing.SystemColors.Control;
+            this.loadedDataGridView.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
             this.loadedDataGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.loadedDataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.loadedDataGridView.Location = new System.Drawing.Point(3, 3);
@@ -186,18 +175,8 @@
             this.loadedDataGridView.ReadOnly = true;
             this.loadedDataGridView.RowHeadersWidth = 51;
             this.loadedDataGridView.RowTemplate.Height = 29;
-            this.loadedDataGridView.Size = new System.Drawing.Size(391, 340);
+            this.loadedDataGridView.Size = new System.Drawing.Size(970, 343);
             this.loadedDataGridView.TabIndex = 0;
-            // 
-            // txtProcessedProducts
-            // 
-            this.txtProcessedProducts.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtProcessedProducts.Location = new System.Drawing.Point(400, 3);
-            this.txtProcessedProducts.Multiline = true;
-            this.txtProcessedProducts.Name = "txtProcessedProducts";
-            this.txtProcessedProducts.ReadOnly = true;
-            this.txtProcessedProducts.Size = new System.Drawing.Size(391, 340);
-            this.txtProcessedProducts.TabIndex = 1;
             // 
             // menuStrip1
             // 
@@ -209,7 +188,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(800, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(982, 28);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -401,11 +380,12 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Controls.Add(this.menuStrip1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MainMenuStrip = this.menuStrip1;
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "ProcessCSVForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Shopify Inventory Feed";
@@ -413,7 +393,6 @@
             this.tableLayoutPanel2.ResumeLayout(false);
             this.tableLayoutPanel2.PerformLayout();
             this.tableLayoutPanel3.ResumeLayout(false);
-            this.tableLayoutPanel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.loadedDataGridView)).EndInit();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -430,7 +409,6 @@
         private ProgressBar ProcessProgress;
         private TableLayoutPanel tableLayoutPanel3;
         private DataGridView loadedDataGridView;
-        private TextBox txtProcessedProducts;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem openToolStripMenuItem;
@@ -442,7 +420,6 @@
         private ToolStripMenuItem restrictedSKUsToolStripMenuItem;
         private Label lblProgressCount;
         private ToolStripMenuItem fetchFragranceXProductsToolStripMenuItem;
-        private Label lblSelectedAPI;
         private ToolStripMenuItem fixedPricesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStripMenuItem fetchFragranceNetProductsToolStripMenuItem;

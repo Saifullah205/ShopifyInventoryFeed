@@ -26,10 +26,8 @@ namespace ShopifyInventorySync
         {
             InitializeComponent();
 
-            txtProcessedProducts.ScrollBars = ScrollBars.Vertical;
-
-            lblSelectedAPI.Text = "The Perfume Spot API";
-            lblProgressCount.Text = "0% Completed";
+            btnProcess.Text = "PROCESS The Perfume Spot API";
+            lblProgressCount.Text = string.Empty;
 
             applicationState = ApplicationState.GetState;
         }
@@ -311,8 +309,6 @@ namespace ShopifyInventorySync
                     }
                 }
 
-                txtProcessedProducts.Text = applicationState.processingMessages;
-
                 applicationState.ClearLogMessages();
 
                 MessageBox.Show("Process Completed Successfully");
@@ -419,10 +415,6 @@ namespace ShopifyInventorySync
                         MessageBox.Show("No product found to delete.");
                     }
                 }
-
-                await Task.Delay(100);
-
-                txtProcessedProducts.Text = applicationState.processingMessages;
 
                 applicationState.ClearLogMessages();
 
@@ -531,8 +523,6 @@ namespace ShopifyInventorySync
                     }
                 }
 
-                txtProcessedProducts.Text = applicationState.processingMessages;
-
                 applicationState.ClearLogMessages();
 
                 MessageBox.Show("Process Completed Successfully");
@@ -570,7 +560,9 @@ namespace ShopifyInventorySync
 
                 ProcessProgress.Value = (int)progressBarValue;
 
-                lblProgressCount.Text = "0% Completed";
+                lblProgressCount.Text = string.Empty;
+
+                btnProcess.Enabled = false;
             }
             catch (Exception ex)
             {
@@ -691,7 +683,7 @@ namespace ShopifyInventorySync
             {
                 selectedAPI = (int)APITYPE.TPS;
 
-                lblSelectedAPI.Text = "The Perfume Spot API";
+                btnProcess.Text = "PROCESS The Perfume Spot (" + (GlobalConstants.STORENAME)applicationState.selectedStore + ")";
 
                 loadedDataGridView.DataSource = null;
                 loadedDataGridView.Rows.Clear();
@@ -701,6 +693,8 @@ namespace ShopifyInventorySync
 
                 if (thePerfumeSpotProductsList.products.Count <= 0)
                 {
+                    ClearGridData();
+
                     MessageBox.Show("No data found");
 
                     return;
@@ -731,7 +725,7 @@ namespace ShopifyInventorySync
 
                 selectedAPI = (int)APITYPE.FRAGRANCENET;
 
-                lblSelectedAPI.Text = "Fragrance Net API";
+                btnProcess.Text = "PROCESS Fragrance Net (" + (GlobalConstants.STORENAME)applicationState.selectedStore + ")";
 
                 loadedDataGridView.DataSource = null;
                 loadedDataGridView.Rows.Clear();
@@ -755,7 +749,7 @@ namespace ShopifyInventorySync
 
                 EnableApplicationMainControls(true);
 
-                ProgressBarLabelUpdate("Process completed successfully.");
+                ProgressBarLabelUpdate("Data fetched successfully.");
             }
             catch (Exception)
             {
@@ -774,11 +768,13 @@ namespace ShopifyInventorySync
 
             try
             {
+                ProgressBarLabelUpdate("Please Wait, Fetching data...");
+
                 EnableApplicationMainControls(false, true);
 
                 selectedAPI = (int)APITYPE.FRAGRANCEX;
 
-                lblSelectedAPI.Text = "Fragrance X API";
+                btnProcess.Text = "PROCESS Fragrance X (" + (GlobalConstants.STORENAME)applicationState.selectedStore + ")";
 
                 fragranceXProducts.products.Clear();
 
@@ -799,7 +795,7 @@ namespace ShopifyInventorySync
 
                 EnableApplicationMainControls(true);
 
-                ProgressBarLabelUpdate("Process completed successfully.");
+                ProgressBarLabelUpdate("Data fetched successfully.");
             }
             catch (Exception)
             {
@@ -891,8 +887,6 @@ namespace ShopifyInventorySync
             try
             {
                 ClearGridData();
-
-                txtProcessedProducts.Text = String.Empty;
 
                 btnProcess.Enabled = false;
             }
@@ -1025,8 +1019,6 @@ namespace ShopifyInventorySync
                     IncrementShopifyProgressBar();
                 }
 
-                txtProcessedProducts.Text = applicationState.processingMessages;
-
                 applicationState.ClearLogMessages();
 
                 MessageBox.Show("Process Completed Successfully");
@@ -1081,8 +1073,6 @@ namespace ShopifyInventorySync
                     IncrementShopifyProgressBar();
                 }
 
-                txtProcessedProducts.Text = applicationState.processingMessages;
-
                 applicationState.ClearLogMessages();
 
                 MessageBox.Show("Process Completed Successfully");
@@ -1136,8 +1126,6 @@ namespace ShopifyInventorySync
 
                     IncrementShopifyProgressBar();
                 }
-
-                txtProcessedProducts.Text = applicationState.processingMessages;
 
                 applicationState.ClearLogMessages();
 

@@ -9,5 +9,6 @@ namespace ShopifyInventorySync.Models
         public string? Tag { get; set; }
         public string? TagValue { get; set; }
         public DateTime? AddDate { get; set; }
+        public bool? IsVisible { get; set; }
     }
 }

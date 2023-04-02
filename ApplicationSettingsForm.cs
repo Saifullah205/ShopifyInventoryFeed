@@ -28,7 +28,11 @@ namespace ShopifyInventorySync
 
             this.DGVApplicationSettings.Columns["Id"].Visible = false;
             this.DGVApplicationSettings.Columns["AddDate"].Visible = false;
+            this.DGVApplicationSettings.Columns["IsVisible"].Visible = false;
             this.DGVApplicationSettings.Columns["Tag"].ReadOnly = true;
+
+            this.DGVApplicationSettings.Columns["Tag"].HeaderText = "Setting";
+            this.DGVApplicationSettings.Columns["TagValue"].HeaderText = "Value";
 
             this.DGVApplicationSettings.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
         }
@@ -39,7 +43,7 @@ namespace ShopifyInventorySync
 
             try
             {
-                applicationSettingsList = shopifyDBContext.ApplicationSettings.ToList<ApplicationSetting>();
+                applicationSettingsList = shopifyDBContext.ApplicationSettings.Where(m => m.IsVisible == true).ToList<ApplicationSetting>();
 
                 this.DGVApplicationSettings.DataSource = applicationState.LinqToDataTable<ApplicationSetting>(applicationSettingsList);
             }
@@ -62,6 +66,7 @@ namespace ShopifyInventorySync
                 applicationSetting.Id = Convert.ToInt32(dataGridViewRow.Cells["Id"].Value);
                 applicationSetting.Tag = Convert.ToString(dataGridViewRow.Cells["Tag"].Value);
                 applicationSetting.TagValue = Convert.ToString(dataGridViewRow.Cells["TagValue"].Value);
+                applicationSetting.IsVisible = Convert.ToBoolean(dataGridViewRow.Cells["IsVisible"].Value);
                 applicationSetting.AddDate = DateTime.Now;
 
                 efDbContext.ApplicationSettings.Update(applicationSetting);

@@ -137,7 +137,7 @@
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(39, 20);
             this.label4.TabIndex = 1;
-            this.label4.Text = "2.0.1";
+            this.label4.Text = "2.1.0";
             // 
             // label3
             // 

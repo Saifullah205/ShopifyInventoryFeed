@@ -52,7 +52,7 @@
             this.DGVApplicationSettings.Name = "DGVApplicationSettings";
             this.DGVApplicationSettings.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.AutoSizeToDisplayedHeaders;
             this.DGVApplicationSettings.RowTemplate.Height = 29;
-            this.DGVApplicationSettings.Size = new System.Drawing.Size(794, 394);
+            this.DGVApplicationSettings.Size = new System.Drawing.Size(976, 397);
             this.DGVApplicationSettings.TabIndex = 0;
             this.DGVApplicationSettings.CellEndEdit += new System.Windows.Forms.DataGridViewCellEventHandler(this.DGVApplicationSettings_CellEndEdit);
             // 
@@ -68,7 +68,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 450);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 453);
             this.tableLayoutPanel1.TabIndex = 1;
             // 
             // tableLayoutPanel2
@@ -82,14 +82,14 @@
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 1;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 44);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 44);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // BtnResetData
             // 
             this.BtnResetData.BackColor = System.Drawing.Color.Red;
             this.BtnResetData.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.BtnResetData.Location = new System.Drawing.Point(747, 3);
+            this.BtnResetData.Location = new System.Drawing.Point(929, 3);
             this.BtnResetData.Name = "BtnResetData";
             this.BtnResetData.Size = new System.Drawing.Size(44, 38);
             this.BtnResetData.TabIndex = 0;
@@ -102,9 +102,10 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "ApplicationSettingsForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "ApplicationSettings";

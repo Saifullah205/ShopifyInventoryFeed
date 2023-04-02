@@ -204,7 +204,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
 
                             try
                             {
-
                                 overrideVariantUpdateModel.variant.id = Convert.ToInt64(currentProduct.VariantId!);
                                 overrideVariantUpdateModel.variant.sku = fullSku;
                                 overrideVariantUpdateModel.variant.price = updatedCost;
@@ -349,7 +348,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                             applicationState.AddMessageToLogs(fullSku + " : SKU merged");
                         }
 
-                        if (currentProduct != null)
+                        if (currentProduct != null && currentProduct.SkuPrefix == FRAGRANCEXSKUPREFIX)
                         {
                             ShopifyInventoryDatum shopifyInventoryDatum = new();
                             ProductsRepository productsRepositoryContext = new();

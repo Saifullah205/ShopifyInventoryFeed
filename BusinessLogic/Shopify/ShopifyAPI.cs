@@ -164,7 +164,6 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 var body = JsonConvert.SerializeObject(shopifyProductModelData);
                 request.AddParameter("application/json", body, ParameterType.RequestBody);
                 RestResponse response = client.Execute(request);
-                Console.WriteLine(response.Content);
 
                 shopifyProductResponseData = JsonConvert.DeserializeObject<ShopifyProductInventoryResponse>(response.Content!)!;
             }

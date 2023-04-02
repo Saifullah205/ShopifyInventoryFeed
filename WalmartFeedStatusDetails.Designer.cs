@@ -56,7 +56,7 @@
             this.tableLayoutPanel1.RowCount = 2;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 75F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(800, 451);
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(982, 453);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
             // dgvDetails
@@ -71,7 +71,7 @@
             this.dgvDetails.ReadOnly = true;
             this.dgvDetails.RowHeadersWidth = 51;
             this.dgvDetails.RowTemplate.Height = 25;
-            this.dgvDetails.Size = new System.Drawing.Size(794, 368);
+            this.dgvDetails.Size = new System.Drawing.Size(976, 370);
             this.dgvDetails.TabIndex = 0;
             this.dgvDetails.UserDeletingRow += new System.Windows.Forms.DataGridViewRowCancelEventHandler(this.dgvDetails_UserDeletingRow);
             // 
@@ -94,7 +94,7 @@
             this.tableLayoutPanel2.RowCount = 2;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(794, 69);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(976, 69);
             this.tableLayoutPanel2.TabIndex = 1;
             // 
             // lblFeedTypeValue
@@ -158,10 +158,11 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 451);
+            this.ClientSize = new System.Drawing.Size(982, 453);
             this.Controls.Add(this.tableLayoutPanel1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
+            this.MinimumSize = new System.Drawing.Size(1000, 500);
             this.Name = "WalmartFeedStatusDetails";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "WalmartFeedStatusDetails";
