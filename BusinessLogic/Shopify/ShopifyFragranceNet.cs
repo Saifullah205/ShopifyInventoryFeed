@@ -413,7 +413,7 @@ namespace ShopifyInventorySync.BusinessLogic.Shopify
                 {
                     ProductImageAttachVarient productImageAttachVarient = new();
                     Image1 image1 = new();
-                    string imageURL = csvProductsToProcessModel.products.Where(m => m.sku == productVariant.sku.Substring(FRAGRANCENETSKUPREFIX.Length, productVariant.sku.Length - FRAGRANCENETSKUPREFIX.Length)).First().imageLarge;
+                    string imageURL = csvProductsToProcessModel.products.Where(m => m.upc == productVariant.sku.Substring(FRAGRANCENETSKUPREFIX.Length, productVariant.sku.Length - FRAGRANCENETSKUPREFIX.Length)).First().imageLarge;
                     string[] imageURLParts = imageURL.Split('/');
                     string imageName = imageURLParts[imageURLParts.Length - 1];
                     long[] variantIds = new long[] { productVariant.id };

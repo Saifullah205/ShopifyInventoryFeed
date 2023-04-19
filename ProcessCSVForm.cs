@@ -209,6 +209,11 @@ namespace ShopifyInventorySync
                 MessageBox.Show(ex.Message);
             }
         }
+
+        private void restrictedTermsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenRestrictedTermsWindow(STORENAME.WALMART);
+        }
         #endregion
 
         #region ProcessProducts
@@ -645,6 +650,24 @@ namespace ShopifyInventorySync
                 restrictedSkusForm = new(sTORENAME);
 
                 restrictedSkusForm.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                applicationState.LogErrorToFile(ex);
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+
+        private void OpenRestrictedTermsWindow(STORENAME sTORENAME)
+        {
+            RestrictedTermsForm restrictedTermsForm;
+
+            try
+            {
+                restrictedTermsForm = new(sTORENAME);
+
+                restrictedTermsForm.ShowDialog();
             }
             catch (Exception ex)
             {
@@ -1126,6 +1149,51 @@ namespace ShopifyInventorySync
 
                     IncrementShopifyProgressBar();
                 }
+
+                applicationState.ClearLogMessages();
+
+                MessageBox.Show("Process Completed Successfully");
+
+                ClearGridData();
+
+                EnableApplicationMainControls(true);
+            }
+            catch (Exception)
+            {
+                EnableApplicationMainControls(true);
+
+                throw;
+            }
+        }
+
+        private async void DeleteShopifyFragranceNetProducts()
+        {
+            List<ShopifyInventoryDatum> productsToDelete = new();
+            ShopifyAPI shopifyAPI = new();
+            ProductsRepository productsRepository= new ProductsRepository();
+
+            try
+            {
+                EnableApplicationMainControls(false);
+
+                productsToDelete = productsRepository.GetAll().Where(p => p.SkuPrefix == FRAGRANCENETSKUPREFIX).ToList<ShopifyInventoryDatum>();
+
+                totalProductsToProcessCount = productsToDelete.Count;
+
+                progressBarIncrementValue = (decimal)(100 / totalProductsToProcessCount);
+
+                foreach (ShopifyInventoryDatum product in productsToDelete)
+                {
+                    await Task.Run(() => shopifyAPI.DeleteShopifyProduct(product));
+
+                    productsRepository.DeleteMultiple(productsRepository.GetAll().Where(m => m.ShopifyId == product.ShopifyId).ToList());
+
+                    shopifyprogressIndex++;
+
+                    IncrementShopifyProgressBar();
+                }
+
+                productsRepository.Save();
 
                 applicationState.ClearLogMessages();
 

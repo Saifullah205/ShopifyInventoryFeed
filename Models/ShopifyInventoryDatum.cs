@@ -13,7 +13,7 @@ namespace ShopifyInventorySync.Models
         public string? BrandName { get; set; }
         public string? SkuPrefix { get; set; }
         public bool? IsRestricted { get; set; }
-        public bool IsOutOfStock { get; set; }
+        public bool? IsOutOfStock { get; set; }
         public bool? IsDeleted { get; set; }
         public bool? IsDisabled { get; set; }
         public string? VariantId { get; set; }

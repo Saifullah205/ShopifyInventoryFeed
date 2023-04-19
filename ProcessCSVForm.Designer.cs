@@ -53,11 +53,13 @@
             this.fetchFragranceNetProductsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.markupSettingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.restrictedBrandsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.restrictedSKUsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.fixedPricesToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.getFeedStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetShippingMapsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.excludedProductsSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.restrictedSKUsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.restrictedBrandsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.restrictedTermsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -269,11 +271,10 @@
             this.fetchFragranceNetProductsToolStripMenuItem1,
             this.toolStripSeparator2,
             this.markupSettingsToolStripMenuItem1,
-            this.restrictedBrandsToolStripMenuItem1,
-            this.restrictedSKUsToolStripMenuItem1,
             this.fixedPricesToolStripMenuItem1,
             this.getFeedStatusToolStripMenuItem,
-            this.resetShippingMapsToolStripMenuItem});
+            this.resetShippingMapsToolStripMenuItem,
+            this.excludedProductsSettingsToolStripMenuItem});
             this.walmartToolStripMenuItem.Name = "walmartToolStripMenuItem";
             this.walmartToolStripMenuItem.Size = new System.Drawing.Size(79, 24);
             this.walmartToolStripMenuItem.Text = "Walmart";
@@ -311,20 +312,6 @@
             this.markupSettingsToolStripMenuItem1.Text = "Markup Settings";
             this.markupSettingsToolStripMenuItem1.Click += new System.EventHandler(this.markupSettingsToolStripMenuItem1_Click);
             // 
-            // restrictedBrandsToolStripMenuItem1
-            // 
-            this.restrictedBrandsToolStripMenuItem1.Name = "restrictedBrandsToolStripMenuItem1";
-            this.restrictedBrandsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
-            this.restrictedBrandsToolStripMenuItem1.Text = "Restricted Brands";
-            this.restrictedBrandsToolStripMenuItem1.Click += new System.EventHandler(this.restrictedBrandsToolStripMenuItem1_Click);
-            // 
-            // restrictedSKUsToolStripMenuItem1
-            // 
-            this.restrictedSKUsToolStripMenuItem1.Name = "restrictedSKUsToolStripMenuItem1";
-            this.restrictedSKUsToolStripMenuItem1.Size = new System.Drawing.Size(307, 26);
-            this.restrictedSKUsToolStripMenuItem1.Text = "Restricted SKUs";
-            this.restrictedSKUsToolStripMenuItem1.Click += new System.EventHandler(this.restrictedSKUsToolStripMenuItem1_Click);
-            // 
             // fixedPricesToolStripMenuItem1
             // 
             this.fixedPricesToolStripMenuItem1.Name = "fixedPricesToolStripMenuItem1";
@@ -345,6 +332,37 @@
             this.resetShippingMapsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
             this.resetShippingMapsToolStripMenuItem.Text = "Reset Shipping Maps";
             this.resetShippingMapsToolStripMenuItem.Click += new System.EventHandler(this.resetShippingMapsToolStripMenuItem_Click);
+            // 
+            // excludedProductsSettingsToolStripMenuItem
+            // 
+            this.excludedProductsSettingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.restrictedSKUsToolStripMenuItem1,
+            this.restrictedBrandsToolStripMenuItem1,
+            this.restrictedTermsToolStripMenuItem});
+            this.excludedProductsSettingsToolStripMenuItem.Name = "excludedProductsSettingsToolStripMenuItem";
+            this.excludedProductsSettingsToolStripMenuItem.Size = new System.Drawing.Size(307, 26);
+            this.excludedProductsSettingsToolStripMenuItem.Text = "Excluded Products Settings";
+            // 
+            // restrictedSKUsToolStripMenuItem1
+            // 
+            this.restrictedSKUsToolStripMenuItem1.Name = "restrictedSKUsToolStripMenuItem1";
+            this.restrictedSKUsToolStripMenuItem1.Size = new System.Drawing.Size(224, 26);
+            this.restrictedSKUsToolStripMenuItem1.Text = "Restricted SKUs";
+            this.restrictedSKUsToolStripMenuItem1.Click += new System.EventHandler(this.restrictedSKUsToolStripMenuItem1_Click);
+            // 
+            // restrictedBrandsToolStripMenuItem1
+            // 
+            this.restrictedBrandsToolStripMenuItem1.Name = "restrictedBrandsToolStripMenuItem1";
+            this.restrictedBrandsToolStripMenuItem1.Size = new System.Drawing.Size(224, 26);
+            this.restrictedBrandsToolStripMenuItem1.Text = "Restricted Brands";
+            this.restrictedBrandsToolStripMenuItem1.Click += new System.EventHandler(this.restrictedBrandsToolStripMenuItem1_Click);
+            // 
+            // restrictedTermsToolStripMenuItem
+            // 
+            this.restrictedTermsToolStripMenuItem.Name = "restrictedTermsToolStripMenuItem";
+            this.restrictedTermsToolStripMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.restrictedTermsToolStripMenuItem.Text = "Restricted Terms";
+            this.restrictedTermsToolStripMenuItem.Click += new System.EventHandler(this.restrictedTermsToolStripMenuItem_Click);
             // 
             // settingsToolStripMenuItem1
             // 
@@ -430,11 +448,13 @@
         private ToolStripMenuItem fetchWalmartFragranceXProductsToolStripMenuItem1;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripMenuItem markupSettingsToolStripMenuItem1;
-        private ToolStripMenuItem restrictedBrandsToolStripMenuItem1;
-        private ToolStripMenuItem restrictedSKUsToolStripMenuItem1;
         private ToolStripMenuItem fixedPricesToolStripMenuItem1;
         private ToolStripMenuItem getFeedStatusToolStripMenuItem;
         private ToolStripMenuItem resetShippingMapsToolStripMenuItem;
         private ToolStripMenuItem fetchFragranceNetProductsToolStripMenuItem1;
+        private ToolStripMenuItem excludedProductsSettingsToolStripMenuItem;
+        private ToolStripMenuItem restrictedSKUsToolStripMenuItem1;
+        private ToolStripMenuItem restrictedBrandsToolStripMenuItem1;
+        private ToolStripMenuItem restrictedTermsToolStripMenuItem;
     }
 }

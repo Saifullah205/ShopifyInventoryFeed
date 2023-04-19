@@ -23,6 +23,8 @@ namespace ShopifyInventorySync.Models
         public virtual DbSet<MarkUpPrice> MarkUpPrices { get; set; } = null!;
         public virtual DbSet<RestrictedBrand> RestrictedBrands { get; set; } = null!;
         public virtual DbSet<RestrictedSku> RestrictedSkus { get; set; } = null!;
+        public virtual DbSet<RestrictedTerm> RestrictedTerms { get; set; } = null!;
+        public virtual DbSet<ShopifyFixedPricesBkp20230312> ShopifyFixedPricesBkp20230312s { get; set; } = null!;
         public virtual DbSet<ShopifyInventoryDatum> ShopifyInventoryData { get; set; } = null!;
         public virtual DbSet<WalmartFeedResponse> WalmartFeedResponses { get; set; } = null!;
         public virtual DbSet<WalmartInventoryDatum> WalmartInventoryData { get; set; } = null!;
@@ -43,6 +45,8 @@ namespace ShopifyInventorySync.Models
                 entity.Property(e => e.AddDate)
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.IsVisible).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Tag)
                     .HasMaxLength(250)
@@ -104,7 +108,7 @@ namespace ShopifyInventorySync.Models
                 entity.HasOne(d => d.EcomStore)
                     .WithMany(p => p.FixedPrices)
                     .HasForeignKey(d => d.EcomStoreId)
-                    .HasConstraintName("FK__FixedPric__EComS__5E8A0973");
+                    .HasConstraintName("FK__FixedPric__EComS__57DD0BE4");
             });
 
             modelBuilder.Entity<MarkUpPrice>(entity =>
@@ -128,7 +132,7 @@ namespace ShopifyInventorySync.Models
                 entity.HasOne(d => d.EcomStore)
                     .WithMany(p => p.MarkUpPrices)
                     .HasForeignKey(d => d.EcomStoreId)
-                    .HasConstraintName("FK__MarkUpPri__EComS__5224328E");
+                    .HasConstraintName("FK__MarkUpPri__EComS__531856C7");
             });
 
             modelBuilder.Entity<RestrictedBrand>(entity =>
@@ -150,7 +154,7 @@ namespace ShopifyInventorySync.Models
                 entity.HasOne(d => d.EcomStore)
                     .WithMany(p => p.RestrictedBrands)
                     .HasForeignKey(d => d.EcomStoreId)
-                    .HasConstraintName("FK__Restricte__EComS__503BEA1C");
+                    .HasConstraintName("FK__Restricte__EComS__51300E55");
             });
 
             modelBuilder.Entity<RestrictedSku>(entity =>
@@ -172,7 +176,52 @@ namespace ShopifyInventorySync.Models
                 entity.HasOne(d => d.EcomStore)
                     .WithMany(p => p.RestrictedSkus)
                     .HasForeignKey(d => d.EcomStoreId)
-                    .HasConstraintName("FK__Restricte__EComS__51300E55");
+                    .HasConstraintName("FK__Restricte__EComS__5224328E");
+            });
+
+            modelBuilder.Entity<RestrictedTerm>(entity =>
+            {
+                entity.Property(e => e.AddDate)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.ApiType)
+                    .HasMaxLength(3)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.EcomStoreId).HasColumnName("EComStoreId");
+
+                entity.Property(e => e.Term)
+                    .HasMaxLength(500)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.EcomStore)
+                    .WithMany(p => p.RestrictedTerms)
+                    .HasForeignKey(d => d.EcomStoreId)
+                    .HasConstraintName("FK__Restricte__EComS__09746778");
+            });
+
+            modelBuilder.Entity<ShopifyFixedPricesBkp20230312>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToTable("ShopifyFixedPrices_bkp_20230312");
+
+                entity.Property(e => e.AddDate).HasColumnType("datetime");
+
+                entity.Property(e => e.ApiType)
+                    .HasMaxLength(3)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.FixedPrice)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Id).ValueGeneratedOnAdd();
+
+                entity.Property(e => e.Sku)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<ShopifyInventoryDatum>(entity =>
@@ -202,6 +251,8 @@ namespace ShopifyInventorySync.Models
                 entity.Property(e => e.IsOutOfStock).HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.IsRestricted).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.ProductGender)
                     .HasMaxLength(50)
@@ -243,10 +294,14 @@ namespace ShopifyInventorySync.Models
                     .IsUnicode(false)
                     .HasColumnName("FeedID");
 
+                entity.Property(e => e.FeedType)
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
+
                 entity.HasOne(d => d.EcomStore)
                     .WithMany(p => p.WalmartFeedResponses)
                     .HasForeignKey(d => d.EcomStoreId)
-                    .HasConstraintName("FK__WalmartFe__EComS__7A3223E8");
+                    .HasConstraintName("FK__WalmartFe__EComS__671F4F74");
             });
 
             modelBuilder.Entity<WalmartInventoryDatum>(entity =>
@@ -258,6 +313,10 @@ namespace ShopifyInventorySync.Models
                 entity.Property(e => e.BrandName)
                     .HasMaxLength(250)
                     .IsUnicode(false);
+
+                entity.Property(e => e.IsShippingMapped).HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Price).HasColumnType("decimal(10, 2)");
 
                 entity.Property(e => e.Sku)
                     .HasMaxLength(500)
