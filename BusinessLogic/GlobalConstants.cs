@@ -28,6 +28,7 @@
         public static string WALMARTCHUNKSIZE { get; set; }
         public static string WALMRTTOKEN { get; set; }
         public static string WALMARTMINPRICELEVEL { get; set; }
+        public static string WALMARTMINORDERQTY { get; set; }
 
         public enum STORENAME
         {

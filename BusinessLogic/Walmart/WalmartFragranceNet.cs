@@ -13,6 +13,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
         private readonly IWalmartInventoryDataRepository productsRepository;
         private readonly IRestrictedBrandsRepository restrictedBrandsRepository;
         private readonly IRestrictedSkusRepository restrictedSkusRepository;
+        private readonly IRestrictedTermsRepository restrictedTermsRepository;
         private readonly WalmartAPI walmartAPI;
 
         public WalmartFragranceNet()
@@ -23,6 +24,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             restrictedBrandsRepository = new RestrictedBrandsRepository();
             restrictedSkusRepository = new RestrictedSkusRepository();
             walmartFeedResponseRepository = new WalmartFeedResponseRepository();
+            restrictedTermsRepository = new RestrictedTermsRepository();
         }
 
         public List<FragranceNetProduct> FilterOutOfStockProducts(FragranceNetProductsList productsList)
@@ -62,6 +64,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
             List<FragranceNetProduct> productsToRemove = new();
             List<RestrictedBrand> restrictedBrands = new List<RestrictedBrand>();
             List<RestrictedSku> restrictedSku = new List<RestrictedSku>();
+            List<RestrictedTerm> restrictedTerms = new();
             List<WalmartInventoryDatum> productsRemoveSaveData = new();
 
             try
@@ -74,8 +77,15 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                  where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == FRAGRANCENETSKUPREFIX))
                                  select s).ToList();
 
+                restrictedTerms = (from s in restrictedTermsRepository.GetAll()
+                                   where (s.EcomStoreId == (int)STORENAME.WALMART && (s.ApiType == "ALL" || s.ApiType == FRAGRANCENETSKUPREFIX))
+                                   select s).ToList();
+
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.upc) || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.designer.Trim().ToUpper()))
+                                    where (restrictedSku.Any(x => x.Sku == s.upc) 
+                                        || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.designer.Trim().ToUpper()) 
+                                        || restrictedTerms.Any(x => s.name.Trim().ToUpper().Contains(x.Term!.Trim().ToUpper()))
+                                        && Convert.ToInt32(s.quantity) < Convert.ToInt32(WALMARTMINORDERQTY))
                                     select s).ToList();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCENETSKUPREFIX)
@@ -106,14 +116,15 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
             try
             {
-                allWalmartProducts = productsRepository.GetAll().ToList<WalmartInventoryDatum>();
+                allWalmartProducts = productsRepository.GetAll().ToList();
 
                 productsToIgnore = (from s in productsList.products
                                     where allWalmartProducts.Any(m => m.Sku == s.upc && m.SkuPrefix != FRAGRANCENETSKUPREFIX && m.Price < Convert.ToDecimal(s.fnetWholesalePrice))
                                     select s).ToList();
 
                 productsToProcess = (from s in productsList.products
-                                    where !(removedProducts.Any(x => x.upc == s.upc) || productsToIgnore.Any(x => x.upc == s.upc))
+                                    where !(removedProducts.Any(x => x.upc == s.upc) 
+                                        || productsToIgnore.Any(x => x.upc == s.upc))
                                      select s).ToList();
 
                 productsToSave = (from s in productsToProcess
@@ -122,7 +133,7 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
 
                 productsToUpdate = (from s in walmartInventoryRepository.GetAll()
                                     where productsToProcess.Any(x => x.upc == s.Sku)
-                                    select s).ToList<WalmartInventoryDatum>();
+                                    select s).ToList();
 
                 foreach (FragranceNetProduct product in productsToSave)
                 {
