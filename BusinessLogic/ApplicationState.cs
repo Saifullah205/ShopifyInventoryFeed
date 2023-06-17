@@ -230,6 +230,9 @@ namespace ShopifyInventorySync.BusinessLogic
                     case "WALMARTMINPRICELEVEL":
                         WALMARTMINPRICELEVEL = tagValue;
                         break;
+                    case "WALMARTMINORDERQTY":
+                        WALMARTMINORDERQTY = tagValue;
+                        break;
                     default:
                         break;
                 }

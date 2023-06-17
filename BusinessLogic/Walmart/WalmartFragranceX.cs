@@ -83,7 +83,10 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                    select s).ToList();
 
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.Upc) || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.BrandName.Trim().ToUpper()) || restrictedTerms.Any(x => s.ProductName.Trim().ToUpper().Contains(x.Term!.Trim().ToUpper())))
+                                    where (restrictedSku.Any(x => x.Sku == s.Upc) 
+                                        || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.BrandName.Trim().ToUpper()) 
+                                        || restrictedTerms.Any(x => s.ProductName.Trim().ToUpper().Contains(x.Term!.Trim().ToUpper())))
+                                        && s.QuantityAvailable < Convert.ToInt32(WALMARTMINORDERQTY)
                                     select s).ToList();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCEXSKUPREFIX)

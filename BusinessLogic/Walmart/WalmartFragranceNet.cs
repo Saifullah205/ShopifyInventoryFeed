@@ -82,7 +82,10 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                    select s).ToList();
 
                 productsToRemove = (from s in productsList.products
-                                    where (restrictedSku.Any(x => x.Sku == s.upc) || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.designer.Trim().ToUpper()) || restrictedTerms.Any(x => s.name.Trim().ToUpper().Contains(x.Term!.Trim().ToUpper())))
+                                    where (restrictedSku.Any(x => x.Sku == s.upc) 
+                                        || restrictedBrands.Any(x => x.BrandName!.Trim().ToUpper() == s.designer.Trim().ToUpper()) 
+                                        || restrictedTerms.Any(x => s.name.Trim().ToUpper().Contains(x.Term!.Trim().ToUpper()))
+                                        && Convert.ToInt32(s.quantity) < Convert.ToInt32(WALMARTMINORDERQTY))
                                     select s).ToList();
 
                 productsRemoveSaveData = (from s in productsRepository.GetBySkuPrefix(FRAGRANCENETSKUPREFIX)
@@ -120,7 +123,8 @@ namespace ShopifyInventorySync.BusinessLogic.Walmart
                                     select s).ToList();
 
                 productsToProcess = (from s in productsList.products
-                                    where !(removedProducts.Any(x => x.upc == s.upc) || productsToIgnore.Any(x => x.upc == s.upc))
+                                    where !(removedProducts.Any(x => x.upc == s.upc) 
+                                        || productsToIgnore.Any(x => x.upc == s.upc))
                                      select s).ToList();
 
                 productsToSave = (from s in productsToProcess
